@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "ko-KR"
+early_access: false
+
+reviews:
+  profile: "chill"  # 'chill'은 부드러운 피드백, 'assertive'는 엄격한 피드백
+  request_changes_workflow: true  # 코멘트 해결 시 자동 승인
+  high_level_summary: true        # PR 설명에 요약 추가
+  high_level_summary_placeholder: "@coderabbitai summary"
+  high_level_summary_in_walkthrough: true  # Walkthrough에도 요약 포함
+  auto_title_placeholder: "@coderabbitai"
+  auto_title_instructions: ""
+  review_status: true             # 리뷰 상태 표시
+  commit_status: true            # 리뷰 중이면 'pending', 완료 시 'success'
+  fail_commit_status: true       # 리뷰 불가 시 'failure'
+  collapse_walkthrough: true     # Walkthrough 접어서 표시 (PR 코멘트 깔끔하게)
+  changed_files_summary: true    # (기본 true) 변경 파일 요약 포함
+  poem: true                    # 농담/시 제거 (불필요하면 false)
+
+chat:
+  auto_reply: true               # PR 코멘트에 자동 응답

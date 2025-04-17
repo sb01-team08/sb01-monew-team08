@@ -1,0 +1,10 @@
+/build
+/.gradle
+/out
+*.log
+*.tmp
+.idea
+*.iml
+.env
+.env-dev
+.env-prod
