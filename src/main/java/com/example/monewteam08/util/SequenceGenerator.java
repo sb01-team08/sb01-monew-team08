@@ -16,6 +16,12 @@ public class SequenceGenerator {
   @Autowired
   private MongoTemplate mongoTemplate;
 
+  /**
+   * Atomically increments and retrieves the next sequence number for a given MongoDB collection.
+   *
+   * @param collectionName the name of the collection for which to generate the next sequence value
+   * @return the incremented sequence number associated with the specified collection
+   */
   public long getNextSequence(String collectionName) {
     Query query = Query.query(Criteria.where("_id").is(collectionName));
     Update update = new Update().inc("seq", 1);
