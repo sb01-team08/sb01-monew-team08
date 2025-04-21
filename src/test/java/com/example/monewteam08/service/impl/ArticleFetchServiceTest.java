@@ -1,9 +1,8 @@
-package com.example.monewteam08.article;
+package com.example.monewteam08.service.impl;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.example.monewteam08.entity.Article;
-import com.example.monewteam08.service.impl.ArticleFetchServiceImpl;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 
 @SpringBootTest
-public class ArticleFetchServiceTest {
+class ArticleFetchServiceTest {
 
   @Value("${naver.api.client-id}")
   private String clientId;
@@ -64,5 +63,17 @@ public class ArticleFetchServiceTest {
     assertThat(yonhapArticles).isNotNull();
     assertThat(chosunArticles).isNotNull();
     assertThat(hankyungArticles).isNotNull();
+  }
+
+  @Test
+  void 모든_기사_가져오기() {
+    // given
+
+    // when
+    List<Article> articles = articleFetchService.fetchAllArticles();
+    articles.forEach(
+        article -> System.out.println(article.getSource() + " : " + article.getTitle()));
+    // then
+    assertThat(articles).isNotNull();
   }
 }

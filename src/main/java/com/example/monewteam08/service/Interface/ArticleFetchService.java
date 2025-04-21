@@ -6,7 +6,5 @@ import java.util.List;
 
 public interface ArticleFetchService {
 
-  List<Article> fetchNaverArticles();
-
-  List<Article> fetchRssArticles(String source, String url);
+  List<Article> fetchAllArticles();
 }

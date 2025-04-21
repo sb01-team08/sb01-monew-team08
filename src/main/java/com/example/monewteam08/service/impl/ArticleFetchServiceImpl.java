@@ -42,8 +42,17 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
     this.naverClientSecret = naverClientSecret;
   }
 
-  @Override
-  public List<Article> fetchNaverArticles() {
+  public List<Article> fetchAllArticles() {
+    List<Article> articles = new ArrayList<>();
+    articles.addAll(fetchNaverArticles());
+    articles.addAll(fetchRssArticles("YONHAP", "https://www.yonhapnewstv.co.kr/browse/feed/"));
+    articles.addAll(
+        fetchRssArticles("CHOSUN", "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml"));
+    articles.addAll(fetchRssArticles("HANKYUNG", "https://www.hankyung.com/feed/all-news"));
+    return articles;
+  }
+
+  protected List<Article> fetchNaverArticles() {
 
     String uri = UriComponentsBuilder
         .fromHttpUrl("https://openapi.naver.com/v1/search/news.json")
@@ -76,8 +85,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
         )).toList();
   }
 
-  @Override
-  public List<Article> fetchRssArticles(String source, String url) {
+  protected List<Article> fetchRssArticles(String source, String url) {
     List<Article> articles = new ArrayList<>();
 
     try (XmlReader reader = new XmlReader(new URL(url))) {
@@ -101,11 +109,12 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
   }
 
   private static LocalDateTime parsePubDate(String pubDate) {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z",
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z",
         Locale.ENGLISH);
     ZonedDateTime zonedDateTime = ZonedDateTime.parse(pubDate, formatter);
-    return zonedDateTime.toLocalDateTime();
+    return zonedDateTime.withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalDateTime();
   }
+  
 }
 
 
