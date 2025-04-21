@@ -1,8 +1,8 @@
 package com.example.monewteam08.service.Interface;
 
-import dto.request.comment.CommentRegisterRequest;
-import dto.request.comment.CommentUpdateRequest;
-import dto.response.comment.CommentDto;
+import com.example.monewteam08.dto.request.comment.CommentRegisterRequest;
+import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
+import com.example.monewteam08.dto.response.comment.CommentDto;
 import java.util.UUID;
 
 public interface CommentService {

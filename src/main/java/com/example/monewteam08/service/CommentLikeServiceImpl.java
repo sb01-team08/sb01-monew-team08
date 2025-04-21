@@ -1,5 +1,6 @@
 package com.example.monewteam08.service;
 
+import com.example.monewteam08.dto.response.comment.CommentLikeDto;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentLike;
 import com.example.monewteam08.exception.comment.CommentNotFoundException;
@@ -7,7 +8,6 @@ import com.example.monewteam08.mapper.CommentLikeMapper;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.service.Interface.CommentLikeService;
-import dto.response.comment.CommentLikeDto;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

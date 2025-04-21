@@ -5,12 +5,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.monewteam08.dto.response.comment.CommentLikeDto;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentLike;
 import com.example.monewteam08.mapper.CommentLikeMapper;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
-import dto.response.comment.CommentLikeDto;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,7 +73,7 @@ class CommentLikeServiceImplTest {
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
 
         commentLikeService.unlike(userId, commentId);
-        
+
         verify(commentLikeRepository).deleteByUserIdAndCommentId(userId, commentId);
         assertEquals(0, mockComment.getLikeCount());
     }

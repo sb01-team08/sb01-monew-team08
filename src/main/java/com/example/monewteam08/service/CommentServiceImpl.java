@@ -1,14 +1,14 @@
 package com.example.monewteam08.service;
 
+import com.example.monewteam08.dto.request.comment.CommentRegisterRequest;
+import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
+import com.example.monewteam08.dto.response.comment.CommentDto;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.exception.comment.UnauthorizedCommentAccessException;
 import com.example.monewteam08.mapper.CommentMapper;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.service.Interface.CommentService;
-import dto.request.comment.CommentRegisterRequest;
-import dto.request.comment.CommentUpdateRequest;
-import dto.response.comment.CommentDto;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

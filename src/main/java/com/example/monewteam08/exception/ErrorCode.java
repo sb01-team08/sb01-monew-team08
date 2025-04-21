@@ -22,6 +22,10 @@ public enum ErrorCode {
     // Auth
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH001", "로그인에 실패했습니다."),
 
+    //댓글
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT001", "댓글을 찾을 수 없습니다."),
+    UNAUTHORIZED_COMMENT_ACCESS(HttpStatus.FORBIDDEN, "COMMENT002", "댓글을 수정/삭제 할 권한이 없습니다."),
+
     // User
     EMAIL_IS_ALREADY_EXIST(HttpStatus.CONFLICT, "USER001", "이미 사용 중인 이메일입니다.");
 

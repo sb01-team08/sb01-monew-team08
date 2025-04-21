@@ -1,4 +1,4 @@
-package dto.request.comment;
+package com.example.monewteam08.dto.request.comment;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

@@ -8,14 +8,14 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.monewteam08.dto.request.comment.CommentRegisterRequest;
+import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
+import com.example.monewteam08.dto.response.comment.CommentDto;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.exception.comment.UnauthorizedCommentAccessException;
 import com.example.monewteam08.mapper.CommentMapper;
 import com.example.monewteam08.repository.CommentRepository;
-import dto.request.comment.CommentRegisterRequest;
-import dto.request.comment.CommentUpdateRequest;
-import dto.response.comment.CommentDto;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;

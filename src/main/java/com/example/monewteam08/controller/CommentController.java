@@ -1,11 +1,11 @@
 package com.example.monewteam08.controller;
 
+import com.example.monewteam08.dto.request.comment.CommentRegisterRequest;
+import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
+import com.example.monewteam08.dto.response.comment.CommentDto;
+import com.example.monewteam08.dto.response.comment.CommentLikeDto;
 import com.example.monewteam08.service.Interface.CommentLikeService;
 import com.example.monewteam08.service.Interface.CommentService;
-import dto.request.comment.CommentRegisterRequest;
-import dto.request.comment.CommentUpdateRequest;
-import dto.response.comment.CommentDto;
-import dto.response.comment.CommentLikeDto;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

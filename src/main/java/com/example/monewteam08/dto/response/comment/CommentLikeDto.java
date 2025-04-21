@@ -1,4 +1,4 @@
-package dto.response.comment;
+package com.example.monewteam08.dto.response.comment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;

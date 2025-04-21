@@ -1,7 +1,7 @@
 package com.example.monewteam08.mapper;
 
+import com.example.monewteam08.dto.response.comment.CommentDto;
 import com.example.monewteam08.entity.Comment;
-import dto.response.comment.CommentDto;
 import org.springframework.stereotype.Component;
 
 @Component
