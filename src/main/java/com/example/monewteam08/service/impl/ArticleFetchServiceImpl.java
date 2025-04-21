@@ -1,9 +1,22 @@
 package com.example.monewteam08.service.impl;
 
 import com.example.monewteam08.dto.response.article.NaverNewsResponse;
-import com.example.monewteam08.dto.response.article.item.NaverNewsItem;
+import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedInput;
+import com.rometools.rome.io.XmlReader;
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -18,8 +31,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class ArticleFetchServiceImpl implements ArticleFetchService {
 
   private final RestTemplate restTemplate;
-  private String naverClientId;
-  private String naverClientSecret;
+  private final String naverClientId;
+  private final String naverClientSecret;
 
   public ArticleFetchServiceImpl(RestTemplateBuilder builder,
       @Value("${naver.api.client-id}") String naverClientId,
@@ -30,7 +43,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
   }
 
   @Override
-  public List<NaverNewsItem> fetchNaverArticles() {
+  public List<Article> fetchNaverArticles() {
 
     String uri = UriComponentsBuilder
         .fromHttpUrl("https://openapi.naver.com/v1/search/news.json")
@@ -53,7 +66,45 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
         NaverNewsResponse.class
     );
 
-    return response.getBody().items();
+    return response.getBody().items().stream().map(item ->
+        new Article(
+            "NAVER",
+            item.title(),
+            item.description(),
+            item.originalLink(),
+            parsePubDate(item.pubDate())
+        )).toList();
+  }
+
+  @Override
+  public List<Article> fetchRssArticles(String source, String url) {
+    List<Article> articles = new ArrayList<>();
+
+    try (XmlReader reader = new XmlReader(new URL(url))) {
+      SyndFeed feed = new SyndFeedInput().build(reader);
+      for (SyndEntry entry : feed.getEntries()) {
+        String description = entry.getDescription() != null
+            ? entry.getDescription().getValue()
+            : "";
+        LocalDateTime publishedAt = entry.getPublishedDate()
+            .toInstant().atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+
+        articles.add(
+            new Article(source, entry.getTitle(), description,
+                entry.getLink(),
+                publishedAt));
+      }
+    } catch (IOException | FeedException e) {
+      throw new RuntimeException(source + " 수집 중 에러", e);
+    }
+    return articles;
+  }
+
+  private static LocalDateTime parsePubDate(String pubDate) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z",
+        Locale.ENGLISH);
+    ZonedDateTime zonedDateTime = ZonedDateTime.parse(pubDate, formatter);
+    return zonedDateTime.toLocalDateTime();
   }
 }
 

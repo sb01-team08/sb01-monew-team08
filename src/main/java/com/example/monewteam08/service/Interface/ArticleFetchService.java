@@ -1,10 +1,12 @@
 package com.example.monewteam08.service.Interface;
 
-import com.example.monewteam08.dto.response.article.item.NaverNewsItem;
+import com.example.monewteam08.entity.Article;
 import java.util.List;
 
 
 public interface ArticleFetchService {
 
-  List<NaverNewsItem> fetchNaverArticles();
+  List<Article> fetchNaverArticles();
+
+  List<Article> fetchRssArticles(String source, String url);
 }

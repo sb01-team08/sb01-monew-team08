@@ -2,7 +2,7 @@ package com.example.monewteam08.article;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.example.monewteam08.dto.response.article.item.NaverNewsItem;
+import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.service.impl.ArticleFetchServiceImpl;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,9 +36,33 @@ public class ArticleFetchServiceTest {
     // given
 
     // when
-    List<NaverNewsItem> articles = articleFetchService.fetchNaverArticles();
+    List<Article> articles = articleFetchService.fetchNaverArticles();
     articles.forEach(System.out::println);
     // then
     assertThat(articles).isNotNull();
+  }
+
+  @Test
+  void RSS_기사_가져오기() {
+    // given
+    String yonhapUrl = "https://www.yonhapnewstv.co.kr/browse/feed/";
+    String chosunUrl = "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml";
+    String hankyungUrl = "https://www.hankyung.com/feed/all-news";
+
+    // when
+    List<Article> yonhapArticles = articleFetchService.fetchRssArticles("YONHAP", yonhapUrl);
+    yonhapArticles.forEach(
+        article -> System.out.println(article.getSource() + " : " + article.getTitle()));
+    List<Article> chosunArticles = articleFetchService.fetchRssArticles("CHOSUN", chosunUrl);
+    chosunArticles.forEach(
+        article -> System.out.println(article.getSource() + " : " + article.getTitle()));
+    List<Article> hankyungArticles = articleFetchService.fetchRssArticles("HANKYUNG", hankyungUrl);
+    hankyungArticles.forEach(
+        article -> System.out.println(article.getSource() + " : " + article.getTitle()));
+
+    // then
+    assertThat(yonhapArticles).isNotNull();
+    assertThat(chosunArticles).isNotNull();
+    assertThat(hankyungArticles).isNotNull();
   }
 }

@@ -31,7 +31,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-logging'
-    
+
     // --- Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
     implementation 'io.swagger.core.v3:swagger-annotations:2.2.7'
@@ -52,6 +52,9 @@ dependencies {
     testImplementation 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // --- RSS Tool (기사 수집에 사용)
+    implementation 'com.rometools:rome:2.1.0'
 
 }
 
