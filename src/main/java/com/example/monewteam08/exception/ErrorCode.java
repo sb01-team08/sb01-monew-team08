@@ -20,8 +20,10 @@ public enum ErrorCode {
     FAILED_TO_DELETE_DATA(HttpStatus.INTERNAL_SERVER_ERROR, "DATABASE004", "데이터 삭제에 실패하였습니다."),
 
     // Auth
-    LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH001", "로그인에 실패했습니다.");
+    LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH001", "로그인에 실패했습니다."),
 
+    // User
+    EMAIL_IS_ALREADY_EXIST(HttpStatus.CONFLICT, "USER001", "이미 사용 중인 이메일입니다.");
 
     private final HttpStatus status;
     private final String code;
