@@ -30,6 +30,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class ArticleFetchServiceImpl implements ArticleFetchService {
 
+  private static final String NAVER_API_URL = "https://openapi.naver.com/v1/search/news.json";
+  private static final String YONHAP_RSS_URL = "https://www.yonhapnewstv.co.kr/browse/feed/";
+  private static final String CHOSUN_RSS_URL = "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml";
+  private static final String HANKYUNG_RSS_URL = "https://www.hankyung.com/feed/all-news";
+
   private final RestTemplate restTemplate;
   private final String naverClientId;
   private final String naverClientSecret;
@@ -45,17 +50,17 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
   public List<Article> fetchAllArticles() {
     List<Article> articles = new ArrayList<>();
     articles.addAll(fetchNaverArticles());
-    articles.addAll(fetchRssArticles("YONHAP", "https://www.yonhapnewstv.co.kr/browse/feed/"));
+    articles.addAll(fetchRssArticles("YONHAP", YONHAP_RSS_URL));
     articles.addAll(
-        fetchRssArticles("CHOSUN", "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml"));
-    articles.addAll(fetchRssArticles("HANKYUNG", "https://www.hankyung.com/feed/all-news"));
+        fetchRssArticles("CHOSUN", CHOSUN_RSS_URL));
+    articles.addAll(fetchRssArticles("HANKYUNG", HANKYUNG_RSS_URL));
     return articles;
   }
 
   protected List<Article> fetchNaverArticles() {
 
     String uri = UriComponentsBuilder
-        .fromHttpUrl("https://openapi.naver.com/v1/search/news.json")
+        .fromHttpUrl(NAVER_API_URL)
         .queryParam("query", "뉴스")
         .queryParam("display", 10)
         .queryParam("start", 1)
@@ -114,7 +119,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
     ZonedDateTime zonedDateTime = ZonedDateTime.parse(pubDate, formatter);
     return zonedDateTime.withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalDateTime();
   }
-  
+
 }
 
 
