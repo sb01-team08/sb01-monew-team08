@@ -1,0 +1,27 @@
+# TEST
+
+spring:
+  config:
+    import: optional:file:.env.test.properties
+  datasource:
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    defer-datasource-initialization: true
+
+  # sql initialize 미사용
+  sql:
+    init:
+      mode: never
