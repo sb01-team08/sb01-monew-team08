@@ -3,6 +3,7 @@ language: "ko-KR"
 early_access: false
 
 reviews:
+  enabled_on_non_default_branches: true
   profile: "chill"  # 'chill'은 부드러운 피드백, 'assertive'는 엄격한 피드백
   request_changes_workflow: true  # 코멘트 해결 시 자동 승인
   high_level_summary: true        # PR 설명에 요약 추가
