@@ -171,3 +171,9 @@ gradle-app.setting
 .env
 .env-dev
 .env-prod
+
+src/main/resources/application.yml
+src/main/resources/application-dev.yml
+src/main/resources/application-prod.yml
+
+src/main/resources/schema.sql
