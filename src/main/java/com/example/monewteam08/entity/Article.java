@@ -14,15 +14,20 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "articles")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class Article {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private UUID id;
 
+  @Column(name = "source")
   private String source;
+
+  @Column(name = "title")
   private String title;
+
+  @Column(name = "summary", columnDefinition = "TEXT")
   private String summary;
 
   @Column(name = "source_url", unique = true)
@@ -44,5 +49,9 @@ public class Article {
     this.summary = summary;
     this.sourceUrl = sourceUrl;
     this.publishedAt = publishedAt;
+  }
+
+  public void softDelete() {
+    this.isActive = false;
   }
 }
