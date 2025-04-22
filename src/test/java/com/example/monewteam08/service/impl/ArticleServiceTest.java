@@ -1,12 +1,16 @@
 package com.example.monewteam08.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.example.monewteam08.dto.response.article.ArticleDto;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
 import com.example.monewteam08.entity.Article;
+import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import java.lang.reflect.Constructor;
 import java.time.LocalDateTime;
@@ -18,6 +22,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,6 +33,9 @@ public class ArticleServiceTest {
 
   @Mock
   private ArticleRepository articleRepository;
+
+  @Mock
+  private ArticleMapper articleMapper;
 
   @InjectMocks
   private ArticleServiceImpl articleService;
@@ -48,36 +59,34 @@ public class ArticleServiceTest {
   @Test
   void 기사_목록_조회_성공() {
     // given
-    UUID articleId = UUID.randomUUID();
-    ArticleDto dto = new ArticleDto(
-        articleId,
-        "NAVER",
-        "https://naver.com/article/123",
-        "테스트 제목",
-        LocalDateTime.parse("2025-04-22T02:20:37.781"),
-        "요약 내용",
-        100L,
-        true
-    );
-    CursorPageResponseArticleDto response = new CursorPageResponseArticleDto(
-        List.of(dto),
-        "next-cursor",
-        LocalDateTime.parse("2025-04-06T15:04:05"),
-        10,
-        100,
-        true
-    );
+    String keyword = "경제";
+    UUID interestId = UUID.randomUUID();
+    List<String> sourceIn = List.of("NAVER", "DAUM");
+    LocalDateTime publishDateFrom = LocalDateTime.now().minusDays(7);
+    LocalDateTime publishDateTo = LocalDateTime.now();
+    String orderBy = "publishDate";
+    String direction = "DESC";
+    String cursor = null;
+    LocalDateTime after = null;
+    int limit = 10;
+    UUID userId = UUID.randomUUID();
 
-    given(articleService.getArticles()).willReturn(response);
+    Article article = mock(Article.class);
+    Page<Article> articlePage = new PageImpl<>(List.of(article));
+
+    given(articleRepository.findAll(any(Specification.class), any(Pageable.class)))
+        .willReturn(articlePage);
+
+    ArticleDto dto = mock(ArticleDto.class);
+    given(articleMapper.toDto(any(Article.class), anyBoolean())).willReturn(dto);
 
     // when
-    CursorPageResponseArticleDto result = articleService.getArticles();
+    CursorPageResponseArticleDto result = articleService.getArticles(keyword, interestId, sourceIn,
+        publishDateFrom, publishDateTo, orderBy, direction, cursor, after, limit, userId);
 
     // then
+    assertThat(result).isNotNull();
     assertThat(result.articles()).hasSize(1);
-    assertThat(result.totalElements()).isEqualTo(100);
-    assertThat(result.hasNext()).isTrue();
-    assertThat(result.articles().get(0).viewedByMe()).isTrue();
   }
 
   @Test
