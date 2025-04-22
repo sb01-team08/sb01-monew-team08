@@ -19,31 +19,31 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "comment_likes", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "comment_id"})
+    @UniqueConstraint(columnNames = {"user_id", "comment_id"})
 })
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentLike {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private UUID id;
 
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
-    @Column(name = "comment_id", nullable = false)
-    private UUID commentId;
+  @Column(name = "user_id", nullable = false)
+  private UUID userId;
+  @Column(name = "comment_id", nullable = false)
+  private UUID commentId;
 
-    @CreatedDate
-    @Column(name = "create_at", updatable = false)
-    private LocalDateTime createdAt;
-    @LastModifiedDate
-    @Column(name = "update_at")
-    private LocalDateTime updatedAt;
+  @CreatedDate
+  @Column(name = "create_at", updatable = false)
+  private LocalDateTime createdAt;
+  @LastModifiedDate
+  @Column(name = "update_at")
+  private LocalDateTime updatedAt;
 
-    public CommentLike(UUID userId, UUID commentId) {
-        this.userId = userId;
-        this.commentId = commentId;
-    }
+  public CommentLike(UUID userId, UUID commentId) {
+    this.userId = userId;
+    this.commentId = commentId;
+  }
 }

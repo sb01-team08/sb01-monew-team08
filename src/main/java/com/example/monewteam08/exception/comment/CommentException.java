@@ -7,16 +7,16 @@ import java.util.Map;
 
 public class CommentException extends MonewException {
 
-    public CommentException(ErrorCode errorCode,
-            Instant timestamp) {
-        super(errorCode, timestamp);
-    }
+  public CommentException(ErrorCode errorCode,
+      Instant timestamp) {
+    super(errorCode, timestamp);
+  }
 
-    public CommentException(ErrorCode errorCode) {
-        super(errorCode);
-    }
+  public CommentException(ErrorCode errorCode) {
+    super(errorCode);
+  }
 
-    public CommentException(ErrorCode errorCode, Map<String, Object> details) {
-        super(errorCode, details);
-    }
+  public CommentException(ErrorCode errorCode, Map<String, Object> details) {
+    super(errorCode, details);
+  }
 }

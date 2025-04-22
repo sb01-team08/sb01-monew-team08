@@ -7,11 +7,11 @@ import java.util.UUID;
 
 public interface CommentService {
 
-    CommentDto create(CommentRegisterRequest request);
+  CommentDto create(CommentRegisterRequest request);
 
-    CommentDto update(UUID id, CommentUpdateRequest request);
+  CommentDto update(UUID id, CommentUpdateRequest request);
 
-    void delete(UUID id, UUID userId);
+  void delete(UUID id, UUID userId);
 
-    void delete_Hard(UUID id);
+  void delete_Hard(UUID id);
 }

@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface CommentLikeRepository extends CrudRepository<CommentLike, UUID> {
 
-    void deleteByUserIdAndCommentId(UUID userId, UUID commentId);
+  void deleteByUserIdAndCommentId(UUID userId, UUID commentId);
 }
