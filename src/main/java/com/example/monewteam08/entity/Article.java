@@ -21,8 +21,13 @@ public class Article {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private UUID id;
 
+  @Column(name = "source")
   private String source;
+
+  @Column(name = "title")
   private String title;
+
+  @Column(name = "summary", columnDefinition = "TEXT")
   private String summary;
 
   @Column(name = "source_url", unique = true)

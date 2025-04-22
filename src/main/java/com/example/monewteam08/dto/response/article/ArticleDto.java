@@ -1,16 +1,18 @@
 package com.example.monewteam08.dto.response.article;
 
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class ArticleDto {
+public record ArticleDto(
+    @NotNull UUID id,
+    @NotNull String source,
+    @NotNull String sourceUrl,
+    @NotNull String title,
+    @NotNull LocalDateTime publishedAt,
+    @NotNull String summary,
+    long viewCount,
+    boolean viewedByMe
+) {
 
-  private UUID id;
-  private String source;
-  private String sourceUrl;
-  private String title;
-  private LocalDateTime publishedAt;
-  private String summary;
-  private long viewCount;
-  private boolean viewedByMe;
 }
