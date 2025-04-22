@@ -3,15 +3,19 @@ package com.example.monewteam08.service.Interface;
 import com.example.monewteam08.dto.request.comment.CommentRegisterRequest;
 import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
 import com.example.monewteam08.dto.response.comment.CommentDto;
+import com.example.monewteam08.dto.response.comment.CursorPageResponseCommentDto;
 import java.util.UUID;
 
 public interface CommentService {
 
-    CommentDto create(CommentRegisterRequest request);
+  CursorPageResponseCommentDto getCommentsByCursor(String articleId, String orderBy,
+      String direction, String cursor, String after, int limit, String requestUserId);
 
-    CommentDto update(UUID id, CommentUpdateRequest request);
+  CommentDto create(CommentRegisterRequest request);
 
-    void delete(UUID id, UUID userId);
+  CommentDto update(UUID id, CommentUpdateRequest request);
 
-    void delete_Hard(UUID id);
+  void delete(UUID id, UUID userId);
+
+  void delete_Hard(UUID id);
 }

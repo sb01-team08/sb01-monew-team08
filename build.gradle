@@ -55,7 +55,35 @@ dependencies {
     // --- RSS Tool (기사 수집에 사용)
     implementation 'com.rometools:rome:2.1.0'
 
+    //QueryDsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+
+
 }
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+sourceSets {
+    main {
+        java {
+            srcDirs += querydslDir
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+            "-Aquerydsl.generatedSourcesDir=$querydslDir"
+    ]
+}
+clean {
+    delete file(querydslDir)
+}
+
 
 tasks.named('test') {
     useJUnitPlatform()

@@ -15,11 +15,11 @@ public class CommentMapper {
                 .id(comment.getId().toString())
                 .articleId(comment.getArticleId().toString())
                 .userId(comment.getUserId().toString())
+                .userNickname(null) //추후 수정
                 .content(comment.getContent())
                 .likeCount(comment.getLikeCount())
-                .createdAt(comment.getCreatedAt())
                 .likedByMe(false) //추후 수정
-                .userNickname(null) //추후 수정
+                .createdAt(comment.getCreatedAt())
                 .build();
     }
 }
