@@ -1,46 +1,46 @@
 <!-- logback-spring.xml -->
 <!--로그 세팅-->
 <configuration>
-  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-  <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
-  <!--    로그 경로 설정-->
-  <property name="LOG_PATH" value=".logs"/>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+    <!--    로그 경로 설정-->
+    <property name="LOG_PATH" value=".logs"/>
 
-  <!-- 콘솔 로그 패턴 -->
-  <property name="CONSOLE_LOG_PATTERN"
-    value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){faint} %clr([%X{requestId}]){yellow} %clr(%X{method}){green} %clr(%X{uri}){magenta} %highlight(%-5level) %clr(%logger{36}){cyan} - %msg%n"/>
+    <!-- 콘솔 로그 패턴 -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){faint} %clr([%X{requestId}]){yellow} %clr(%X{method}){green} %clr(%X{uri}){magenta} %highlight(%-5level) %clr(%logger{36}){cyan} - %msg%n"/>
 
-  <!-- 파일 로그 패턴 (색상 없음) -->
-  <property name="FILE_LOG_PATTERN"
-    value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{requestId}] %X{method} %X{uri} %-5level %-36logger - %msg%n"/>
+    <!-- 파일 로그 패턴 (색상 없음) -->
+    <property name="FILE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{requestId}] %X{method} %X{uri} %-5level %-36logger - %msg%n"/>
 
-  <!--    콘솔로 출력-->
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
-      <charset>UTF-8</charset>
-    </encoder>
-  </appender>
+    <!--    콘솔로 출력-->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
 
-  <!--    파일로 출력-->
-  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${LOG_PATH}/app.log</file>
-    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${LOG_PATH}/app.%d{yyyy-MM-dd}</fileNamePattern>
-      <maxHistory>30</maxHistory>
-    </rollingPolicy>
-    <encoder>
-      <pattern>${FILE_LOG_PATTERN}</pattern>
-      <charset>UTF-8</charset>
-    </encoder>
-  </appender>
+    <!--    파일로 출력-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/app.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
 
-  <!--  최상위 root 로거 레벨: INFO  -->
-  <root level="INFO">
-    <appender-ref ref="CONSOLE"/>
-    <appender-ref ref="FILE"/>
-  </root>
+    <!--  최상위 root 로거 레벨: INFO  -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
 
-  <!--  패키지별 다른 레벨 설정: 디버그가 필요한 Service-->
-  <!--  <logger name="com.codeit.sb01hrbankteam04.domain.file.service" level="DEBUG"/>-->
+    <!--  패키지별 다른 레벨 설정: 디버그가 필요한 Service-->
+    <!--  <logger name="com.codeit.sb01hrbankteam04.domain.file.service" level="DEBUG"/>-->
 </configuration>
