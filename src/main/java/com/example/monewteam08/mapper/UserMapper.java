@@ -10,17 +10,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserMapper {
 
-    public UserResponse toResponse(User user) {
-        return UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .createdAt(user.getCreatedAt())
-                .build();
-    }
+  public UserResponse toResponse(User user) {
+    return UserResponse.builder()
+        .id(user.getId())
+        .email(user.getEmail())
+        .nickname(user.getNickname())
+        .createdAt(user.getCreatedAt())
+        .build();
+  }
 
-    public User toEntity(UserRequest userRequest) {
-        return new User(userRequest.email(), userRequest.nickname(), userRequest.password());
-    }
+  public User toEntity(UserRequest userRequest) {
+    return new User(userRequest.email(), userRequest.nickname(), userRequest.password());
+  }
 
 }

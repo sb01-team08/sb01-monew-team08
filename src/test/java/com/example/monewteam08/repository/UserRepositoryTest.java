@@ -15,83 +15,83 @@ import org.springframework.test.context.ActiveProfiles;
 @Import(JacConfig.class)
 class UserRepositoryTest {
 
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired
+  private UserRepository userRepository;
 
-    @Test
-    @DisplayName("User 객체를 성공적으로 저장한다.")
-    void saveUserSuccess() {
-        // given
-        String email = "test@example.com";
-        String nickname = "tester";
-        String password = "testPassword1234";
+  @Test
+  @DisplayName("User 객체를 성공적으로 저장한다.")
+  void saveUserSuccess() {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "testPassword1234";
 
-        User user = new User(email, nickname, password);
+    User user = new User(email, nickname, password);
 
-        // when
-        User saved = userRepository.save(user);
+    // when
+    User saved = userRepository.save(user);
 
-        // then
-        Assertions.assertThat(saved).isNotNull();
-        Assertions.assertThat(saved.getNickname()).isEqualTo(nickname);
-        Assertions.assertThat(saved.getCreatedAt()).isNotNull();
-    }
+    // then
+    Assertions.assertThat(saved).isNotNull();
+    Assertions.assertThat(saved.getNickname()).isEqualTo(nickname);
+    Assertions.assertThat(saved.getCreatedAt()).isNotNull();
+  }
 
-    @Test
-    @DisplayName("User 객체를 UUID를 통해 성공적으로 불러온다.")
-    void findUserByIdSuccess() {
-        // given
-        String email = "test@example.com";
-        String nickname = "tester";
-        String password = "testPassword1234";
+  @Test
+  @DisplayName("User 객체를 UUID를 통해 성공적으로 불러온다.")
+  void findUserByIdSuccess() {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "testPassword1234";
 
-        User user = new User(email, nickname, password);
-        User saved = userRepository.save(user);
+    User user = new User(email, nickname, password);
+    User saved = userRepository.save(user);
 
-        // when
-        User getUser = userRepository.findById(saved.getId()).orElseThrow();
+    // when
+    User getUser = userRepository.findById(saved.getId()).orElseThrow();
 
-        // then
-        Assertions.assertThat(getUser).isNotNull();
-        Assertions.assertThat(getUser.getId()).isEqualTo(saved.getId());
-        Assertions.assertThat(getUser.getNickname()).isEqualTo(saved.getNickname());
-        Assertions.assertThat(getUser.getCreatedAt()).isNotNull();
-    }
+    // then
+    Assertions.assertThat(getUser).isNotNull();
+    Assertions.assertThat(getUser.getId()).isEqualTo(saved.getId());
+    Assertions.assertThat(getUser.getNickname()).isEqualTo(saved.getNickname());
+    Assertions.assertThat(getUser.getCreatedAt()).isNotNull();
+  }
 
-    @Test
-    @DisplayName("사용자의 이메일이 이미 존재하면 true를 반환한다.")
-    void existUserByEmail() {
-        // given
-        String email = "test@example.com";
-        String nickname = "tester";
-        String password = "testPassword1234";
+  @Test
+  @DisplayName("사용자의 이메일이 이미 존재하면 true를 반환한다.")
+  void existUserByEmail() {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "testPassword1234";
 
-        User user = new User(email, nickname, password);
-        userRepository.save(user);
+    User user = new User(email, nickname, password);
+    userRepository.save(user);
 
-        // when
-        boolean isExist = userRepository.existsUserByEmail(email);
+    // when
+    boolean isExist = userRepository.existsUserByEmail(email);
 
-        // then
-        Assertions.assertThat(isExist).isTrue();
-    }
+    // then
+    Assertions.assertThat(isExist).isTrue();
+  }
 
-    @Test
-    @DisplayName("사용자의 이메일이 존재하지 않으면 false를 반환한다.")
-    void isNotExistUserByEmail() {
-        // given
-        String email = "test@example.com";
-        String nickname = "tester";
-        String password = "testPassword1234";
+  @Test
+  @DisplayName("사용자의 이메일이 존재하지 않으면 false를 반환한다.")
+  void isNotExistUserByEmail() {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "testPassword1234";
 
-        User user = new User(email, nickname, password);
-        userRepository.save(user);
+    User user = new User(email, nickname, password);
+    userRepository.save(user);
 
-        // when
-        boolean isExist = userRepository.existsUserByEmail("notExistEmail@example.com");
+    // when
+    boolean isExist = userRepository.existsUserByEmail("notExistEmail@example.com");
 
-        // then
-        Assertions.assertThat(isExist).isFalse();
-    }
+    // then
+    Assertions.assertThat(isExist).isFalse();
+  }
 
 }
