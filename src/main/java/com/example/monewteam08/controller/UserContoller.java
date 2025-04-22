@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,15 +31,22 @@ public class UserContoller implements UserControllerDocs {
 
   @PatchMapping("/{userId}")
   public CustomApiResponse<UserResponse> updateUser(
-      @RequestHeader("MoNew-Request-User-ID") UUID userRequestId,
       @PathVariable UUID userId, @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
     return CustomApiResponse.ok(userService.update(userId, userUpdateRequest));
   }
 
   @DeleteMapping("/{userId}")
-  public void deleteUser(
-      @RequestHeader("MoNew-Request-User-ID") UUID userRequestId, @PathVariable UUID userId) {
+  public CustomApiResponse<Void> deleteUser(
+      @PathVariable UUID userId) {
     userService.delete(userId);
+    return CustomApiResponse.delete();
+  }
+
+  @DeleteMapping("/{userId}/hard")
+  public CustomApiResponse<Void> hardDeleteUser(
+      @PathVariable UUID userId) {
+    userService.hardDelete(userId);
+    return CustomApiResponse.delete();
   }
 
 }

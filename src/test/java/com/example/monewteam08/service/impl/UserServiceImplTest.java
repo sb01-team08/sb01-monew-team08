@@ -182,4 +182,44 @@ class UserServiceImplTest {
         .hasMessage(
             ErrorCode.USER_NOT_FOUND.getCode() + ": " + ErrorCode.USER_NOT_FOUND.getMessage());
   }
+
+  @Test
+  @DisplayName("사용자 물리 삭제를 성공적으로 수행한다.")
+  void deleteUser_hardDelete() {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "testPassword1234";
+
+    UUID id = UUID.randomUUID();
+    LocalDateTime createdAt = LocalDateTime.now();
+
+    User user = new User(email, nickname, password);
+    ReflectionTestUtils.setField(user, "id", id);
+    ReflectionTestUtils.setField(user, "createdAt", createdAt);
+
+    given(userRepository.findById(id)).willReturn(Optional.of(user));
+
+    // when
+    userService.hardDelete(id);
+
+    // then
+    verify(userRepository).delete(user);
+  }
+
+  @Test
+  @DisplayName("물리 삭제 대상 사용자가 존재하지 않아 예외를 던진다.")
+  void failedDeleteUser_hard_delete_UserNotFound() {
+    // given
+    UUID id = UUID.randomUUID();
+
+    given(userRepository.findById(id)).willReturn(Optional.empty());
+
+    // when & then
+    Assertions.assertThatThrownBy(() -> userService.hardDelete(id))
+        .isInstanceOf(UserNotFoundException.class)
+        .hasMessage(
+            ErrorCode.USER_NOT_FOUND.getCode() + ": " + ErrorCode.USER_NOT_FOUND.getMessage());
+  }
+
 }

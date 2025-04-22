@@ -65,8 +65,15 @@ public class UserServiceImpl implements UserService {
     log.info("성공적으로 논리 삭제가 적용되었습니다. - id: {}", userId);
   }
 
+  @Transactional
   @Override
   public void hardDelete(UUID userId) {
+    log.debug("사용자 물리 삭제 요청 - 요청 id: {}", userId);
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(userId));
 
+    userRepository.delete(user);
+
+    log.info("성공적으로 삭제되었습니다. - id: {}", userId);
   }
 }

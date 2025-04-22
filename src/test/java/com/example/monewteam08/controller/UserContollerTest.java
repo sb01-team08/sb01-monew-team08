@@ -176,9 +176,23 @@ class UserContollerTest {
 
     // when
     mockMvc.perform(delete("/api/users/{userId}", id)
-        .header("MoNew-Request-User-ID", id)
-        .contentType(MediaType.APPLICATION_JSON)
-    );
+            .header("MoNew-Request-User-ID", id)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.success").value(true));
   }
 
+  @Test
+  @DisplayName("요청한 값이 유효하면 해당 사용자의 물리 삭제를 수행한다.")
+  void hardDeleteUser_RequestIsValid() throws Exception {
+    // given
+    UUID id = UUID.randomUUID();
+
+    willDoNothing().given(userService).hardDelete(id);
+
+    // when
+    mockMvc.perform(delete("/api/users/{userId}/hard", id)
+            .header("MoNew-Request-User-ID", id)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.success").value(true));
+  }
 }
