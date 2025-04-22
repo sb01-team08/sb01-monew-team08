@@ -22,6 +22,10 @@ public enum ErrorCode {
   // Auth
   LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH001", "로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요."),
   LOGIN_REJECTED_DELETED_USER(HttpStatus.UNAUTHORIZED, "AUTH002", "삭제된 계정은 로그인이 불가능합니다."),
+  MISSING_USER_ID_HEADER(HttpStatus.UNAUTHORIZED, "AUTH003",
+      "Monew-Request-User-Id가 필요합니다."),
+  INVALID_USER_ID_HEADER_FORMAT(HttpStatus.BAD_REQUEST, "AUTH004",
+      "Monew-Request-User-Id의 형식이 잘못되었습니다."),
 
   //댓글
   COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT001", "댓글을 찾을 수 없습니다."),
