@@ -2,6 +2,7 @@ package com.example.monewteam08.service.impl;
 
 import com.example.monewteam08.dto.response.article.NaverNewsResponse;
 import com.example.monewteam08.entity.Article;
+import com.example.monewteam08.exception.article.ArticleFetchFailedException;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
@@ -108,7 +109,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
                 publishedAt));
       }
     } catch (IOException | FeedException e) {
-      throw new RuntimeException(source + " 수집 중 에러", e);
+      throw new ArticleFetchFailedException(source);
     }
     return articles;
   }

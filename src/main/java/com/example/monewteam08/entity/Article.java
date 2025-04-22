@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "articles")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class Article {
 
   @Id
@@ -49,5 +49,9 @@ public class Article {
     this.summary = summary;
     this.sourceUrl = sourceUrl;
     this.publishedAt = publishedAt;
+  }
+
+  public void softDelete() {
+    this.isActive = false;
   }
 }
