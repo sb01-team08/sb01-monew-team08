@@ -1,6 +1,7 @@
 package com.example.monewteam08.controller;
 
 import com.example.monewteam08.common.CustomApiResponse;
+import com.example.monewteam08.controller.api.UserControllerDocs;
 import com.example.monewteam08.dto.request.user.UserRequest;
 import com.example.monewteam08.dto.response.user.UserResponse;
 import com.example.monewteam08.service.Interface.UserService;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-public class UserContoller {
+public class UserContoller implements UserControllerDocs {
 
     private final UserService userService;
 
