@@ -271,12 +271,11 @@ class UserServiceImplTest {
     User user = new User(email, nickname, password);
     ReflectionTestUtils.setField(user, "id", id);
     ReflectionTestUtils.setField(user, "createdAt", createdAt);
-    ReflectionTestUtils.setField(user, "isActive", false);
 
-    UserLoginRequest userLoginRequest = new UserLoginRequest(email, password);
+    UserLoginRequest userLoginRequest = new UserLoginRequest(email, "password!1234");
 
     given(userRepository.findUserByEmailAndPassword(userLoginRequest.email(),
-        userLoginRequest.password())).willReturn(user);
+        userLoginRequest.password())).willReturn(null);
 
     // when & then
     Assertions.assertThatThrownBy(() -> userService.login(userLoginRequest))
@@ -286,16 +285,24 @@ class UserServiceImplTest {
   }
 
   @Test
-  @DisplayName("삭제된 계정이라 로그인에 실패한다.")
+  @DisplayName("삭제된 계정이라서 로그인에 실패한다.")
   void failedLoginUser_causeUserIsInactive() {
     // given
     String email = "test@example.com";
-    String wrongPassword = "password1234!";
+    String nickname = "tester";
+    String password = "test!1234";
+    UUID id = UUID.randomUUID();
+    LocalDateTime createdAt = LocalDateTime.now();
 
-    UserLoginRequest userLoginRequest = new UserLoginRequest(email, wrongPassword);
+    User user = new User(email, nickname, password);
+    ReflectionTestUtils.setField(user, "id", id);
+    ReflectionTestUtils.setField(user, "createdAt", createdAt);
+    ReflectionTestUtils.setField(user, "isActive", false);
+
+    UserLoginRequest userLoginRequest = new UserLoginRequest(email, password);
 
     given(userRepository.findUserByEmailAndPassword(userLoginRequest.email(),
-        userLoginRequest.password())).willReturn(null);
+        userLoginRequest.password())).willReturn(user);
 
     // when & then
     Assertions.assertThatThrownBy(() -> userService.login(userLoginRequest))
