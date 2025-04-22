@@ -20,7 +20,8 @@ public enum ErrorCode {
   FAILED_TO_DELETE_DATA(HttpStatus.INTERNAL_SERVER_ERROR, "DATABASE004", "데이터 삭제에 실패하였습니다."),
 
   // Auth
-  LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH001", "로그인에 실패했습니다."),
+  LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH001", "로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요."),
+  LOGIN_REJECTED_DELETED_USER(HttpStatus.UNAUTHORIZED, "AUTH002", "삭제된 계정은 로그인이 불가능합니다."),
 
   //댓글
   COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT001", "댓글을 찾을 수 없습니다."),

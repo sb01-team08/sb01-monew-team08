@@ -1,10 +1,13 @@
 package com.example.monewteam08.service.impl;
 
+import com.example.monewteam08.dto.request.user.UserLoginRequest;
 import com.example.monewteam08.dto.request.user.UserRequest;
 import com.example.monewteam08.dto.request.user.UserUpdateRequest;
 import com.example.monewteam08.dto.response.user.UserResponse;
 import com.example.monewteam08.entity.User;
+import com.example.monewteam08.exception.user.DeletedAccountException;
 import com.example.monewteam08.exception.user.EmailAlreadyExistException;
+import com.example.monewteam08.exception.user.LoginFailedException;
 import com.example.monewteam08.exception.user.UserNotFoundException;
 import com.example.monewteam08.mapper.UserMapper;
 import com.example.monewteam08.repository.UserRepository;
@@ -75,5 +78,26 @@ public class UserServiceImpl implements UserService {
     userRepository.delete(user);
 
     log.info("성공적으로 삭제되었습니다. - id: {}", userId);
+  }
+
+  @Override
+  public UserResponse login(UserLoginRequest userLoginRequest) {
+    log.debug("사용자 로그인 요청 - 요청 email: {}", userLoginRequest.email());
+
+    User user = userRepository.findUserByEmailAndPassword(userLoginRequest.email(),
+        userLoginRequest.password());
+
+    if (user == null) {
+      log.warn("로그인 실패: 이메일 또는 비밀번호 불일치 - email={}", userLoginRequest.email());
+      throw new LoginFailedException();
+    }
+
+    if (!user.isActive()) {
+      log.warn("로그인 실패: 삭제된 계정입니다. - email={}", userLoginRequest.email());
+      throw new DeletedAccountException();
+    }
+
+    log.info("성공적으로 로그인 되었습니다. - id: {}", user.getId());
+    return userMapper.toResponse(user);
   }
 }

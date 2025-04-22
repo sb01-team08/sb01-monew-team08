@@ -1,5 +1,6 @@
 package com.example.monewteam08.service.Interface;
 
+import com.example.monewteam08.dto.request.user.UserLoginRequest;
 import com.example.monewteam08.dto.request.user.UserRequest;
 import com.example.monewteam08.dto.request.user.UserUpdateRequest;
 import com.example.monewteam08.dto.response.user.UserResponse;
@@ -18,5 +19,8 @@ public interface UserService {
 
   // 물리 삭제
   void hardDelete(UUID userId);
-  
+
+  // 로그인
+  UserResponse login(UserLoginRequest userLoginRequest);
+
 }

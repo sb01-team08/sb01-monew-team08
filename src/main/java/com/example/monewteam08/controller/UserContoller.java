@@ -2,6 +2,7 @@ package com.example.monewteam08.controller;
 
 import com.example.monewteam08.common.CustomApiResponse;
 import com.example.monewteam08.controller.api.UserControllerDocs;
+import com.example.monewteam08.dto.request.user.UserLoginRequest;
 import com.example.monewteam08.dto.request.user.UserRequest;
 import com.example.monewteam08.dto.request.user.UserUpdateRequest;
 import com.example.monewteam08.dto.response.user.UserResponse;
@@ -47,6 +48,12 @@ public class UserContoller implements UserControllerDocs {
       @PathVariable UUID userId) {
     userService.hardDelete(userId);
     return CustomApiResponse.delete();
+  }
+
+  @PostMapping("/login")
+  public CustomApiResponse<UserResponse> login(
+      @RequestBody @Valid UserLoginRequest userLoginRequest) {
+    return CustomApiResponse.ok(userService.login(userLoginRequest));
   }
 
 }

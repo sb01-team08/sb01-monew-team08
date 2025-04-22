@@ -5,12 +5,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+import com.example.monewteam08.dto.request.user.UserLoginRequest;
 import com.example.monewteam08.dto.request.user.UserRequest;
 import com.example.monewteam08.dto.request.user.UserUpdateRequest;
 import com.example.monewteam08.dto.response.user.UserResponse;
 import com.example.monewteam08.entity.User;
 import com.example.monewteam08.exception.ErrorCode;
+import com.example.monewteam08.exception.user.DeletedAccountException;
 import com.example.monewteam08.exception.user.EmailAlreadyExistException;
+import com.example.monewteam08.exception.user.LoginFailedException;
 import com.example.monewteam08.exception.user.UserNotFoundException;
 import com.example.monewteam08.mapper.UserMapper;
 import com.example.monewteam08.repository.UserRepository;
@@ -220,6 +223,86 @@ class UserServiceImplTest {
         .isInstanceOf(UserNotFoundException.class)
         .hasMessage(
             ErrorCode.USER_NOT_FOUND.getCode() + ": " + ErrorCode.USER_NOT_FOUND.getMessage());
+  }
+
+  @Test
+  @DisplayName("이메일과 비밀번호가 일치하여 로그인에 성공한다.")
+  void loginUser_success() {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "test!1234";
+    UUID id = UUID.randomUUID();
+    LocalDateTime createdAt = LocalDateTime.now();
+
+    User user = new User(email, nickname, password);
+    ReflectionTestUtils.setField(user, "id", id);
+    ReflectionTestUtils.setField(user, "createdAt", createdAt);
+
+    UserLoginRequest userLoginRequest = new UserLoginRequest(email, password);
+    UserResponse expectResponse = new UserResponse(id, email, nickname, createdAt);
+
+    given(userRepository.findUserByEmailAndPassword(userLoginRequest.email(),
+        userLoginRequest.password())).willReturn(user);
+
+    given(userMapper.toResponse(user)).willReturn(expectResponse);
+
+    // when
+    UserResponse response = userService.login(userLoginRequest);
+
+    // then
+    Assertions.assertThat(response).isNotNull();
+    Assertions.assertThat(response).isInstanceOf(UserResponse.class);
+    Assertions.assertThat(response.nickname()).isEqualTo(expectResponse.nickname());
+    Assertions.assertThat(response.email()).isEqualTo(expectResponse.email());
+    Assertions.assertThat(response.id()).isEqualTo(expectResponse.id());
+  }
+
+  @Test
+  @DisplayName("이메일 또는 비밀번호가 일치하지 않아 로그인에 실패한다.")
+  void failedLoginUser_causeIncorrectValue() {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "test!1234";
+    UUID id = UUID.randomUUID();
+    LocalDateTime createdAt = LocalDateTime.now();
+
+    User user = new User(email, nickname, password);
+    ReflectionTestUtils.setField(user, "id", id);
+    ReflectionTestUtils.setField(user, "createdAt", createdAt);
+    ReflectionTestUtils.setField(user, "isActive", false);
+
+    UserLoginRequest userLoginRequest = new UserLoginRequest(email, password);
+
+    given(userRepository.findUserByEmailAndPassword(userLoginRequest.email(),
+        userLoginRequest.password())).willReturn(user);
+
+    // when & then
+    Assertions.assertThatThrownBy(() -> userService.login(userLoginRequest))
+        .isInstanceOf(LoginFailedException.class)
+        .hasMessage(ErrorCode.LOGIN_FAILED.getCode() + ": " + ErrorCode.LOGIN_FAILED.getMessage());
+
+  }
+
+  @Test
+  @DisplayName("삭제된 계정이라 로그인에 실패한다.")
+  void failedLoginUser_causeUserIsInactive() {
+    // given
+    String email = "test@example.com";
+    String wrongPassword = "password1234!";
+
+    UserLoginRequest userLoginRequest = new UserLoginRequest(email, wrongPassword);
+
+    given(userRepository.findUserByEmailAndPassword(userLoginRequest.email(),
+        userLoginRequest.password())).willReturn(null);
+
+    // when & then
+    Assertions.assertThatThrownBy(() -> userService.login(userLoginRequest))
+        .isInstanceOf(DeletedAccountException.class)
+        .hasMessage(ErrorCode.LOGIN_REJECTED_DELETED_USER.getCode() + ": "
+            + ErrorCode.LOGIN_REJECTED_DELETED_USER.getMessage());
+
   }
 
 }

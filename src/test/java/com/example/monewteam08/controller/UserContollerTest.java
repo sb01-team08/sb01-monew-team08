@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import com.example.monewteam08.dto.request.user.UserLoginRequest;
 import com.example.monewteam08.dto.request.user.UserRequest;
 import com.example.monewteam08.dto.request.user.UserUpdateRequest;
 import com.example.monewteam08.dto.response.user.UserResponse;
@@ -195,4 +196,32 @@ class UserContollerTest {
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.success").value(true));
   }
+
+  @Test
+  @DisplayName("요청한 값이 유효하면 로그인을 진행한다")
+  void loginUser_RequestValueIsValid() throws Exception {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "testPassword1234!";
+    UUID id = UUID.randomUUID();
+    LocalDateTime createdAt = LocalDateTime.now();
+
+    UserLoginRequest userRequest = new UserLoginRequest(email, password);
+    UserResponse expectResponse = new UserResponse(id, email, nickname, createdAt);
+
+    given(userService.login(userRequest)).willReturn(expectResponse);
+
+    // when
+    mockMvc.perform(post("/api/users/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(userRequest)))
+        .andExpect(jsonPath("$.success").value(true))
+        .andExpect(jsonPath("$.data.id").value(id.toString()))
+        .andExpect(jsonPath("$.data.email").value(email))
+        .andExpect(jsonPath("$.data.nickname").value(nickname))
+        .andExpect(jsonPath("$.data.createdAt").value(
+            Matchers.startsWith(createdAt.toString().substring(0, 23))));
+  }
+
 }

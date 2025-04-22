@@ -2,6 +2,7 @@ package com.example.monewteam08.repository;
 
 import com.example.monewteam08.config.JacConfig;
 import com.example.monewteam08.entity.User;
+import java.time.LocalDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -92,6 +93,63 @@ class UserRepositoryTest {
 
     // then
     Assertions.assertThat(isExist).isFalse();
+  }
+
+  @Test
+  @DisplayName("이메일과 비밀번호가 일치하는 활성화 된 사용자가 존재하면 해당 사용자를 리턴한다.")
+  void isExistUserByEmailAndPassword() {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "testPassword1234";
+
+    User user = new User(email, nickname, password);
+    userRepository.save(user);
+
+    // when
+    User correctUser = userRepository.findUserByEmailAndPassword(email, password);
+
+    // then
+    Assertions.assertThat(correctUser).isNotNull();
+    Assertions.assertThat(correctUser.getEmail()).isEqualTo(email);
+  }
+
+  @Test
+  @DisplayName("이메일 혹은 비밀번호가 일치하지 않으면 Null 값을 리턴한다.")
+  void isNotExistUserByEmailAndPassword() {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "testPassword1234";
+
+    User user = new User(email, nickname, password);
+    userRepository.save(user);
+
+    // when
+    User correctUser = userRepository.findUserByEmailAndPassword(email, "password1234!");
+
+    // then
+    Assertions.assertThat(correctUser).isNull();
+  }
+
+  @Test
+  @DisplayName("활성화 된 유저가 아니라면 Null 값을 리턴한다.")
+  void isNotActiveUser() {
+    // given
+    String email = "test@example.com";
+    String nickname = "tester";
+    String password = "testPassword1234";
+
+    User user = new User(email, nickname, password);
+    user.updateIsActive(false);
+    user.updateDeletedAt(LocalDateTime.now());
+    userRepository.save(user);
+
+    // when
+    User correctUser = userRepository.findUserByEmailAndPassword(email, "password1234!");
+
+    // then
+    Assertions.assertThat(correctUser).isNull();
   }
 
 }
