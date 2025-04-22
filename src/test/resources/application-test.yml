@@ -25,3 +25,8 @@ spring:
   sql:
     init:
       mode: never
+
+naver:
+  api:
+    client-id: ${NAVER_API_CLIENT_ID}
+    client-secret: ${NAVER_API_CLIENT_SECRET}
