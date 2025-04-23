@@ -9,10 +9,12 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "user_article_views")
 @Getter
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class ArticleView {
 
   @Id
