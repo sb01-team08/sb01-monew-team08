@@ -73,7 +73,7 @@ public class ArticleServiceImpl implements ArticleService {
     Specification<Article> spec = getSpec(keyword, interestId, sourceIn, publishDateFrom,
         publishDateTo, after);
 
-    Page<Article> articles = articleRepository.findAllByIsActiveTrue(spec, pageable);
+    Page<Article> articles = articleRepository.findAll(spec, pageable);
 
     List<ArticleDto> articleDtos = articles.stream()
         .map(article -> {
@@ -153,7 +153,7 @@ public class ArticleServiceImpl implements ArticleService {
   private Specification<Article> getSpec(String keyword, UUID interestId,
       List<String> sourceIn, LocalDateTime publishDateFrom,
       LocalDateTime publishDateTo, LocalDateTime after) {
-    Specification<Article> spec = Specification.where(null);
+    Specification<Article> spec = (root, query, cb) -> cb.isTrue(root.get("isActive"));
 
     if (keyword != null) {
       spec = spec.and((root, query, cb) -> cb.or(

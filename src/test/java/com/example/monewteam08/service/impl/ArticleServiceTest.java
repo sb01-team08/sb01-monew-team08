@@ -105,7 +105,7 @@ public class ArticleServiceTest {
     Article article = mock(Article.class);
     Page<Article> articlePage = new PageImpl<>(List.of(article));
 
-    given(articleRepository.findAllByIsActiveTrue(any(Specification.class),
+    given(articleRepository.findAll(any(Specification.class),
         any(Pageable.class))).willReturn(articlePage);
 
     ArticleDto dto = mock(ArticleDto.class);

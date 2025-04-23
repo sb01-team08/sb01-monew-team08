@@ -13,6 +13,6 @@ import org.springframework.stereotype.Repository;
 public interface ArticleRepository extends JpaRepository<Article, UUID>,
     JpaSpecificationExecutor<Article> {
 
-  Page<Article> findAllByIsActiveTrue(Specification<Article> spec, Pageable pageable);
+  Page<Article> findAll(Specification<Article> spec, Pageable pageable);
 
 }
