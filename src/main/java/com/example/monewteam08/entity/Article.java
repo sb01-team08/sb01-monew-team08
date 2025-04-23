@@ -54,4 +54,8 @@ public class Article {
   public void softDelete() {
     this.isActive = false;
   }
+
+  public void addViewCount() {
+    this.viewCount++;
+  }
 }

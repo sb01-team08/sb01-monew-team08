@@ -29,7 +29,12 @@ public class ArticleServiceImpl implements ArticleService {
   private final ArticleMapper articleMapper;
 
   @Override
-  public List<ArticleDto> save() {
+  public void save(Article article) {
+    articleRepository.save(article);
+  }
+
+  @Override
+  public List<ArticleDto> fetchAndSave() {
     List<Article> articles = articleFetchService.fetchAllArticles();
     List<Article> filteredArticles = filterWithKeywords(articles);
     List<Article> savedArticles = articleRepository.saveAll(filteredArticles);

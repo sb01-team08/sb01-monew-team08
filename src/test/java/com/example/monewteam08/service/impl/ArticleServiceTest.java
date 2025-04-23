@@ -61,7 +61,7 @@ public class ArticleServiceTest {
     // given
     String keyword = "경제";
     UUID interestId = UUID.randomUUID();
-    List<String> sourceIn = List.of("NAVER", "DAUM");
+    List<String> sourceIn = List.of("NAVER");
     LocalDateTime publishDateFrom = LocalDateTime.now().minusDays(7);
     LocalDateTime publishDateTo = LocalDateTime.now();
     String orderBy = "publishDate";
@@ -74,7 +74,7 @@ public class ArticleServiceTest {
     Article article = mock(Article.class);
     Page<Article> articlePage = new PageImpl<>(List.of(article));
 
-    given(articleRepository.findAll(any(Specification.class), any(Pageable.class)))
+    given(articleRepository.findAllByIsActiveTrue(any(Specification.class), any(Pageable.class)))
         .willReturn(articlePage);
 
     ArticleDto dto = mock(ArticleDto.class);
@@ -97,7 +97,7 @@ public class ArticleServiceTest {
     constructor.setAccessible(true);
     Article article = constructor.newInstance();
     ReflectionTestUtils.setField(article, "id", articleId);
-    ReflectionTestUtils.setField(article, "isActive", false);
+    ReflectionTestUtils.setField(article, "isActive", true);
 
     given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
 

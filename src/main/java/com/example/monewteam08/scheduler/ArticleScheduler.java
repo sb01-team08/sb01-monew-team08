@@ -16,11 +16,11 @@ public class ArticleScheduler {
 
   @PostConstruct
   public void init() {
-    articleService.save();
+    articleService.fetchAndSave();
   }
 
   @Scheduled(cron = "0 0 * * * *")
   public void fetchAndSaveArticles() {
-    articleService.save();
+    articleService.fetchAndSave();
   }
 }
