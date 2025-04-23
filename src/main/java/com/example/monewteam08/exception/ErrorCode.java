@@ -41,7 +41,11 @@ public enum ErrorCode {
 
   // Interest
   DUPLICATE_INTEREST(HttpStatus.CONFLICT, "INTEREST001", "이미 유사한 관심사가 존재합니다."),
-  INTEREST_NOT_FOUND(HttpStatus.NOT_FOUND, "INTEREST002", "관심사를 찾을 수 없습니다.");
+  INTEREST_NOT_FOUND(HttpStatus.NOT_FOUND, "INTEREST002", "관심사를 찾을 수 없습니다."),
+
+  // Subscription
+  ALREADY_SUBSCRIPTION(HttpStatus.CONFLICT, "SUBSCRIPTION001", "이미 구독된 관심사입니다."),
+  SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "SUBSCRIPTION002", "구독 정보를 찾을 수 없습니다.");
 
   private final HttpStatus status;
   private final String code;
