@@ -4,13 +4,13 @@ import com.example.monewteam08.dto.response.article.ArticleViewDto;
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.ArticleView;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
+import com.example.monewteam08.exception.user.UserNotFoundException;
 import com.example.monewteam08.mapper.ArticleViewMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.ArticleViewRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.ArticleViewService;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class ArticleViewServiceImpl implements ArticleViewService {
     Article article = articleRepository.findById(articleId)
         .orElseThrow(() -> new ArticleNotFoundException(articleId));
     userRepository.findById(userId)
-        .orElseThrow(NoSuchElementException::new); // UserNofFoundException으로 수정 예정
+        .orElseThrow(() -> new UserNotFoundException(userId));
 
     long commentCount = countComment(articleId);
 

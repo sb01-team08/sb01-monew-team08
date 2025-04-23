@@ -49,6 +49,7 @@ public class Article {
     this.summary = summary;
     this.sourceUrl = sourceUrl;
     this.publishedAt = publishedAt;
+    this.isActive = true;
   }
 
   public void softDelete() {

@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.example.monewteam08.dto.response.article.ArticleDto;
@@ -12,6 +13,7 @@ import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
+import com.example.monewteam08.service.Interface.ArticleFetchService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
 import java.lang.reflect.Constructor;
 import java.time.LocalDateTime;
@@ -41,6 +43,9 @@ public class ArticleServiceTest {
   @Mock
   private ArticleViewService articleViewService;
 
+  @Mock
+  private ArticleFetchService articleFetchService;
+
   @InjectMocks
   private ArticleServiceImpl articleService;
 
@@ -50,14 +55,36 @@ public class ArticleServiceTest {
     List<Article> articles = List.of(
         new Article("NAVER", "오늘의 경제 뉴스", "경제가 어렵습니다", "http://a.com", LocalDateTime.now()),
         new Article("NAVER", "오늘의 연예 뉴스", "연예계 소식입니다", "http://b.com", LocalDateTime.now()),
-        new Article("NAVER", "경제 회복 중", "경제 성장률이 증가 중", "http://c.com", LocalDateTime.now())
-    );
+        new Article("NAVER", "경제 회복 중", "경제 성장률이 증가 중", "http://c.com", LocalDateTime.now()));
 
     // when
     List<Article> filteredArticles = articleService.filterWithKeywords(articles);
 
     // then
     assert (filteredArticles.size() == 2);
+  }
+
+  @Test
+  void 기사_불러와서_저장_성공() {
+    // given
+    Article article1 = new Article("NAVER", "오늘의 경제 뉴스", "경제가 어렵습니다", "http://a.com",
+        LocalDateTime.now());
+    Article article2 = new Article("NAVER", "중복 기사", "중복 설명", "http://b.com", LocalDateTime.now());
+
+    List<Article> fetchedArticles = List.of(article1, article2);
+    List<String> existingUrls = List.of("http://b.com");
+
+    given(articleFetchService.fetchAllArticles()).willReturn(fetchedArticles);
+    given(articleRepository.findAll()).willReturn(
+        List.of(new Article("NAVER", "이미 있는 기사", "중복 설명", "http://b.com", LocalDateTime.now())));
+
+    // when
+    articleService.fetchAndSave();
+
+    // then
+    verify(articleRepository).saveAll(List.of(article1));
+    verify(articleRepository, never()).saveAll(List.of(article2));
+
   }
 
   @Test
@@ -78,8 +105,8 @@ public class ArticleServiceTest {
     Article article = mock(Article.class);
     Page<Article> articlePage = new PageImpl<>(List.of(article));
 
-    given(articleRepository.findAllByIsActiveTrue(any(Specification.class), any(Pageable.class)))
-        .willReturn(articlePage);
+    given(articleRepository.findAllByIsActiveTrue(any(Specification.class),
+        any(Pageable.class))).willReturn(articlePage);
 
     ArticleDto dto = mock(ArticleDto.class);
     given(articleMapper.toDto(any(Article.class), anyBoolean())).willReturn(dto);

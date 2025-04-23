@@ -64,7 +64,7 @@ public class ArticleController {
       @RequestParam(required = false) String cursor,
       @RequestParam(required = false) LocalDateTime after, //createdAt
       @RequestParam int limit,
-      @RequestParam UUID monewRequestUserId
+      @RequestHeader(name = "Monew-Request-User-Id") UUID monewRequestUserId
   ) {
     CursorPageResponseArticleDto response = articleService.getArticles(
         keyword,
