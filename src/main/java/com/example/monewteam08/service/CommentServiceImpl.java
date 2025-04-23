@@ -96,14 +96,18 @@ public class CommentServiceImpl implements CommentService {
 
   @Override
   @Transactional
-  public CommentDto update(UUID id, CommentUpdateRequest request) {
+  public CommentDto update(UUID id, CommentUpdateRequest request, UUID userId) {
     Comment comment = commentRepository.findById(id).orElseThrow(() -> {
       log.warn("수정 할 댓글 없음 : id={}", id);
       return new CommentNotFoundException();
     });
 
+    if (!comment.getUserId().equals(userId)) {
+      throw new UnauthorizedCommentAccessException();
+    }
+
     comment.update(request.getContent());
-    log.info("댓글 수정 완료");
+    log.info("댓글 수정 완료" );
 
     return commentMapper.toDto(comment);
   }
@@ -141,7 +145,7 @@ public class CommentServiceImpl implements CommentService {
     return switch (orderBy) {
       case "likeCount" -> String.valueOf(last.getLikeCount());
       case "createdAt" -> String.valueOf(last.getCreatedAt());
-      default -> throw new IllegalArgumentException("유효하지 않는 정렬 기준입니다.");
+      default -> throw new IllegalArgumentException("유효하지 않는 정렬 기준입니다." );
     };
   }
 }

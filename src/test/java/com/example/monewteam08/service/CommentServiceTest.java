@@ -55,7 +55,7 @@ class CommentServiceTest {
         userId.toString(),
         "테스트"
     );
-    mockComment = new Comment(articleId, userId, "테스트");
+    mockComment = new Comment(articleId, userId, "테스트" );
     ReflectionTestUtils.setField(mockComment, "id", commentId);
   }
 
@@ -68,7 +68,7 @@ class CommentServiceTest {
             .id(commentId.toString())
             .articleId(articleId.toString())
             .userId(userId.toString())
-            .content("테스트")
+            .content("테스트" )
             .likeCount(0)
             .likedByMe(false)
             .userNickname(null)
@@ -90,6 +90,7 @@ class CommentServiceTest {
   void 댓글_수정_테스트() {
     String newContent = "수정 댓글";
     CommentUpdateRequest updateRequest = new CommentUpdateRequest(newContent);
+    UUID userId = UUID.randomUUID();
 
     when(commentRepository.findById(commentId)).thenReturn(Optional.ofNullable(mockComment));
     when(commentMapper.toDto(any(Comment.class))).thenReturn(
@@ -103,7 +104,7 @@ class CommentServiceTest {
             .createdAt(null)
             .build()
     );
-    CommentDto result = commentService.update(commentId, updateRequest);
+    CommentDto result = commentService.update(commentId, updateRequest, userId);
 
     assertEquals(newContent, mockComment.getContent());
     verify(commentRepository).findById(commentId);
@@ -113,12 +114,13 @@ class CommentServiceTest {
 
   @Test
   void 존재하지_않는_댓글_수정() {
-    CommentUpdateRequest updateRequest = new CommentUpdateRequest("수정");
+    UUID userId = UUID.randomUUID();
+    CommentUpdateRequest updateRequest = new CommentUpdateRequest("수정" );
 
     when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
 
     assertThrows(CommentNotFoundException.class, () -> {
-      commentService.update(commentId, updateRequest);
+      commentService.update(commentId, updateRequest, userId);
     });
   }
 
