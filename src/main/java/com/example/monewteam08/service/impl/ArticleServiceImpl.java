@@ -119,9 +119,10 @@ public class ArticleServiceImpl implements ArticleService {
   }
 
   protected List<Article> filterWithKeywords(List<Article> articles) {
-    List<String> keywords = interestRepository.findAll().stream()
-        .flatMap(interest -> interest.getKeywords().stream())
-        .toList();
+    List<String> keywords = List.of("경제");
+//        interestRepository.findAll().stream()
+//        .flatMap(interest -> interest.getKeywords().stream())
+//        .toList();
 
     return articles.stream()
         .filter(article -> keywords.stream()
