@@ -1,8 +1,10 @@
 package com.example.monewteam08.controller;
 
+import com.example.monewteam08.dto.response.article.ArticleViewDto;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.service.Interface.ArticleService;
+import com.example.monewteam08.service.Interface.ArticleViewService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ArticleController {
 
   private final ArticleService articleService;
+  private final ArticleViewService articleViewService;
 
   @DeleteMapping("/{articleId}")
   public ResponseEntity<Void> softDelete(@PathVariable UUID articleId) {
@@ -75,5 +80,20 @@ public class ArticleController {
         monewRequestUserId
     );
     return ResponseEntity.ok(response);
+  }
+
+  @PostMapping("/{articleId}/article-views")
+  public ResponseEntity<ArticleViewDto> registerArticleView(
+      @PathVariable UUID articleId,
+      @RequestHeader(name = "Monew-Request-User-Id") UUID userId
+  ) {
+    try {
+      ArticleViewDto articleViewDto = articleViewService.save(articleId, userId);
+      return ResponseEntity.ok(articleViewDto);
+    } catch (ArticleNotFoundException e) {
+      return ResponseEntity.notFound().build();
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
   }
 }
