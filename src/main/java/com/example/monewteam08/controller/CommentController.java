@@ -38,7 +38,7 @@ public class CommentController {
       @RequestParam String direction,
       @RequestParam(required = false) String cursor,
       @RequestParam(required = false) String after,
-      @RequestParam(required = false) Integer limit,
+      @RequestParam Integer limit,
       @RequestHeader("Monew-Request-User-ID" ) String requestUserId
   ) {
     CursorPageResponseCommentDto result = commentService.getCommentsByCursor(
