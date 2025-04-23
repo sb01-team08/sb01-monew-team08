@@ -5,10 +5,14 @@ import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
 import com.example.monewteam08.dto.response.comment.CommentDto;
 import com.example.monewteam08.dto.response.comment.CursorPageResponseCommentDto;
 import com.example.monewteam08.entity.Comment;
+import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.exception.comment.UnauthorizedCommentAccessException;
+import com.example.monewteam08.exception.user.UserNotFoundException;
 import com.example.monewteam08.mapper.CommentMapper;
+import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentRepository;
+import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.CommentService;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommentServiceImpl implements CommentService {
 
   private final CommentRepository commentRepository;
+  private final UserRepository userRepository;
+  private final ArticleRepository articleRepository;
   private final CommentMapper commentMapper;
 
   @Override
@@ -86,7 +92,9 @@ public class CommentServiceImpl implements CommentService {
     UUID articleId = UUID.fromString(request.getArticleId());
     UUID userId = UUID.fromString(request.getUserId());
 
-    //유저,기사 있는지 없는지 예외 체크 필요
+    articleRepository.findById(articleId)
+        .orElseThrow(() -> new ArticleNotFoundException(articleId));
+    userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
     Comment comment = new Comment(articleId, userId, request.getContent());
     Comment save = commentRepository.save(comment);
