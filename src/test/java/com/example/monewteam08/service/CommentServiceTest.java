@@ -1,9 +1,12 @@
 package com.example.monewteam08.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -19,6 +22,7 @@ import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.exception.comment.UnauthorizedCommentAccessException;
 import com.example.monewteam08.mapper.CommentMapper;
 import com.example.monewteam08.repository.ArticleRepository;
+import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
 import java.util.Optional;
@@ -42,6 +46,9 @@ class CommentServiceTest {
 
   @Mock
   private ArticleRepository articleRepository;
+
+  @Mock
+  private CommentLikeRepository commentLikeRepository;
 
   @Mock
   private CommentMapper commentMapper;
@@ -73,9 +80,14 @@ class CommentServiceTest {
   @Test
   void 댓글_정상_등록() {
     when(articleRepository.findById(articleId)).thenReturn(Optional.of(mock(Article.class)));
-    when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
+
+    User mockUser = mock(User.class);
+    when(mockUser.getNickname()).thenReturn("닉네임" );
+    when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+
     when(commentRepository.save(any(Comment.class))).thenReturn(mockComment);
-    when(commentMapper.toDto(any(Comment.class))).thenReturn(
+
+    when(commentMapper.toDto(any(Comment.class), eq("닉네임" ), eq(false))).thenReturn(
         CommentDto.builder()
             .id(commentId.toString())
             .articleId(articleId.toString())
@@ -83,7 +95,7 @@ class CommentServiceTest {
             .content("테스트" )
             .likeCount(0)
             .likedByMe(false)
-            .userNickname(null)
+            .userNickname("닉네임" )
             .createdAt(null)
             .build()
     );
@@ -96,6 +108,8 @@ class CommentServiceTest {
     assertEquals(articleId.toString(), result.getArticleId());
     assertEquals(userId.toString(), result.getUserId());
     assertEquals("테스트", result.getContent());
+    assertEquals("닉네임", result.getUserNickname());
+    assertFalse(result.isLikedByMe());
   }
 
   @Test
@@ -104,14 +118,17 @@ class CommentServiceTest {
     CommentUpdateRequest updateRequest = new CommentUpdateRequest(newContent);
 
     when(commentRepository.findById(commentId)).thenReturn(Optional.ofNullable(mockComment));
-    when(commentMapper.toDto(any(Comment.class))).thenReturn(
+    when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
+    when(commentLikeRepository.existsByUserIdAndCommentId(userId, commentId)).thenReturn(true);
+
+    when(commentMapper.toDto(any(Comment.class), any(), eq(true))).thenReturn(
         CommentDto.builder()
             .id(commentId.toString())
             .articleId(articleId.toString())
             .userId(userId.toString())
             .content(newContent)
-            .likedByMe(false)
-            .userNickname(null)
+            .likedByMe(true)
+            .userNickname("닉네임" )
             .createdAt(null)
             .build()
     );
@@ -121,6 +138,8 @@ class CommentServiceTest {
     verify(commentRepository).findById(commentId);
     assertNotNull(mockComment.getUpdatedAt());
     assertNotNull(result);
+    assertEquals("닉네임", result.getUserNickname());
+    assertTrue(result.isLikedByMe());
   }
 
   @Test

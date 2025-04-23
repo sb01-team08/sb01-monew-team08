@@ -5,18 +5,24 @@ import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
 import com.example.monewteam08.dto.response.comment.CommentDto;
 import com.example.monewteam08.dto.response.comment.CursorPageResponseCommentDto;
 import com.example.monewteam08.entity.Comment;
+import com.example.monewteam08.entity.CommentLike;
+import com.example.monewteam08.entity.User;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.exception.comment.UnauthorizedCommentAccessException;
 import com.example.monewteam08.exception.user.UserNotFoundException;
 import com.example.monewteam08.mapper.CommentMapper;
 import com.example.monewteam08.repository.ArticleRepository;
+import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.CommentService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +37,7 @@ public class CommentServiceImpl implements CommentService {
   private final UserRepository userRepository;
   private final ArticleRepository articleRepository;
   private final CommentMapper commentMapper;
+  private final CommentLikeRepository commentLikeRepository;
 
   @Override
   public CursorPageResponseCommentDto getCommentsByCursor(String articleId, String orderBy,
@@ -52,15 +59,31 @@ public class CommentServiceImpl implements CommentService {
       comments.remove(limit);
     }
 
+    //id
+    Set<UUID> userIds = comments.stream().map(Comment::getUserId).collect(Collectors.toSet());
+
+    Set<UUID> commentIds = comments.stream().map(Comment::getId).collect(Collectors.toSet());
+
+    //닉네임
+    List<User> users = userRepository.findByIdIn(userIds);
+    Map<UUID, String> nicknmaMap = users.stream()
+        .collect(Collectors.toMap(User::getId, User::getNickname));
+
+    //좋아요
+    List<CommentLike> likes = commentLikeRepository.findAllByUserIdAndCommentIdIn(
+        requestUserUuid, commentIds);
+    Set<UUID> likecCommentIds = likes.stream().map(CommentLike::getCommentId)
+        .collect(Collectors.toSet());
+
     List<CommentDto> dtoList = comments.stream()
         .map(comment -> CommentDto.builder()
             .id(comment.getId().toString())
             .articleId(comment.getArticleId().toString())
             .userId(comment.getUserId().toString())
-            .userNickname(null)
+            .userNickname(nicknmaMap.get(comment.getUserId()))
             .content(comment.getContent())
             .likeCount(comment.getLikeCount())
-            .likedByMe(false)
+            .likedByMe(likecCommentIds.contains(comment.getId()))
             .createdAt(comment.getCreatedAt())
             .build()).toList();
 
@@ -94,12 +117,13 @@ public class CommentServiceImpl implements CommentService {
 
     articleRepository.findById(articleId)
         .orElseThrow(() -> new ArticleNotFoundException(articleId));
-    userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(userId));
 
     Comment comment = new Comment(articleId, userId, request.getContent());
     Comment save = commentRepository.save(comment);
 
-    return commentMapper.toDto(save);
+    return commentMapper.toDto(save, user.getNickname(), false);
   }
 
   @Override
@@ -117,7 +141,11 @@ public class CommentServiceImpl implements CommentService {
     comment.update(request.getContent());
     log.info("댓글 수정 완료" );
 
-    return commentMapper.toDto(comment);
+    boolean likedByMe = commentLikeRepository.existsByUserIdAndCommentId(userId, comment.getId());
+
+    String nickname = userRepository.findById(userId).map(User::getNickname).orElse("" );
+
+    return commentMapper.toDto(comment, nickname, likedByMe);
   }
 
   //물리삭제
