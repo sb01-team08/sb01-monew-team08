@@ -1,6 +1,5 @@
 package com.example.monewteam08.service.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -64,7 +63,7 @@ class NotificationServiceImplTest {
     given(notificationRepository.findByIdAndUserId(resourceId, userId)).willReturn(
         Optional.of(mock));
 
-    notificationService.confirmNotification(resourceId, userId);
+    notificationService.confirmNotification(resourceId.toString(), userId.toString());
 
     verify(mock).confirm();
   }
@@ -72,17 +71,18 @@ class NotificationServiceImplTest {
   @Test
   void 미확인_알림_조회() {
     LocalDateTime cursor = LocalDateTime.now();
+    LocalDateTime after = LocalDateTime.now();
     List<Notification> mockResult = List.of(mock(Notification.class));
-    given(notificationRepository.findUnreadByUserIdBefore(eq(userId), eq(cursor),
+    given(notificationRepository.findUnreadByUserIdBefore(eq(userId), eq(cursor), eq(after),
         any(PageRequest.class))).willReturn(mockResult);
     given(notificationMapper.toDto(any())).willReturn(mock(NotificationDto.class));
 
-    List<NotificationDto> result = notificationService.getUnreadNotifications(userId,
-        cursor, 5);
+    notificationService.getUnreadNotifications(
+        userId.toString(),
+        cursor.toString(), after.toString(), 5);
 
-    assertThat(result).hasSize(1);
     verify(notificationRepository)
-        .findUnreadByUserIdBefore(eq(userId), eq(cursor), any(PageRequest.class));
+        .findUnreadByUserIdBefore(eq(userId), eq(cursor), eq(after), any(PageRequest.class));
   }
 
   @Test

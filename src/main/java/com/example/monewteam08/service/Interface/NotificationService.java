@@ -1,8 +1,6 @@
 package com.example.monewteam08.service.Interface;
 
-import com.example.monewteam08.dto.response.nodtification.NotificationDto;
-import java.time.LocalDateTime;
-import java.util.List;
+import com.example.monewteam08.dto.response.nodtification.CursorPageResponseNotificationDto;
 import java.util.UUID;
 
 public interface NotificationService {
@@ -11,11 +9,13 @@ public interface NotificationService {
 
   void createCommentLikeNotification(UUID userId, UUID interestId, String likerNickname);
 
-  void confirmNotification(UUID notificationId, UUID userId);
+  void confirmNotification(String notificationId, String userId);
 
-  void confirmAllNotifications(UUID userId);
+  void confirmAllNotifications(String userId);
 
-  List<NotificationDto> getUnreadNotifications(UUID userId, LocalDateTime cursor, int limit);
+  CursorPageResponseNotificationDto getUnreadNotifications(String userId, String cursor,
+      String after,
+      int limit);
 
   void deleteNotification();
 }

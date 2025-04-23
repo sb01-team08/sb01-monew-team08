@@ -72,6 +72,7 @@ class NotificationRepositoryTest {
   void 알림_목록_조회_커서() {
     UUID userId = UUID.randomUUID();
     LocalDateTime baseTime = LocalDateTime.now();
+    LocalDateTime after = LocalDateTime.now();
 
     for (int i = 0; i < 15; i++) {
       Notification noti = new Notification(userId, "알림 " + i, ResourceType.COMMENT,
@@ -81,7 +82,7 @@ class NotificationRepositoryTest {
     }
 
     List<Notification> firstPageRaw = notificationRepository.findUnreadByUserIdBefore(
-        userId, baseTime.plusSeconds(1), PageRequest.of(0, 10)
+        userId, baseTime.plusSeconds(1), after, PageRequest.of(0, 10)
     );
 
     List<Notification> result = firstPageRaw.size() > 10
@@ -92,9 +93,10 @@ class NotificationRepositoryTest {
     assertThat(result.get(0).getCreatedAt()).isAfter(result.get(9).getCreatedAt());
 
     LocalDateTime nextCursor = result.get(9).getCreatedAt();
+    LocalDateTime nextAfter = result.get(9).getCreatedAt();
 
     List<Notification> secondPage = notificationRepository.findUnreadByUserIdBefore(
-        userId, nextCursor, PageRequest.of(0, 10)
+        userId, nextCursor, nextAfter, PageRequest.of(0, 10)
     );
 
     assertThat(secondPage).hasSize(5);

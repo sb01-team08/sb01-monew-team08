@@ -17,5 +17,5 @@ public class CursorPageResponseNotificationDto {
   private String nextAfter;
   private int size;
   private int totalElements;
-  private boolean hasMore;
+  private boolean hasNext;
 }

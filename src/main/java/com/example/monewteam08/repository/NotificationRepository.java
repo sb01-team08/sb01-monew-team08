@@ -23,12 +23,15 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
   @Query("SELECT n FROM Notification n " +
       "WHERE n.userId = :userId " +
       "and n.isConfirmed=false " +
-      "and (:cursor IS NULL OR  n.createdAt <: cursor) " +
+      "and (n.createdAt <: cursor or(:cursor IS NULL OR  n.createdAt <: cursor)) " +
       "order by n.createdAt DESC "
   )
   List<Notification> findUnreadByUserIdBefore(
       @Param("userId" ) UUID userIdBefore,
       @Param("cursor" ) LocalDateTime cursor,
+      @Param("after" ) LocalDateTime after,
       Pageable pageable
   );
+
+  int countByUserId(UUID userIdUuid);
 }
