@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api/comments" )
 @RequiredArgsConstructor
 public class CommentController {
 
@@ -38,8 +38,8 @@ public class CommentController {
       @RequestParam String direction,
       @RequestParam(required = false) String cursor,
       @RequestParam(required = false) String after,
-      @RequestParam(required = false) Integer limit,
-      @RequestHeader("Monew-Request-User-ID") String requestUserId
+      @RequestParam Integer limit,
+      @RequestHeader("Monew-Request-User-ID" ) String requestUserId
   ) {
     CursorPageResponseCommentDto result = commentService.getCommentsByCursor(
         articleId, orderBy, direction, cursor, after, limit, requestUserId
@@ -54,42 +54,43 @@ public class CommentController {
     return ResponseEntity.status(HttpStatus.CREATED).body(result);
   }
 
-  @PostMapping("/{commentId}/comment-likes")
+  @PostMapping("/{commentId}/comment-likes" )
   public ResponseEntity<CommentLikeDto> like(
       @PathVariable UUID commentId,
-      @RequestHeader("Monew-Request-User-ID") UUID userId
+      @RequestHeader("Monew-Request-User-ID" ) UUID userId
   ) {
     CommentLikeDto response = commentLikeService.like(commentId, userId);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  @DeleteMapping("/{commentId}/comment-likes")
+  @DeleteMapping("/{commentId}/comment-likes" )
   public ResponseEntity<Void> unlike(
       @PathVariable UUID commentId,
-      @RequestHeader("Monew-Request-User-ID") UUID userId) {
+      @RequestHeader("Monew-Request-User-ID" ) UUID userId) {
     commentLikeService.unlike(userId, commentId);
     return ResponseEntity.noContent().build();
   }
 
-  @PatchMapping("/{commentId}")
+  @PatchMapping("/{commentId}" )
   public ResponseEntity<CommentDto> updateComment(
       @PathVariable UUID commentId,
-      @RequestBody @Valid CommentUpdateRequest request
+      @RequestBody @Valid CommentUpdateRequest request,
+      @RequestHeader("Monew-Request-User-ID" ) UUID userId
   ) {
-    CommentDto result = commentService.update(commentId, request);
+    CommentDto result = commentService.update(commentId, request, userId);
     return ResponseEntity.status(HttpStatus.OK).body(result);
   }
 
-  @DeleteMapping("/{commentId}")
+  @DeleteMapping("/{commentId}" )
   public ResponseEntity<Void> deleteComment(
       @PathVariable UUID commentId,
-      @RequestHeader("Monew-Request-User-ID") UUID userId
+      @RequestHeader("Monew-Request-User-ID" ) UUID userId
   ) {
     commentService.delete(commentId, userId);
     return ResponseEntity.noContent().build();
   }
 
-  @DeleteMapping("/{commentId}/hard")
+  @DeleteMapping("/{commentId}/hard" )
   public ResponseEntity<Void> deleteComment(
       @PathVariable UUID commentId
   ) {

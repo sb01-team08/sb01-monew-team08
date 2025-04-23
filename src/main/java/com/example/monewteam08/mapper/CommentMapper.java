@@ -7,19 +7,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class CommentMapper {
 
-    public CommentDto toDto(Comment comment) {
-        if (comment == null) {
-            return null;
-        }
-        return CommentDto.builder()
-                .id(comment.getId().toString())
-                .articleId(comment.getArticleId().toString())
-                .userId(comment.getUserId().toString())
-                .userNickname(null) //추후 수정
-                .content(comment.getContent())
-                .likeCount(comment.getLikeCount())
-                .likedByMe(false) //추후 수정
-                .createdAt(comment.getCreatedAt())
-                .build();
+  public CommentDto toDto(Comment comment, String userNickname, boolean likedByMe) {
+    if (comment == null) {
+      return null;
     }
+    return CommentDto.builder()
+        .id(comment.getId().toString())
+        .articleId(comment.getArticleId().toString())
+        .userId(comment.getUserId().toString())
+        .userNickname(userNickname)
+        .content(comment.getContent())
+        .likeCount(comment.getLikeCount())
+        .likedByMe(likedByMe)
+        .createdAt(comment.getCreatedAt())
+        .build();
+  }
 }

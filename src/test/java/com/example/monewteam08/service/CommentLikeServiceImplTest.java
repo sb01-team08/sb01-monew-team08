@@ -8,9 +8,12 @@ import static org.mockito.Mockito.when;
 import com.example.monewteam08.dto.response.comment.CommentLikeDto;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentLike;
+import com.example.monewteam08.entity.User;
 import com.example.monewteam08.mapper.CommentLikeMapper;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
+import com.example.monewteam08.repository.UserRepository;
+import com.example.monewteam08.service.Interface.NotificationService;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +33,10 @@ class CommentLikeServiceImplTest {
   private CommentRepository commentRepository;
   @Mock
   private CommentLikeMapper commentLikeMapper;
+  @Mock
+  private UserRepository userRepository;
+  @Mock
+  private NotificationService notificationService;
 
   @InjectMocks
   private CommentLikeServiceImpl commentLikeService;
@@ -37,12 +44,14 @@ class CommentLikeServiceImplTest {
   private UUID commentId;
   private UUID userId;
   private Comment mockComment;
+  private User mockUser;
 
   @BeforeEach
   void setUp() {
     commentId = UUID.randomUUID();
     userId = UUID.randomUUID();
-    mockComment = new Comment(UUID.randomUUID(), UUID.randomUUID(), "내용");
+    mockUser = new User("test@example.com", "nickname", "password" );
+    mockComment = new Comment(UUID.randomUUID(), UUID.randomUUID(), "내용" );
     ReflectionTestUtils.setField(mockComment, "id", commentId);
   }
 
@@ -56,6 +65,7 @@ class CommentLikeServiceImplTest {
         .commentLikeCount(1)
         .build();
 
+    when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
     when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
     when(commentLikeRepository.save(any())).thenReturn(like);
     when(commentLikeMapper.toDto(any(), any(), any())).thenReturn(dto);
