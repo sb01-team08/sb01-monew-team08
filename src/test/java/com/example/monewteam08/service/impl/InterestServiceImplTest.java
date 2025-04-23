@@ -3,15 +3,22 @@ package com.example.monewteam08.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.monewteam08.dto.request.Interest.InterestRequest;
+import com.example.monewteam08.dto.request.Interest.InterestUpdateRequest;
+import com.example.monewteam08.dto.response.interest.InterestResponse;
+import com.example.monewteam08.dto.response.interest.InterestWithSubscriptionResponse;
+import com.example.monewteam08.dto.response.interest.PageResponse;
 import com.example.monewteam08.entity.Interest;
 import com.example.monewteam08.exception.Interest.DuplicateInterestException;
 import com.example.monewteam08.exception.Interest.InterestNotFoundException;
+import com.example.monewteam08.mapper.InterestMapper;
 import com.example.monewteam08.repository.InterestRepository;
+import com.example.monewteam08.repository.SubscriptionRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +36,12 @@ public class InterestServiceImplTest {
   @Mock
   private InterestRepository interestRepository;
 
+  @Mock
+  private SubscriptionRepository subscriptionRepository;
+
+  @Mock
+  private InterestMapper interestMapper;
+
   @InjectMocks
   private InterestServiceImpl interestService;
 
@@ -37,23 +50,26 @@ public class InterestServiceImplTest {
   void createInterestSuccess() {
     //given
     //관심사 이름과 키워드
-    String name = "인공지능";
-    List<String> keywords = List.of("AI", "머신러닝");
+    InterestRequest request = new InterestRequest("인공지능", List.of("AI", "머신러닝"));
 
-    Interest interest = new Interest(UUID.randomUUID(), name, keywords, 0);
+    Interest entity = new Interest(UUID.randomUUID(), request.name(), request.keywords(), 0);
+    InterestResponse response = new InterestResponse(entity.getId(), entity.getName(),
+        entity.getKeywords(), entity.getSubscriberCount());
 
+    when(interestMapper.toEntity(request)).thenReturn(entity);
     when(interestRepository.findAll()).thenReturn(List.of());
-    when(interestRepository.save(any())).thenReturn(interest);
+    when(interestRepository.save(entity)).thenReturn(entity);
+    when(interestMapper.toResponse(any())).thenReturn(response);
 
     //when
     //관심사 등록 메서드 호출
-    Interest result = interestService.create(name, keywords);
+    InterestResponse result = interestService.create(request);
 
     //then
     //리턴된 관심사 정보와 저장소 상태 검증
-    assertThat(result.getName()).isEqualTo(name);
-    assertThat(result.getKeywords()).containsExactly("AI", "머신러닝");
-    assertThat(result.getSubscriberCount()).isEqualTo(0);
+    assertThat(result.name()).isEqualTo(request.name());
+    assertThat(result.keywords()).containsExactly("AI", "머신러닝");
+    assertThat(result.subscriberCount()).isEqualTo(0);
   }
 
   @Test
@@ -61,8 +77,7 @@ public class InterestServiceImplTest {
   void createInterestFail() {
     //given
     //"인공지능", "인공 지능" 등
-    String newName = "인공지능";
-    List<String> keywords = List.of("AI", "머신러닝");
+    InterestRequest request = new InterestRequest("인공지능", List.of("AI", "머신러닝"));
 
     List<Interest> existing = List.of(
         new Interest("인공 지능", List.of("AI")),
@@ -70,10 +85,11 @@ public class InterestServiceImplTest {
     );
 
     when(interestRepository.findAll()).thenReturn(existing);
+//    when(interestMapper.toEntity(request)).thenCallRealMethod();
 
     //when
     //중복 등록 시도
-    assertThatThrownBy(() -> interestService.create(newName, keywords))
+    assertThatThrownBy(() -> interestService.create(request))
         .isInstanceOf(DuplicateInterestException.class);
     //then
     //예외 발생
@@ -85,20 +101,23 @@ public class InterestServiceImplTest {
     //given
     // 기존관심사
     UUID id = UUID.randomUUID();
-    Interest existingInterest = new Interest(id, "인공지능", List.of("AI", "머신러닝"), 0);
+    Interest existing = new Interest(id, "인공지능", List.of("AI", "머신러닝"), 0);
 
-    List<String> updatedKeywords = List.of("ChatGPT", "딥러닝");
+    InterestUpdateRequest request = new InterestUpdateRequest(List.of("ChatGPT", "딥러닝"));
+    Interest updated = new Interest(id, "인공지능", request.keywords(), 0);
+    InterestResponse response = new InterestResponse(id, "인공지능", request.keywords(), 0);
 
-    when(interestRepository.findById(id)).thenReturn(Optional.of(existingInterest));
-    when(interestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+    when(interestRepository.findById(id)).thenReturn(Optional.of(existing));
+    when(interestRepository.save(existing)).thenReturn(updated);
+    when(interestMapper.toResponse(updated)).thenReturn(response);
 
     //when
     //키워드 수정 요청
-    Interest result = interestService.updateKeywords(id, updatedKeywords);
+    InterestResponse result = interestService.updateKeywords(id, request);
 
     //then
     //키워드 바뀌었는지 검증
-    assertThat(result.getKeywords()).containsExactly("ChatGPT", "딥러닝");
+    assertThat(result.keywords()).containsExactly("ChatGPT", "딥러닝");
   }
 
   @Test
@@ -107,18 +126,22 @@ public class InterestServiceImplTest {
     //given
     //등록된 관심사
     UUID id = UUID.randomUUID();
-    Interest interest = new Interest(id, "인공지능", List.of("AI", "머신러닝"), 0);
+    Interest entity = new Interest(id, "인공지능", List.of("AI", "머신러닝"), 0);
+    InterestResponse response = new InterestResponse(id, "인공지능", List.of("AI", "머신러닝"), 0);
 
-    when(interestRepository.findById(id)).thenReturn(Optional.of(interest));
-    doNothing().when(interestRepository).delete(interest);
+    when(interestRepository.findById(id)).thenReturn(Optional.of(entity));
+    doNothing().when(interestRepository).delete(entity);
+    when(interestMapper.toResponse(any())).thenReturn(response);
 
     //when
     //삭제 요청
-    interestService.delete(id);
+    InterestResponse result = interestService.delete(id);
 
     //than
     //저장소에서 삭제되었는지 확인
-    verify(interestRepository, times(1)).delete(interest);
+    assertThat(result.id()).isEqualTo(id);
+    assertThat(result.name()).isEqualTo("인공지능");
+    verify(interestRepository).delete(entity);
   }
 
   @Test
@@ -144,14 +167,46 @@ public class InterestServiceImplTest {
     Interest i2 = new Interest(UUID.randomUUID(), "환경보호", List.of("ESG"), 0);
     List<Interest> all = List.of(i1, i2);
 
+    InterestResponse r1 = new InterestResponse(i1.getId(), i1.getName(), i1.getKeywords(),
+        i1.getSubscriberCount());
+    InterestResponse r2 = new InterestResponse(i2.getId(), i2.getName(), i2.getKeywords(),
+        i2.getSubscriberCount());
+
     when(interestRepository.findAll()).thenReturn(all);
+    when(interestMapper.toResponse(i1)).thenReturn(r1);
+    when(interestMapper.toResponse(i2)).thenReturn(r2);
+
     //when
     // 조건없는 조회
-    List<Interest> result = interestService.read(null, null);
+    List<InterestResponse> result = interestService.read(null, null);
 
     //than
     // 확인
-    assertThat(result).containsExactly(i1, i2);
+    assertThat(result).containsExactly(r1, r2);
+  }
+
+  @Test
+  @DisplayName("검색어와 정렬 조건에 따라 필터링 및 페이지된 관심사 목록을 변환한다.")
+  void readWithPaginationFilterSort() {
+    //given
+    UUID userId = UUID.randomUUID();
+
+    Interest i1 = new Interest(UUID.randomUUID(), "기후", List.of("온난화"), 20);
+    Interest i2 = new Interest(UUID.randomUUID(), "기후위기", List.of("온난화", "지구온도상승"), 30);
+
+    when(interestRepository.findAll()).thenReturn(List.of(i1, i2));
+    when(subscriptionRepository.findByUserIdAndInterestId(eq(userId), any())).thenReturn(
+        Optional.empty());
+
+    //when
+    PageResponse<InterestWithSubscriptionResponse> result = interestService.read(
+        "온난화", "subscriberCount", "DESC", null, null, 2, userId
+    );
+
+    //then
+    assertThat(result.content()).hasSize(2);
+    assertThat(result.content().get(0).subscriberCount()).isEqualTo(30);
+    assertThat(result.hasNext()).isFalse();
   }
 
   @Test
@@ -164,14 +219,21 @@ public class InterestServiceImplTest {
     Interest i3 = new Interest(UUID.randomUUID(), "기후 변화", List.of("지구온난화", "환경"), 0);
 
     List<Interest> all = List.of(i1, i2, i3);
+
+    InterestResponse r2 = new InterestResponse(i2.getId(), i2.getName(), i2.getKeywords(), 0);
+    InterestResponse r3 = new InterestResponse(i3.getId(), i3.getName(), i3.getKeywords(), 0);
+
     when(interestRepository.findAll()).thenReturn(all);
+    when(interestMapper.toResponse(i2)).thenReturn(r2);
+    when(interestMapper.toResponse(i3)).thenReturn(r3);
+
     //when
     //검색어로 검색
-    List<Interest> result = interestService.read("환경", "name");
+    List<InterestResponse> result = interestService.read("환경", "name");
 
     //then
     //매칭되는 괌심사 반환
-    assertThat(result).containsExactlyInAnyOrder(i2, i3);
+    assertThat(result).containsExactlyInAnyOrder(r2, r3);
   }
 
   @Test
