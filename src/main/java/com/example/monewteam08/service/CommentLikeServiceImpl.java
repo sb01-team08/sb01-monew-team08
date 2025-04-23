@@ -19,38 +19,38 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentLikeServiceImpl implements CommentLikeService {
 
-    private final CommentLikeRepository commentLikeRepository;
-    private final CommentRepository commentRepository;
-    private final CommentLikeMapper commentLikeMapper;
+  private final CommentLikeRepository commentLikeRepository;
+  private final CommentRepository commentRepository;
+  private final CommentLikeMapper commentLikeMapper;
 
-    @Transactional
-    @Override
-    public CommentLikeDto like(UUID userId, UUID commentId) {
-        log.info("댓글 좋아요 요쳥: userId={},commentId={}", userId, commentId);
+  @Transactional
+  @Override
+  public CommentLikeDto like(UUID userId, UUID commentId) {
+    log.info("댓글 좋아요 요쳥: userId={},commentId={}", userId, commentId);
 
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> {
-                    log.warn("댓글 좋아요 실패 - 존재하지 않는 댓글: commentId={}", commentId);
-                    return new CommentNotFoundException();
-                });
+    Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(() -> {
+          log.warn("댓글 좋아요 실패 - 존재하지 않는 댓글: commentId={}", commentId);
+          return new CommentNotFoundException();
+        });
 
-        CommentLike liked = commentLikeRepository.save(new CommentLike(userId, commentId));
-        comment.increaseLikeCount();
+    CommentLike liked = commentLikeRepository.save(new CommentLike(userId, commentId));
+    comment.increaseLikeCount();
 
-        log.info("댓글 좋아요 성공");
-        return commentLikeMapper.toDto(liked, comment, null);
-    }
+    log.info("댓글 좋아요 성공");
+    return commentLikeMapper.toDto(liked, comment, null);
+  }
 
-    @Transactional
-    @Override
-    public void unlike(UUID userId, UUID commentId) {
-        log.info("댓글 좋아요 취소 요청 : userId={},commentId={}", userId, commentId);
+  @Transactional
+  @Override
+  public void unlike(UUID userId, UUID commentId) {
+    log.info("댓글 좋아요 취소 요청 : userId={},commentId={}", userId, commentId);
 
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(CommentNotFoundException::new);
+    Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(CommentNotFoundException::new);
 
-        commentLikeRepository.deleteByUserIdAndCommentId(userId, commentId);
-        comment.decreaseLikeCount();
-        log.info("댓글 취소 성공");
-    }
+    commentLikeRepository.deleteByUserIdAndCommentId(userId, commentId);
+    comment.decreaseLikeCount();
+    log.info("댓글 취소 성공");
+  }
 }

@@ -24,6 +24,10 @@ public record CustomApiResponse<T>(
     return new CustomApiResponse<>(HttpStatus.CREATED, true, data, null);
   }
 
+  public static <T> CustomApiResponse<T> delete() {
+    return new CustomApiResponse<>(HttpStatus.NO_CONTENT, true, null, null);
+  }
+
   public static <T> CustomApiResponse<T> fail(@Nullable final MonewException e) {
     return new CustomApiResponse<>(e.getErrorCode().getStatus(), false, null, ExceptionDto.of(e));
   }

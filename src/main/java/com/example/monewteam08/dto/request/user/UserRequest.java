@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public record UserRequest(
-        @Email(regexp = RegexPatternConstants.EMAIL) @NotBlank String email,
-        @NotBlank String nickname, @Pattern(regexp = RegexPatternConstants.PASSWORD) @NotBlank String password) {
+    @Email(regexp = RegexPatternConstants.EMAIL) @NotBlank String email,
+    @NotBlank String nickname,
+    @Pattern(regexp = RegexPatternConstants.PASSWORD) @NotBlank String password) {
+
 }

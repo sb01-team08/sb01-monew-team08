@@ -5,11 +5,11 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CommentRepository extends JpaRepository<Comment, UUID> {
+public interface CommentRepository extends JpaRepository<Comment, UUID>, CommentRepositoryCustom {
 
-    Optional<Comment> findById(UUID commentId);
+  Optional<Comment> findById(UUID commentId);
 
-    boolean existsById(UUID id);
+  boolean existsById(UUID id);
 
-    void deleteById(UUID id);
+  void deleteById(UUID id);
 }
