@@ -50,12 +50,15 @@ class CommentControllerTest {
 
   @Test
   void 댓글_생성_성공() throws Exception {
-    CommentRegisterRequest request = new CommentRegisterRequest("articleId", "userId", "내용" );
+    UUID userId = UUID.randomUUID();
+    UUID articleId = UUID.randomUUID();
+    CommentRegisterRequest request = new CommentRegisterRequest(articleId.toString(),
+        userId.toString(), "내용" );
 
     CommentDto response = CommentDto.builder()
         .id(UUID.randomUUID().toString())
-        .articleId("articleId" )
-        .userId("userId" )
+        .articleId(articleId.toString())
+        .userId(userId.toString())
         .userNickname("닉네임" )
         .content("내용" )
         .likeCount(0)
@@ -66,6 +69,7 @@ class CommentControllerTest {
     when(commentService.create(any())).thenReturn(response);
 
     mockMvc.perform(post("/api/comments" )
+            .header("Monew-Request-User-ID", userId.toString())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
@@ -161,8 +165,9 @@ class CommentControllerTest {
   @Test
   void 댓글_물리삭제() throws Exception {
     UUID commentId = UUID.randomUUID();
-
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/comments/" + commentId + "/hard" ))
+    UUID userId = UUID.randomUUID();
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/comments/" + commentId + "/hard" )
+            .header("Monew-Request-User-ID", userId))
         .andExpect(status().isNoContent());
   }
 }
