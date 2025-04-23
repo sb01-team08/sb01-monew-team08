@@ -8,6 +8,7 @@ import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
 import com.example.monewteam08.service.Interface.ArticleService;
+import com.example.monewteam08.service.Interface.ArticleViewService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -27,11 +28,7 @@ public class ArticleServiceImpl implements ArticleService {
   private final ArticleRepository articleRepository;
   private final ArticleFetchService articleFetchService;
   private final ArticleMapper articleMapper;
-
-  @Override
-  public void save(Article article) {
-    articleRepository.save(article);
-  }
+  private final ArticleViewService articleViewService;
 
   @Override
   public List<ArticleDto> fetchAndSave() {
@@ -57,9 +54,10 @@ public class ArticleServiceImpl implements ArticleService {
     Page<Article> articles = articleRepository.findAllByIsActiveTrue(spec, pageable);
 
     List<ArticleDto> articleDtos = articles.stream()
-        .map(article -> articleMapper.toDto(article,
-            false)) //ArticleView에서 userId 있는지 확인 추가 필요, 임시로 false 처리
-        .toList();
+        .map(article -> {
+          boolean viewedByMe = articleViewService.isViewedByUser(userId, article.getId());
+          return articleMapper.toDto(article, viewedByMe);
+        }).toList();
 
     String nextCursor = null;
     LocalDateTime nextAfter = null;

@@ -12,6 +12,7 @@ import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
+import com.example.monewteam08.service.Interface.ArticleViewService;
 import java.lang.reflect.Constructor;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,6 +37,9 @@ public class ArticleServiceTest {
 
   @Mock
   private ArticleMapper articleMapper;
+
+  @Mock
+  private ArticleViewService articleViewService;
 
   @InjectMocks
   private ArticleServiceImpl articleService;

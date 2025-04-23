@@ -9,7 +9,6 @@ import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.ArticleViewRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
-import com.example.monewteam08.service.Interface.ArticleService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -24,7 +23,6 @@ public class ArticleViewServiceImpl implements ArticleViewService {
   private final ArticleRepository articleRepository;
   private final UserRepository userRepository;
   private final CommentRepository commentRepository;
-  private final ArticleService articleService;
   private final ArticleViewMapper articleViewMapper;
 
   @Override
@@ -40,10 +38,16 @@ public class ArticleViewServiceImpl implements ArticleViewService {
         .orElseGet(() -> {
           ArticleView newArticleView = new ArticleView(userId, articleId);
           article.addViewCount();
-          articleService.save(article);
+          articleRepository.save(article);
           return articleViewRepository.save(newArticleView);
         });
     return articleViewMapper.toDto(articleView, article, commentCount);
+  }
+
+  @Override
+  public boolean isViewedByUser(UUID userId, UUID articleId) {
+    return articleViewRepository.findByUserIdAndArticleId(userId, articleId)
+        .isPresent();
   }
 
   private long countComment(UUID articleId) {

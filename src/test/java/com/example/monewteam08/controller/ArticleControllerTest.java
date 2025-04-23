@@ -1,6 +1,7 @@
 package com.example.monewteam08.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,8 +34,11 @@ public class ArticleControllerTest {
     // given
     UUID articleId = UUID.randomUUID();
 
+    willDoNothing().given(articleService).softDelete(articleId);
+
     // when & then
-    mockMvc.perform(delete("/api/articles/{id}", articleId))
+    mockMvc.perform(
+            delete("/api/articles/{id}", articleId).header("Monew-Request-User-Id", UUID.randomUUID()))
         .andExpect(status().isNoContent());
 
     verify(articleService).softDelete(articleId);
@@ -46,8 +50,9 @@ public class ArticleControllerTest {
     UUID articleId = UUID.randomUUID();
 
     // when & then
-    mockMvc.perform(delete("/api/articles/{id}/hard", articleId))
-        .andExpect(status().isNoContent());
+    mockMvc.perform(delete("/api/articles/{id}/hard", articleId).header("Monew-Request-User-Id",
+        UUID.randomUUID())).andExpect(status().isNoContent())
+    ;
 
     verify(articleService).hardDelete(articleId);
   }
@@ -63,14 +68,10 @@ public class ArticleControllerTest {
     int limit = 10;
 
     // when & then
-    mockMvc.perform(get("/api/articles")
-            .param("keyword", keyword)
-            .param("interestId", interestId.toString())
-            .param("orderBy", orderBy)
-            .param("direction", direction)
-            .param("cursor", cursor)
-            .param("limit", String.valueOf(limit)))
-        .andExpect(status().isOk());
+    mockMvc.perform(
+        get("/api/articles").param("keyword", keyword).param("interestId", interestId.toString())
+            .param("orderBy", orderBy).param("direction", direction).param("cursor", cursor)
+            .param("limit", String.valueOf(limit))).andExpect(status().isOk());
   }
 
   @Test
@@ -80,10 +81,9 @@ public class ArticleControllerTest {
     UUID userId = UUID.randomUUID();
 
     // when & then
-    mockMvc.perform(post("/api/articles/{id}/article-views", articleId)
-            .param("userId", userId.toString())
-            .header("Monew-Request-User-Id", userId.toString()))
-        .andExpect(status().isOk());
+    mockMvc.perform(
+        post("/api/articles/{id}/article-views", articleId).param("userId", userId.toString())
+            .header("Monew-Request-User-Id", userId.toString())).andExpect(status().isOk());
 
     verify(articleViewService).save(any(), any());
   }

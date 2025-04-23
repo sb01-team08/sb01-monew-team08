@@ -7,4 +7,6 @@ public interface ArticleViewService {
 
   ArticleViewDto save(UUID userId, UUID articleId);
 
+  boolean isViewedByUser(UUID userId, UUID articleId);
+
 }

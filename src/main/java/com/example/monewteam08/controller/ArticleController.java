@@ -88,7 +88,7 @@ public class ArticleController {
       @RequestHeader(name = "Monew-Request-User-Id") UUID userId
   ) {
     try {
-      ArticleViewDto articleViewDto = articleViewService.save(articleId, userId);
+      ArticleViewDto articleViewDto = articleViewService.save(userId, articleId);
       return ResponseEntity.ok(articleViewDto);
     } catch (ArticleNotFoundException e) {
       return ResponseEntity.notFound().build();

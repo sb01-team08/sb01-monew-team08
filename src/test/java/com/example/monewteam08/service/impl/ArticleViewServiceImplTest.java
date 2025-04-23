@@ -18,7 +18,6 @@ import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.ArticleViewRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
-import com.example.monewteam08.service.Interface.ArticleService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -43,9 +42,6 @@ class ArticleViewServiceImplTest {
 
   @Mock
   ArticleViewRepository articleViewRepository;
-
-  @Mock
-  ArticleService articleService;
 
   @Mock
   ArticleViewMapper articleViewMapper;
