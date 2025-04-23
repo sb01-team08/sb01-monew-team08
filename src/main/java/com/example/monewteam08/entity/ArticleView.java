@@ -9,11 +9,13 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "user_article_views")
 @Getter
-public class UserArticleView {
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+public class ArticleView {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,4 +29,10 @@ public class UserArticleView {
 
   @Column(name = "viewed_at")
   private LocalDateTime viewedAt = LocalDateTime.now();
+
+  public ArticleView(UUID userId, UUID articleId) {
+    this.userId = userId;
+    this.articleId = articleId;
+    this.viewedAt = LocalDateTime.now();
+  }
 }

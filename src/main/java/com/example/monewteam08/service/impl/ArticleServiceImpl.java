@@ -6,12 +6,17 @@ import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
+import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
 import com.example.monewteam08.service.Interface.ArticleService;
+import com.example.monewteam08.service.Interface.ArticleViewService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,19 +24,38 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
 
   private final ArticleRepository articleRepository;
   private final ArticleFetchService articleFetchService;
+  private final ArticleViewService articleViewService;
+  private final InterestRepository interestRepository;
   private final ArticleMapper articleMapper;
 
+  @Transactional
   @Override
-  public List<ArticleDto> save() {
-    List<Article> articles = articleFetchService.fetchAllArticles();
-    List<Article> filteredArticles = filterWithKeywords(articles);
+  public List<ArticleDto> fetchAndSave() {
+    Set<String> existingUrls = articleRepository.findAll().stream()
+        .map(Article::getSourceUrl)
+        .collect(Collectors.toSet());
+
+    List<Article> allArticles = articleFetchService.fetchAllArticles();
+
+    List<Article> filteredArticles;
+    if (!existingUrls.isEmpty()) {
+      List<Article> uniqueArticles = allArticles.stream()
+          .filter(article -> !existingUrls.contains(article.getSourceUrl()))
+          .toList();
+      filteredArticles = filterWithKeywords(uniqueArticles);
+    } else {
+      filteredArticles = filterWithKeywords(allArticles);
+    }
+
     List<Article> savedArticles = articleRepository.saveAll(filteredArticles);
 
     return savedArticles.stream()
@@ -49,12 +73,13 @@ public class ArticleServiceImpl implements ArticleService {
     Specification<Article> spec = getSpec(keyword, interestId, sourceIn, publishDateFrom,
         publishDateTo, after);
 
-    Page<Article> articles = articleRepository.findAllByIsActiveTrue(spec, pageable);
+    Page<Article> articles = articleRepository.findAll(spec, pageable);
 
     List<ArticleDto> articleDtos = articles.stream()
-        .map(article -> articleMapper.toDto(article,
-            false)) //ArticleView에서 userId 있는지 확인 추가 필요, 임시로 false 처리
-        .toList();
+        .map(article -> {
+          boolean viewedByMe = articleViewService.isViewedByUser(userId, article.getId());
+          return articleMapper.toDto(article, viewedByMe);
+        }).toList();
 
     String nextCursor = null;
     LocalDateTime nextAfter = null;
@@ -76,6 +101,7 @@ public class ArticleServiceImpl implements ArticleService {
     );
   }
 
+  @Transactional
   @Override
   public void softDelete(UUID id) {
     Article article = articleRepository.findById(id)
@@ -84,6 +110,7 @@ public class ArticleServiceImpl implements ArticleService {
     articleRepository.save(article);
   }
 
+  @Transactional
   @Override
   public void hardDelete(UUID id) {
     Article article = articleRepository.findById(id)
@@ -92,7 +119,10 @@ public class ArticleServiceImpl implements ArticleService {
   }
 
   protected List<Article> filterWithKeywords(List<Article> articles) {
-    List<String> keywords = List.of("경제"); // 관심사 서비스 반영 예정
+    List<String> keywords = List.of("경제");
+//        interestRepository.findAll().stream()
+//        .flatMap(interest -> interest.getKeywords().stream())
+//        .toList();
 
     return articles.stream()
         .filter(article -> keywords.stream()
@@ -124,7 +154,7 @@ public class ArticleServiceImpl implements ArticleService {
   private Specification<Article> getSpec(String keyword, UUID interestId,
       List<String> sourceIn, LocalDateTime publishDateFrom,
       LocalDateTime publishDateTo, LocalDateTime after) {
-    Specification<Article> spec = Specification.where(null);
+    Specification<Article> spec = (root, query, cb) -> cb.isTrue(root.get("isActive"));
 
     if (keyword != null) {
       spec = spec.and((root, query, cb) -> cb.or(

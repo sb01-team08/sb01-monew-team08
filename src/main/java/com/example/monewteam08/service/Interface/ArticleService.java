@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface ArticleService {
 
-  List<ArticleDto> save();
+  List<ArticleDto> fetchAndSave();
 
   CursorPageResponseArticleDto getArticles(String keyword,
       UUID interestId, List<String> sourceIn, LocalDateTime publishDateFrom,
