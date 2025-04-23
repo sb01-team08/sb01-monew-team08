@@ -13,8 +13,11 @@ import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.ArticleViewService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArticleViewServiceImpl implements ArticleViewService {
@@ -25,6 +28,7 @@ public class ArticleViewServiceImpl implements ArticleViewService {
   private final CommentRepository commentRepository;
   private final ArticleViewMapper articleViewMapper;
 
+  @Transactional
   @Override
   public ArticleViewDto save(UUID userId, UUID articleId) {
     Article article = articleRepository.findById(articleId)

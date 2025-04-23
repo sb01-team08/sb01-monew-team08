@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -25,9 +26,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@Slf4j
 @Service
 public class ArticleFetchServiceImpl implements ArticleFetchService {
 
@@ -48,6 +51,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
     this.naverClientSecret = naverClientSecret;
   }
 
+  @Transactional
   public List<Article> fetchAllArticles() {
     List<Article> articles = new ArrayList<>();
     articles.addAll(fetchNaverArticles());

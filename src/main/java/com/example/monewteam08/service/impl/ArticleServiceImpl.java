@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -36,6 +37,7 @@ public class ArticleServiceImpl implements ArticleService {
   private final InterestRepository interestRepository;
   private final ArticleMapper articleMapper;
 
+  @Transactional
   @Override
   public List<ArticleDto> fetchAndSave() {
     Set<String> existingUrls = articleRepository.findAll().stream()
@@ -99,6 +101,7 @@ public class ArticleServiceImpl implements ArticleService {
     );
   }
 
+  @Transactional
   @Override
   public void softDelete(UUID id) {
     Article article = articleRepository.findById(id)
@@ -107,6 +110,7 @@ public class ArticleServiceImpl implements ArticleService {
     articleRepository.save(article);
   }
 
+  @Transactional
   @Override
   public void hardDelete(UUID id) {
     Article article = articleRepository.findById(id)
