@@ -95,12 +95,14 @@ public class CommentServiceImpl implements CommentService {
       nextAfter = last.getId();
     }
 
+    int totalElements = commentRepository.countByArticleId(articleUuid);
+
     CursorPageResponseCommentDto response = CursorPageResponseCommentDto.builder()
         .content(new ArrayList<>(dtoList))
         .nextCursor(nextCursor)
         .nextAfter(nextAfter)
-        .size(dtoList.size())
-        .totalElements(dtoList.size())
+        .size(limit)
+        .totalElements(totalElements)
         .hasNext(hasNext)
         .build();
 
