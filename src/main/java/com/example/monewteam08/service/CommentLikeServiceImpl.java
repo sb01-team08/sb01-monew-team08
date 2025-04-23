@@ -7,7 +7,9 @@ import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.mapper.CommentLikeMapper;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
+import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.CommentLikeService;
+import com.example.monewteam08.service.Interface.NotificationService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,8 @@ public class CommentLikeServiceImpl implements CommentLikeService {
   private final CommentLikeRepository commentLikeRepository;
   private final CommentRepository commentRepository;
   private final CommentLikeMapper commentLikeMapper;
+  private final NotificationService notificationService;
+  private final UserRepository userRepository;
 
   @Transactional
   @Override
@@ -34,10 +38,13 @@ public class CommentLikeServiceImpl implements CommentLikeService {
           return new CommentNotFoundException();
         });
 
+    String nickname = userRepository.findById(userId).get().getNickname();
+
     CommentLike liked = commentLikeRepository.save(new CommentLike(userId, commentId));
     comment.increaseLikeCount();
+    notificationService.createCommentLikeNotification(userId, commentId, nickname);
 
-    log.info("댓글 좋아요 성공");
+    log.info("댓글 좋아요 성공" );
     return commentLikeMapper.toDto(liked, comment, null);
   }
 
@@ -51,6 +58,6 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
     commentLikeRepository.deleteByUserIdAndCommentId(userId, commentId);
     comment.decreaseLikeCount();
-    log.info("댓글 취소 성공");
+    log.info("댓글 취소 성공" );
   }
 }
