@@ -9,8 +9,9 @@ public record ArticleDto(
     @NotNull String source,
     @NotNull String sourceUrl,
     @NotNull String title,
-    @NotNull LocalDateTime publishedAt,
+    @NotNull LocalDateTime publishDate,
     @NotNull String summary,
+    long commentCount,
     long viewCount,
     boolean viewedByMe
 ) {

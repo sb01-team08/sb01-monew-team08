@@ -1,15 +1,22 @@
 package com.example.monewteam08.service.impl;
 
+import com.example.monewteam08.dto.ArticleInterestCount;
+import com.example.monewteam08.dto.FilteredArticleDto;
 import com.example.monewteam08.dto.response.article.ArticleDto;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
 import com.example.monewteam08.entity.Article;
+import com.example.monewteam08.entity.Interest;
+import com.example.monewteam08.entity.Subscription;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
+import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.InterestRepository;
+import com.example.monewteam08.repository.SubscriptionRepository;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
 import com.example.monewteam08.service.Interface.ArticleService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
+import com.example.monewteam08.service.Interface.NotificationService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -34,32 +41,45 @@ public class ArticleServiceImpl implements ArticleService {
   private final ArticleRepository articleRepository;
   private final ArticleFetchService articleFetchService;
   private final ArticleViewService articleViewService;
+  private final SubscriptionRepository subscriptionRepository;
   private final InterestRepository interestRepository;
+  private final NotificationService notificationService;
+  private final CommentRepository commentRepository;
   private final ArticleMapper articleMapper;
 
   @Transactional
   @Override
-  public List<ArticleDto> fetchAndSave() {
+  public List<ArticleDto> fetchAndSave(UUID userId) {
     Set<String> existingUrls = articleRepository.findAll().stream()
         .map(Article::getSourceUrl)
         .collect(Collectors.toSet());
 
     List<Article> allArticles = articleFetchService.fetchAllArticles();
 
-    List<Article> filteredArticles;
+    FilteredArticleDto filteredArticles;
     if (!existingUrls.isEmpty()) {
       List<Article> uniqueArticles = allArticles.stream()
           .filter(article -> !existingUrls.contains(article.getSourceUrl()))
           .toList();
-      filteredArticles = filterWithKeywords(uniqueArticles);
+
+      filteredArticles = filterWithKeywords(uniqueArticles, userId);
+      filteredArticles.getArticleInterestCounts().forEach(interest ->
+          notificationService.createArticleNotification(userId, interest.interestId(),
+              interest.interestName(), interest.articleCount())
+      );
+
     } else {
-      filteredArticles = filterWithKeywords(allArticles);
+      filteredArticles = filterWithKeywords(allArticles, userId);
+      filteredArticles.getArticleInterestCounts().forEach(interest ->
+          notificationService.createArticleNotification(userId, interest.interestId(),
+              interest.interestName(), interest.articleCount())
+      );
     }
 
-    List<Article> savedArticles = articleRepository.saveAll(filteredArticles);
+    List<Article> savedArticles = articleRepository.saveAll(filteredArticles.getArticles());
 
     return savedArticles.stream()
-        .map(article -> articleMapper.toDto(article, false))
+        .map(article -> articleMapper.toDto(article, 0L, false))
         .toList();
   }
 
@@ -69,7 +89,7 @@ public class ArticleServiceImpl implements ArticleService {
       LocalDateTime publishDateTo, String orderBy, String direction,
       String cursor, LocalDateTime after, int limit, UUID userId) {
 
-    Pageable pageable = createPageable(limit, orderBy, direction, "publishedAt", "desc");
+    Pageable pageable = createPageable(limit, orderBy, direction, "publishDate", "desc");
     Specification<Article> spec = getSpec(keyword, interestId, sourceIn, publishDateFrom,
         publishDateTo, after);
 
@@ -77,8 +97,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     List<ArticleDto> articleDtos = articles.stream()
         .map(article -> {
+          long commentCount = commentRepository.countByArticleId(article.getId());
           boolean viewedByMe = articleViewService.isViewedByUser(userId, article.getId());
-          return articleMapper.toDto(article, viewedByMe);
+          return articleMapper.toDto(article, commentCount, viewedByMe);
         }).toList();
 
     String nextCursor = null;
@@ -86,7 +107,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     if (articles.hasNext()) {
       LocalDateTime lastPublishedAt = articles.getContent().get(articles.getNumberOfElements() - 1)
-          .getPublishedAt();
+          .getPublishDate();
       nextCursor = lastPublishedAt.toString();
       nextAfter = lastPublishedAt;
     }
@@ -118,16 +139,45 @@ public class ArticleServiceImpl implements ArticleService {
     articleRepository.delete(article);
   }
 
-  protected List<Article> filterWithKeywords(List<Article> articles) {
-    List<String> keywords = List.of("경제");
-//        interestRepository.findAll().stream()
-//        .flatMap(interest -> interest.getKeywords().stream())
-//        .toList();
+  protected FilteredArticleDto filterWithKeywords(List<Article> articles, UUID userId) {
+    List<UUID> interestIds = subscriptionRepository.findAll().stream()
+        .filter(subscription -> subscription.getUserId() == userId)
+        .map(Subscription::getInterestId)
+        .toList();
 
-    return articles.stream()
+    List<ArticleInterestCount> articleInterestCounts = countArticleByInterest(articles,
+        interestIds);
+
+    if (interestIds.isEmpty()) {
+      return new FilteredArticleDto(articles, articleInterestCounts);
+    }
+
+    List<String> keywords = interestIds.stream()
+        .flatMap(interestId -> interestRepository.findById(interestId).stream())
+        .flatMap(interest -> interest.getKeywords().stream())
+        .toList();
+
+    List<Article> filteredArticles = articles.stream()
         .filter(article -> keywords.stream()
             .anyMatch(keyword ->
                 article.getTitle().contains(keyword) || article.getSummary().contains(keyword)))
+        .toList();
+
+    return new FilteredArticleDto(filteredArticles, articleInterestCounts);
+  }
+
+  protected List<ArticleInterestCount> countArticleByInterest(List<Article> articles,
+      List<UUID> interestIds) {
+    List<Interest> interests = interestRepository.findAllById(interestIds);
+
+    return interests.stream()
+        .map(interest -> {
+          Long count = articles.stream().filter(article -> interest.getKeywords().stream()
+                  .anyMatch(keyword -> article.getTitle().contains(keyword) || article.getSummary()
+                      .contains(keyword)))
+              .count();
+          return new ArticleInterestCount(interest.getId(), interest.getName(), count.intValue());
+        })
         .toList();
   }
 
@@ -172,18 +222,18 @@ public class ArticleServiceImpl implements ArticleService {
 
     if (publishDateFrom != null && publishDateTo != null) {
       spec = spec.and(
-          (root, query, cb) -> cb.between(root.get("publishedAt"), publishDateFrom, publishDateTo));
+          (root, query, cb) -> cb.between(root.get("publishDate"), publishDateFrom, publishDateTo));
     } else if (publishDateFrom != null && publishDateTo == null) {
       spec = spec.and(
-          (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("publishedAt"), publishDateFrom));
+          (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("publishDate"), publishDateFrom));
     } else if (publishDateFrom == null && publishDateTo != null) {
       spec = spec.and(
-          (root, query, cb) -> cb.lessThanOrEqualTo(root.get("publishedAt"), publishDateTo));
+          (root, query, cb) -> cb.lessThanOrEqualTo(root.get("publishDate"), publishDateTo));
     }
 
     if (after != null) {
       spec = spec.and(
-          (root, query, cb) -> cb.lessThan(root.get("publishedAt"), after));
+          (root, query, cb) -> cb.lessThan(root.get("publishDate"), after));
     }
 
     return spec;
