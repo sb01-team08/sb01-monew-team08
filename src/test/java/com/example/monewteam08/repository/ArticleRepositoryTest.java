@@ -36,7 +36,7 @@ class ArticleRepositoryTest {
     articleRepository.save(article3);
 
     Specification<Article> spec = (root, query, cb) -> cb.isTrue(root.get("isActive"));
-    Pageable pageable = PageRequest.of(0, 10, Direction.DESC, "publishedAt");
+    Pageable pageable = PageRequest.of(0, 10, Direction.DESC, "publishDate");
 
     // when
     Page<Article> result = articleRepository.findAll(spec, pageable);

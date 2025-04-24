@@ -52,10 +52,10 @@ public class CommentLikeLog {
   @Column(name = "comment_user_id", nullable = false)
   private UUID commentUserId;
 
-  @Column(name = "commment_content")
+  @Column(name = "comment_content")
   private String commentContent;
 
-  @Column(name = "commment_created_at")
+  @Column(name = "comment_created_at")
   private LocalDateTime commentCreatedAt;
 
   @Builder

@@ -34,7 +34,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
   public CommentLikeDto like(UUID userId, UUID commentId) {
     log.info("댓글 좋아요 요쳥: userId={},commentId={}", userId, commentId);
 
-    Comment comment = commentRepository.findById(commentId)
+    Comment comment = commentRepository.findByIdAndIsActiveTrue(commentId)
         .orElseThrow(() -> {
           log.warn("댓글 좋아요 실패 - 존재하지 않는 댓글: commentId={}", commentId);
           return new CommentNotFoundException();
@@ -48,7 +48,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     commentLikeLogService.addCommentLikeLog(userId, liked, comment);  // 댓글 좋아요 로그 추가
 
     log.info("댓글 좋아요 성공");
-    return commentLikeMapper.toDto(liked, comment, null);
+    return commentLikeMapper.toDto(liked, comment, nickname);
   }
 
   @Transactional
