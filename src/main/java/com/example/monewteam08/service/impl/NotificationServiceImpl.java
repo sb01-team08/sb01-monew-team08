@@ -3,8 +3,8 @@ package com.example.monewteam08.service.impl;
 import static com.example.monewteam08.entity.ResourceType.ARTICLE_INTEREST;
 import static com.example.monewteam08.entity.ResourceType.COMMENT;
 
-import com.example.monewteam08.dto.response.nodtification.CursorPageResponseNotificationDto;
-import com.example.monewteam08.dto.response.nodtification.NotificationDto;
+import com.example.monewteam08.dto.response.notification.CursorPageResponseNotificationDto;
+import com.example.monewteam08.dto.response.notification.NotificationDto;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.Notification;
 import com.example.monewteam08.exception.comment.CommentNotFoundException;
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,10 +70,12 @@ public class NotificationServiceImpl implements NotificationService {
       String cursor, String after,
       int limit) {
     UUID userIdUuid = UUID.fromString(userId);
-    LocalDateTime cursorFormat = LocalDateTime.parse(cursor);
-    LocalDateTime afterFormat = LocalDateTime.parse(after);
-    List<Notification> result = notificationRepository.findUnreadByUserIdBefore(
-        userIdUuid, cursorFormat, afterFormat, PageRequest.of(0, limit + 1));
+    LocalDateTime cursorTime =
+        (cursor != null && !cursor.isBlank()) ? LocalDateTime.parse(cursor) : null;
+    UUID afterUuid = (after != null && !after.isBlank()) ? UUID.fromString(after) : null;
+
+    List<Notification> result = notificationRepository.findUnreadByCursor(
+        userIdUuid, cursorTime, afterUuid, limit + 1);
 
     boolean hasNext = result.size() > limit;
     if (hasNext) {

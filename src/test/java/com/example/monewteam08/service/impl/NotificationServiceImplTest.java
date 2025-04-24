@@ -6,7 +6,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.example.monewteam08.dto.response.nodtification.NotificationDto;
+import com.example.monewteam08.dto.response.notification.NotificationDto;
 import com.example.monewteam08.entity.Notification;
 import com.example.monewteam08.mapper.NotificationMapper;
 import com.example.monewteam08.repository.NotificationRepository;
@@ -52,7 +52,7 @@ class NotificationServiceImplTest {
 
   @Test
   void 알림_생성_성공_댓글_좋아요() {
-    notificationService.createCommentLikeNotification(userId, resourceId, "홍길동" );
+    notificationService.createCommentLikeNotification(userId, resourceId, "홍길동");
 
     verify(notificationRepository).save(any(Notification.class));
   }
@@ -71,7 +71,7 @@ class NotificationServiceImplTest {
   @Test
   void 미확인_알림_조회() {
     LocalDateTime cursor = LocalDateTime.now();
-    LocalDateTime after = LocalDateTime.now();
+    UUID after = UUID.randomUUID();
     List<Notification> mockResult = List.of(mock(Notification.class));
     given(notificationRepository.findUnreadByUserIdBefore(eq(userId), eq(cursor), eq(after),
         any(PageRequest.class))).willReturn(mockResult);
