@@ -184,7 +184,7 @@ public class ArticleServiceImpl implements ArticleService {
   private Pageable createPageable(int limit, String sortField, String sortDirection,
       String defaultSortField, String defaultSortDirection) {
     if (limit <= 0) {
-      limit = 50;
+      limit = 10;
     }
 
     Sort sort;
