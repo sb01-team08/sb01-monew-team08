@@ -33,7 +33,7 @@ public class Article {
   @Column(name = "source_url", unique = true)
   private String sourceUrl;
 
-  @Column(name = "published_at")
+  @Column(name = "publish_date")
   private LocalDateTime publishDate;
 
   @Column(name = "view_count")
