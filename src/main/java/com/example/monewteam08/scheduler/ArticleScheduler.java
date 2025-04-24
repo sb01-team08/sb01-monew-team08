@@ -29,7 +29,7 @@ public class ArticleScheduler {
     }
   }
 
-  @Scheduled(cron = "0 * * * * *")
+  @Scheduled(cron = "0 0 * * * *")
   public void fetchAndSaveArticles() {
     try {
       userRepository.findAll().forEach(user -> {
