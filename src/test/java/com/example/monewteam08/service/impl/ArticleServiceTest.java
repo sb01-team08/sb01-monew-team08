@@ -191,7 +191,7 @@ public class ArticleServiceTest {
         articlePage);
 
     ArticleDto dto = mock(ArticleDto.class);
-    given(articleMapper.toDto(any(Article.class), anyBoolean())).willReturn(dto);
+    given(articleMapper.toDto(any(Article.class), 0, anyBoolean())).willReturn(dto);
 
     // when
     CursorPageResponseArticleDto result = articleService.getArticles(keyword, interestId, sourceIn,
