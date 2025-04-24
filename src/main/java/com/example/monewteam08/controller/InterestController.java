@@ -52,7 +52,7 @@ public class InterestController implements InterestControllerDocs {
       @RequestParam(required = false)
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime after,
       @RequestParam(defaultValue = "20") int limit,
-      @RequestHeader("Monew-Request-user-Id") UUID userId
+      @RequestHeader("Monew-Request-User-Id") UUID userId
   ) {
     PageResponse<InterestWithSubscriptionResponse> result = interestService.read(
         keyword, orderBy, direction, cursor, after, limit, userId
@@ -82,7 +82,7 @@ public class InterestController implements InterestControllerDocs {
   @PostMapping("/{interestId}/subscriptions")
   public ResponseEntity<CustomApiResponse<InterestResponse>> subscribe(
       @PathVariable UUID interestId,
-      @RequestHeader("Monew-Request-user-Id") UUID userId
+      @RequestHeader("Monew-Request-User-Id") UUID userId
   ) {
     subscriptionService.subscribe(interestId, userId);
     return ResponseEntity.ok(CustomApiResponse.ok(null));
@@ -91,7 +91,7 @@ public class InterestController implements InterestControllerDocs {
   @DeleteMapping("/{interestId}/subscriptions")
   public ResponseEntity<CustomApiResponse<InterestResponse>> unsubscribe(
       @PathVariable UUID interestId,
-      @RequestHeader("Monew-Request-user-Id") UUID userId
+      @RequestHeader("Monew-Request-User-Id") UUID userId
   ) {
     subscriptionService.unsubscribe(interestId, userId);
     return ResponseEntity.ok(CustomApiResponse.ok(null));
