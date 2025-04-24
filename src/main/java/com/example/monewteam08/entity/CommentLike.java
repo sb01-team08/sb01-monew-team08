@@ -36,10 +36,10 @@ public class CommentLike {
   private UUID commentId;
 
   @CreatedDate
-  @Column(name = "create_at", updatable = false)
+  @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
   @LastModifiedDate
-  @Column(name = "update_at")
+  @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
   public CommentLike(UUID userId, UUID commentId) {
