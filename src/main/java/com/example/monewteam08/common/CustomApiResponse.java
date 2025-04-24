@@ -4,6 +4,7 @@ import com.example.monewteam08.exception.ExceptionDto;
 import com.example.monewteam08.exception.MonewException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.mongodb.lang.Nullable;
 import org.springframework.http.HttpStatus;
 
@@ -12,7 +13,7 @@ public record CustomApiResponse<T>(
     @JsonIgnore
     HttpStatus httpStatus,
     boolean success,
-    @Nullable T data,
+    @Nullable @JsonUnwrapped T data,
     @Nullable ExceptionDto error
 ) {
 

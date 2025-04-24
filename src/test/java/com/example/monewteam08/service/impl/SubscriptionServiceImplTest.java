@@ -5,10 +5,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.monewteam08.entity.Interest;
 import com.example.monewteam08.entity.Subscription;
 import com.example.monewteam08.exception.Subscription.AlreadySubscribedException;
 import com.example.monewteam08.exception.Subscription.SubscriptionNotFoundException;
+import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +27,9 @@ public class SubscriptionServiceImplTest {
   @Mock
   private SubscriptionRepository subscriptionRepository;
 
+  @Mock
+  private InterestRepository interestRepository;
+
   @InjectMocks
   private SubscriptionServiceImpl subscriptionService;
 
@@ -35,6 +41,8 @@ public class SubscriptionServiceImplTest {
     UUID userId = UUID.randomUUID();
     UUID interestId = UUID.randomUUID();
 
+    Interest interest = new Interest(interestId, "기후변화", List.of("지구온난화"), 0);
+    when(interestRepository.findById(interestId)).thenReturn(Optional.of(interest));
     when(subscriptionRepository.findByUserIdAndInterestId(userId, interestId)).thenReturn(
         Optional.empty());
 
@@ -62,15 +70,18 @@ public class SubscriptionServiceImplTest {
   }
 
   @Test
-  @DisplayName("관심사 수독을 취소할 수 있다.")
+  @DisplayName("관심사 구독을 취소할 수 있다.")
   void unsubscribeSuccess() {
     //given
     UUID userId = UUID.randomUUID();
     UUID interestId = UUID.randomUUID();
 
     Subscription subscription = new Subscription(userId, interestId);
+    Interest interest = new Interest(interestId, "환경보호", List.of("ESG"), 10);
+
     when(subscriptionRepository.findByUserIdAndInterestId(userId, interestId)).thenReturn(
         Optional.of(subscription));
+    when(interestRepository.findById(interestId)).thenReturn(Optional.of(interest));
 
     //when
     subscriptionService.unsubscribe(userId, interestId);

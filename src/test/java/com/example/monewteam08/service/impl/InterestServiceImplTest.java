@@ -235,17 +235,4 @@ public class InterestServiceImplTest {
     //매칭되는 괌심사 반환
     assertThat(result).containsExactlyInAnyOrder(r2, r3);
   }
-
-  @Test
-  @DisplayName("관심사를 구독할 수 있다.")
-  void userSubscribeInterestSuccess() {
-    //given
-    //사용자와 관심사
-
-    //when
-    //구독 요청
-
-    //than
-    //구독 정보가 저장
-  }
 }
