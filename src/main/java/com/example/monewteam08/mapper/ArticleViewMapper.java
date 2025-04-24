@@ -18,7 +18,7 @@ public class ArticleViewMapper {
         article.getSource(),
         article.getSourceUrl(),
         article.getTitle(),
-        article.getPublishedAt(),
+        article.getPublishDate(),
         article.getSummary(),
         commentCount,
         article.getViewCount()

@@ -34,7 +34,7 @@ public class Article {
   private String sourceUrl;
 
   @Column(name = "published_at")
-  private LocalDateTime publishedAt;
+  private LocalDateTime publishDate;
 
   @Column(name = "view_count")
   private long viewCount;
@@ -43,12 +43,12 @@ public class Article {
   private boolean isActive;
 
   public Article(String source, String title, String summary, String sourceUrl,
-      LocalDateTime publishedAt) {
+      LocalDateTime publishDate) {
     this.source = source;
     this.title = title;
     this.summary = summary;
     this.sourceUrl = sourceUrl;
-    this.publishedAt = publishedAt;
+    this.publishDate = publishDate;
     this.isActive = true;
   }
 
