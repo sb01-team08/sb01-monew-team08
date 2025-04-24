@@ -14,6 +14,7 @@ import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -50,22 +51,28 @@ public class CommentRecentLog {
 
   @Column(name = "user_id", nullable = false)
   private UUID userId;
-  
+
+  @Column(name = "user_nickname")
+  private String userNickname;
+
   @Column(name = "content")
   private String commentContent;
 
   @Column(name = "comment_created_at")
   private LocalDateTime commentCreatedAt;
 
-  public CommentRecentLog(UUID commentId, UUID articleId, String articleTitle, UUID userId,
-      String commentContent, LocalDateTime commentCreatedAt, UserActivityLog activityLog) {
+  @Builder
+  private CommentRecentLog(UUID commentId, UUID articleId, String articleTitle, UUID userId,
+      String userNickname, String commentContent, LocalDateTime commentCreatedAt,
+      UserActivityLog activityLog) {
+    this.activityLog = activityLog;
     this.commentId = commentId;
     this.articleId = articleId;
     this.articleTitle = articleTitle;
     this.userId = userId;
+    this.userNickname = userNickname;
     this.commentContent = commentContent;
     this.commentCreatedAt = commentCreatedAt;
-    this.activityLog = activityLog;
   }
 
 }
