@@ -1,0 +1,70 @@
+package com.example.monewteam08.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+@Entity
+@Table(name = "news_view_log", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "activity_log_id", "article_id"}))
+@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+public class NewsViewLog {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private UUID id;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "activity_log_id", nullable = false)
+  private UserActivityLog activityLog;
+
+  @CreatedDate
+  @Column(name = "created_at", nullable = false, updatable = false, insertable = true)
+  private LocalDateTime createdAt;
+
+  @Column(name = "article_id", nullable = false)
+  private UUID articleId;
+
+  @Column(name = "source")
+  private String source;
+
+  @Column(name = "source_url")
+  private String sourceUrl;
+
+  @Column(name = "article_title")
+  private String articleTitle;
+
+  @Column(name = "article_published_date")
+  private LocalDateTime articlePublishedDate;
+
+  @Column(name = "article_summary")
+  private String articleSummary;
+
+  public NewsViewLog(String articleSummary, LocalDateTime articlePublishedDate, String articleTitle,
+      String sourceUrl, String source, UUID articleId, UserActivityLog activityLog) {
+    this.articleSummary = articleSummary;
+    this.articlePublishedDate = articlePublishedDate;
+    this.articleTitle = articleTitle;
+    this.sourceUrl = sourceUrl;
+    this.source = source;
+    this.articleId = articleId;
+    this.activityLog = activityLog;
+  }
+}
