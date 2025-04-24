@@ -13,6 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.example.monewteam08.dto.request.Interest.InterestRequest;
 import com.example.monewteam08.dto.request.Interest.InterestUpdateRequest;
 import com.example.monewteam08.dto.response.interest.InterestResponse;
+import com.example.monewteam08.dto.response.interest.InterestWithSubscriptionResponse;
+import com.example.monewteam08.dto.response.interest.PageResponse;
 import com.example.monewteam08.mapper.InterestMapper;
 import com.example.monewteam08.service.impl.InterestServiceImpl;
 import com.example.monewteam08.service.impl.SubscriptionServiceImpl;
@@ -60,7 +62,8 @@ public class InterestControllerTest {
     //when && then
     mockMvc.perform(post("/api/interests")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
+            .content(objectMapper.writeValueAsString(request))
+            .header("Monew-Request-User-Id", UUID.randomUUID().toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.data.id").value(id.toString()))
@@ -71,45 +74,39 @@ public class InterestControllerTest {
   }
 
   @Test
-  @DisplayName("키워드 없이 전체 관심사를 조회할 수 있다.")
-  void getAllInterestSuccess() throws Exception {
+  @DisplayName("검색어, 정렬 기준, 방향, 페이지네이션을 적용해 관심사 목록을 조회")
+  void getInterestWithPaginationAndFilters() throws Exception {
     //given
     UUID id1 = UUID.randomUUID();
     UUID id2 = UUID.randomUUID();
+    UUID userId = UUID.randomUUID();
 
-    InterestResponse r1 = new InterestResponse(id1, "인공지능", List.of("AI"), 0);
-    InterestResponse r2 = new InterestResponse(id2, "환경보호", List.of("ESG"), 0);
+    InterestWithSubscriptionResponse r1 = new InterestWithSubscriptionResponse(id1, "환경보호",
+        List.of("ESG"), 100, false);
+    InterestWithSubscriptionResponse r2 = new InterestWithSubscriptionResponse(id2, "기후 변화",
+        List.of("지구온난화"), 80, false);
 
-    when(interestService.read(null, null)).thenReturn(List.of(r1, r2));
+    when(interestService.read("환경", "subscriberCount", "DESC", null, null, 10, userId))
+        .thenReturn(
+            new PageResponse<>(
+                List.of(r1, r2),
+                null,
+                null,
+                2,
+                10,
+                false
+            ));
 
-    //when & then
-    mockMvc.perform(get("/api/interests"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.data[0].id").value(id1.toString()))
-        .andExpect(jsonPath("$.data[1].name").value("환경보호"));
-  }
-
-  @Test
-  @DisplayName("키워드와 정렬 기준으로 관심사를 검색할 수 있다.")
-  void searchInterestByKeywordSuccess() throws Exception {
-    //given
-    UUID id1 = UUID.randomUUID();
-    UUID id2 = UUID.randomUUID();
-
-    InterestResponse r1 = new InterestResponse(id1, "환경보호", List.of("ESG", "지속가능성"), 0);
-    InterestResponse r2 = new InterestResponse(id2, "기후 변화", List.of("지구온난화", "환경"), 80);
-
-    when(interestService.read("환경", "subscriberCount")).thenReturn(List.of(r1, r2));
-
-    //when & than
     mockMvc.perform(get("/api/interests")
             .param("keyword", "환경")
-            .param("sortBy", "subscriberCount"))
+            .param("orderBy", "subscriberCount")
+            .param("direction", "DESC")
+            .param("limit", "10")
+            .header("Monew-Request-User-Id", userId.toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.data[0].name").value("환경보호"))
-        .andExpect(jsonPath("$.data[1].subscriberCount").value(80));
+        .andExpect(jsonPath("$.data.content[0].name").value("환경보호"))
+        .andExpect(jsonPath("$.data.content[1].subscriberCount").value(80));
 
   }
 
