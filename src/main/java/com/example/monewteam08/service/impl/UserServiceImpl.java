@@ -5,11 +5,13 @@ import com.example.monewteam08.dto.request.user.UserRequest;
 import com.example.monewteam08.dto.request.user.UserUpdateRequest;
 import com.example.monewteam08.dto.response.user.UserResponse;
 import com.example.monewteam08.entity.User;
+import com.example.monewteam08.entity.UserActivityLog;
 import com.example.monewteam08.exception.user.DeletedAccountException;
 import com.example.monewteam08.exception.user.EmailAlreadyExistException;
 import com.example.monewteam08.exception.user.LoginFailedException;
 import com.example.monewteam08.exception.user.UserNotFoundException;
 import com.example.monewteam08.mapper.UserMapper;
+import com.example.monewteam08.repository.UserActivityLogRepository;
 import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.UserService;
 import java.time.LocalDateTime;
@@ -27,6 +29,8 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
 
+  private final UserActivityLogRepository userActivityLogRepository;
+
   @Transactional
   @Override
   public UserResponse create(UserRequest userRequest) {
@@ -37,6 +41,8 @@ public class UserServiceImpl implements UserService {
       User savedUser = userRepository.save(user);
 
       log.info("사용자가 성공적으로 생성되었습니다. - id: {}", savedUser.getId());
+      userActivityLogRepository.save(new UserActivityLog(user));
+
       return userMapper.toResponse(savedUser);
     } else {
       log.warn("이미 존재하는 이메일입니다. - email: {}", userRequest.email());

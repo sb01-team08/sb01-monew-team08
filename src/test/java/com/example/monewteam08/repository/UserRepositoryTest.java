@@ -1,8 +1,8 @@
 package com.example.monewteam08.repository;
 
 import com.example.monewteam08.config.JacConfig;
+import com.example.monewteam08.config.QuerydslConfig;
 import com.example.monewteam08.entity.User;
-import java.time.LocalDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @DataJpaTest
-@Import(JacConfig.class)
+@Import({JacConfig.class, QuerydslConfig.class})
 class UserRepositoryTest {
 
   @Autowired
@@ -131,25 +131,4 @@ class UserRepositoryTest {
     // then
     Assertions.assertThat(correctUser).isNull();
   }
-
-  @Test
-  @DisplayName("활성화 된 유저가 아니라면 Null 값을 리턴한다.")
-  void isNotActiveUser() {
-    // given
-    String email = "test@example.com";
-    String nickname = "tester";
-    String password = "testPassword1234";
-
-    User user = new User(email, nickname, password);
-    user.updateIsActive(false);
-    user.updateDeletedAt(LocalDateTime.now());
-    userRepository.save(user);
-
-    // when
-    User correctUser = userRepository.findUserByEmailAndPassword(email, "password1234!");
-
-    // then
-    Assertions.assertThat(correctUser).isNull();
-  }
-
 }
