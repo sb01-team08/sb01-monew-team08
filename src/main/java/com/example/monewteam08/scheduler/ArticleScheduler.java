@@ -1,10 +1,13 @@
 package com.example.monewteam08.scheduler;
 
+import com.example.monewteam08.exception.article.ArticleFetchFailedException;
 import com.example.monewteam08.service.Interface.ArticleService;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class ArticleScheduler {
 
@@ -16,11 +19,19 @@ public class ArticleScheduler {
 
   @PostConstruct
   public void init() {
-    articleService.save();
+    try {
+      articleService.fetchAndSave();
+    } catch (Exception e) {
+      throw new ArticleFetchFailedException(e.getMessage());
+    }
   }
 
   @Scheduled(cron = "0 0 * * * *")
   public void fetchAndSaveArticles() {
-    articleService.save();
+    try {
+      articleService.fetchAndSave();
+    } catch (Exception e) {
+      throw new ArticleFetchFailedException(e.getMessage());
+    }
   }
 }

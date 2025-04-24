@@ -13,7 +13,7 @@ public interface CommentService {
 
   CommentDto create(CommentRegisterRequest request);
 
-  CommentDto update(UUID id, CommentUpdateRequest request);
+  CommentDto update(UUID id, CommentUpdateRequest request, UUID userId);
 
   void delete(UUID id, UUID userId);
 

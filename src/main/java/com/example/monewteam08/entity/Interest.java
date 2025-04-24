@@ -65,4 +65,12 @@ public class Interest {
   public void updateKeywords(List<String> newKeywords) {
     this.keywords = newKeywords;
   }
+
+  public void increaseSubscriberCount() {
+    this.subscriberCount++;
+  }
+
+  public void decreaseSubscriberCount() {
+    this.subscriberCount = Math.max(0, this.subscriberCount - 1);
+  }
 }
