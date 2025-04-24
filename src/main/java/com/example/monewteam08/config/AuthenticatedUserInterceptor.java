@@ -11,7 +11,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class AuthenticatedUserInterceptor implements HandlerInterceptor {
 
-  private static final String HEADER_NAME = "Monew-Request-User-Id";
+  private static final String HEADER_NAME = "Monew-Request-User-ID";
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
