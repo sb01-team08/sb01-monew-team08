@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record CursorPageResponseArticleDto(
-    List<ArticleDto> articles,
+    List<ArticleDto> content,
     String nextCursor,
     LocalDateTime nextAfter,
     int size,
