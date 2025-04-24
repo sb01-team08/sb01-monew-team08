@@ -42,6 +42,7 @@ public class Article {
   @Column(name = "is_active")
   private boolean isActive;
 
+
   public Article(String source, String title, String summary, String sourceUrl,
       LocalDateTime publishDate) {
     this.source = source;
