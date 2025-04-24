@@ -5,8 +5,11 @@ import static com.example.monewteam08.entity.ResourceType.COMMENT;
 
 import com.example.monewteam08.dto.response.nodtification.CursorPageResponseNotificationDto;
 import com.example.monewteam08.dto.response.nodtification.NotificationDto;
+import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.Notification;
+import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.mapper.NotificationMapper;
+import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.NotificationRepository;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.time.LocalDateTime;
@@ -24,10 +27,11 @@ public class NotificationServiceImpl implements NotificationService {
 
   private final NotificationRepository notificationRepository;
   private final NotificationMapper notificationMapper;
+  private final CommentRepository commentRepository;
 
   @Override
   public void createArticleNotification(UUID userId, UUID interestId, String interest, int count) {
-    String content = String.format("[%s]와 관련된 기사가 %d건 등록되었습니다.", interestId, count);
+    String content = String.format("[%s]와 관련된 기사가 %d건 등록되었습니다.", interest, count);
     Notification notification = new Notification(userId, content, ARTICLE_INTEREST, interestId);
     notificationRepository.save(notification);
   }
@@ -35,8 +39,11 @@ public class NotificationServiceImpl implements NotificationService {
   @Override
   public void createCommentLikeNotification(UUID userId, UUID commentId,
       String likerNickname) {
+    Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(CommentNotFoundException::new);
+    UUID ownerId = comment.getUserId();
     String content = String.format("[%s]님이 나의 댓글을 좋아합니다.", likerNickname);
-    Notification notification = new Notification(userId, content, COMMENT, commentId);
+    Notification notification = new Notification(ownerId, content, COMMENT, commentId);
     notificationRepository.save(notification);
   }
 
@@ -46,7 +53,7 @@ public class NotificationServiceImpl implements NotificationService {
     UUID idUuid = UUID.fromString(id);
     UUID userUuid = UUID.fromString(userId);
     Notification notification = notificationRepository.findByIdAndUserId(idUuid, userUuid)
-        .orElseThrow(() -> new IllegalArgumentException("해당 알림이 존재하지 않거나 권한이 없습니다." ));
+        .orElseThrow(() -> new IllegalArgumentException("해당 알림이 존재하지 않거나 권한이 없습니다."));
     notification.confirm();
   }
 
