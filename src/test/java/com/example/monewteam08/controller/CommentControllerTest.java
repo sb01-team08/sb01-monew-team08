@@ -53,14 +53,14 @@ class CommentControllerTest {
     UUID userId = UUID.randomUUID();
     UUID articleId = UUID.randomUUID();
     CommentRegisterRequest request = new CommentRegisterRequest(articleId.toString(),
-        userId.toString(), "내용" );
+        userId.toString(), "내용");
 
     CommentDto response = CommentDto.builder()
         .id(UUID.randomUUID().toString())
         .articleId(articleId.toString())
         .userId(userId.toString())
-        .userNickname("닉네임" )
-        .content("내용" )
+        .userNickname("닉네임")
+        .content("내용")
         .likeCount(0)
         .likedByMe(false)
         .createdAt(LocalDateTime.now())
@@ -68,12 +68,12 @@ class CommentControllerTest {
 
     when(commentService.create(any())).thenReturn(response);
 
-    mockMvc.perform(post("/api/comments" )
+    mockMvc.perform(post("/api/comments")
             .header("Monew-Request-User-ID", userId.toString())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.content" ).value("내용" ));
+        .andExpect(jsonPath("$.content").value("내용"));
   }
 
   @Test
@@ -92,30 +92,30 @@ class CommentControllerTest {
         any(), any(), anyInt(), anyString()
     )).thenReturn(expected);
 
-    mockMvc.perform(get("/api/comments" )
+    mockMvc.perform(get("/api/comments")
             .param("articleId", UUID.randomUUID().toString())
-            .param("orderBy", "createdAt" )
-            .param("direction", "ASC" )
-            .param("limit", "10" )
+            .param("orderBy", "createdAt")
+            .param("direction", "ASC")
+            .param("limit", "10")
             .header("Monew-Request-User-ID", UUID.randomUUID().toString()))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.size" ).value(0));
+        .andExpect(jsonPath("$.size").value(0));
   }
 
   @Test
   void 댓글_수정() throws Exception {
     UUID commentId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
-    CommentDto dto = CommentDto.builder().id(commentId.toString()).content("수정" ).build();
+    CommentDto dto = CommentDto.builder().id(commentId.toString()).content("수정").build();
     given(commentService.update(eq(commentId), any(CommentUpdateRequest.class),
         eq(userId))).willReturn(dto);
 
     mockMvc.perform(MockMvcRequestBuilders.patch("/api/comments/" + commentId)
             .header("Monew-Request-User-ID", userId.toString())
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(new CommentUpdateRequest("수정" ))))
+            .content(objectMapper.writeValueAsString(new CommentUpdateRequest("수정"))))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content" ).value("수정" ));
+        .andExpect(jsonPath("$.content").value("수정"));
   }
 
   @Test
@@ -129,17 +129,17 @@ class CommentControllerTest {
         .commentId(commentId.toString())
         .articleId(UUID.randomUUID().toString())
         .commentUserId(UUID.randomUUID().toString())
-        .commentUserNickname("사용자" )
-        .commentContent("댓글" )
+        .commentUserNickname("사용자")
+        .commentContent("댓글")
         .commentLikeCount(1)
         .commentCreatedAt(LocalDateTime.now())
         .build();
-    given(commentLikeService.like(commentId, userId)).willReturn(dto);
+    given(commentLikeService.like(userId, commentId)).willReturn(dto);
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/comments/" + commentId + "/comment-likes" )
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/comments/" + commentId + "/comment-likes")
             .header("Monew-Request-User-ID", userId))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.likedBy" ).value(userId.toString()));
+        .andExpect(jsonPath("$.likedBy").value(userId.toString()));
   }
 
   @Test
@@ -147,7 +147,7 @@ class CommentControllerTest {
     UUID commentId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
 
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/comments/" + commentId + "/comment-likes" )
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/comments/" + commentId + "/comment-likes")
             .header("Monew-Request-User-ID", userId))
         .andExpect(status().isNoContent());
   }
@@ -166,7 +166,7 @@ class CommentControllerTest {
   void 댓글_물리삭제() throws Exception {
     UUID commentId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
-    mockMvc.perform(MockMvcRequestBuilders.delete("/api/comments/" + commentId + "/hard" )
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/comments/" + commentId + "/hard")
             .header("Monew-Request-User-ID", userId))
         .andExpect(status().isNoContent());
   }
