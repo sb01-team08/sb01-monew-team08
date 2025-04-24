@@ -52,9 +52,6 @@ public class CommentLikeLog {
   @Column(name = "comment_user_id", nullable = false)
   private UUID commentUserId;
 
-  @Column(name = "commment_user_nickname")
-  private String commentUserNickname;
-
   @Column(name = "commment_content")
   private String commentContent;
 
@@ -63,13 +60,12 @@ public class CommentLikeLog {
 
   @Builder
   private CommentLikeLog(UUID commentId, UUID articleId, String articleTitle, UUID commentUserId,
-      String commentUserNickname, String commentContent, LocalDateTime commentCreatedAt,
+      String commentContent, LocalDateTime commentCreatedAt,
       UserActivityLog activityLog) {
     this.commentId = commentId;
     this.articleId = articleId;
     this.articleTitle = articleTitle;
     this.commentUserId = commentUserId;
-    this.commentUserNickname = commentUserNickname;
     this.commentContent = commentContent;
     this.commentCreatedAt = commentCreatedAt;
     this.activityLog = activityLog;

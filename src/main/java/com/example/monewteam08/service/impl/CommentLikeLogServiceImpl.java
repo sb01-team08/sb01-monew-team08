@@ -1,5 +1,6 @@
 package com.example.monewteam08.service.impl;
 
+import com.example.monewteam08.dto.response.useractivitylog.CommentLikeLogResponse;
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentLike;
@@ -30,14 +31,15 @@ public class CommentLikeLogServiceImpl implements CommentLikeLogService {
   private final ArticleRepository articleRepository;
 
   private final CommentLikeLogMapper commentLikeLogMapper;
-  private final CommentLikeRepository commentLikeRepository;
 
   private static final int LIMIT_SIZE = 10;
+  private final CommentLikeRepository commentLikeRepository;
 
   // 이미 시작된 트랜잭션 내에서만 실행되도록
   @Transactional(propagation = Propagation.MANDATORY)
   @Override
   public void addCommentLikeLog(UUID userId, CommentLike commentLike, Comment comment) {
+    log.debug("댓글 좋아요 로그 추가 요청: userId={}", userId);
     // todo: exception 필요
     UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow();
     Article article = articleRepository.findById(comment.getArticleId()).orElseThrow();
@@ -45,28 +47,38 @@ public class CommentLikeLogServiceImpl implements CommentLikeLogService {
     CommentLikeLog commentLikeLog = commentLikeLogMapper.toEntity(userActivityLog, comment,
         article);
 
-    deleteExcessCommentLikeLogs(userId);
-
     commentLikeLogRepository.save(commentLikeLog);
+    log.info("댓글 좋아요 로그 생성 완료: userId={}, logId={}", userId, commentLikeLog.getId());
   }
 
-  @Override
-  public void deleteExcessCommentLikeLogs(UUID userId) {
-    int countLogs = commentLikeLogRepository.countCommentLikeLogByUserId(userId);
-    if (countLogs > LIMIT_SIZE) {
-      List<CommentLikeLog> oldLogs = commentLikeLogRepository.findOldestLogs(userId,
-          PageRequest.of(0, countLogs - LIMIT_SIZE));
-      commentLikeLogRepository.deleteAll(oldLogs);
-    }
-  }
-
+  // 이미 시작된 트랜잭션 내에서만 실행되도록
+  @Transactional(propagation = Propagation.MANDATORY)
   @Override
   public void removeCommentLikeLogOnCancel(UUID userId, UUID commentId) {
-
+    log.debug("댓글 좋아요 로그 삭제 요청: userId={}, commentId={}", userId, commentId);
+    commentLikeLogRepository.deleteCommentLikeLogByCommentIdAndUserId(userId, commentId);
+    log.info("댓글 좋아요 로그 삭제 완료: userId={}, commentId={}", userId, commentId);
   }
 
+  // 이미 시작된 트랜잭션 내에서만 실행되도록
+  @Transactional(propagation = Propagation.MANDATORY)
   @Override
-  public List<?> getCommentLikeLogs(UUID userId) {
-    return List.of();
+  public List<CommentLikeLogResponse> getCommentLikeLogs(UUID userId) {
+    log.debug("댓글 좋아요 로그 조회 요청: userId={}", userId);
+    // todo: exception 필요
+    UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow();
+    List<CommentLikeLog> commentLikeLogs = commentLikeLogRepository.getCommentLikeLogsByActivityLogOrderByCreatedAtDesc(
+        userActivityLog, PageRequest.of(0, LIMIT_SIZE));
+
+    List<CommentLikeLogResponse> responseList = commentLikeLogs.stream()
+        .map(commentLikeLog -> {
+          int likeCount = commentLikeRepository.countCommentLikeById(commentLikeLog.getCommentId());
+          String nickname = userActivityLog.getUser().getNickname();
+          return commentLikeLogMapper.toResponse(commentLikeLog, likeCount, nickname);
+        })
+        .toList();
+
+    log.info("댓글 좋아요 로그 조회 완료: userId={}, userActivityLogId={}", userId, userActivityLog.getId());
+    return responseList;
   }
 }
