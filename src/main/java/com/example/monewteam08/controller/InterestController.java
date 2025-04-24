@@ -84,7 +84,7 @@ public class InterestController implements InterestControllerDocs {
       @PathVariable UUID interestId,
       @RequestHeader("Monew-Request-User-Id") UUID userId
   ) {
-    subscriptionService.subscribe(interestId, userId);
+    subscriptionService.subscribe(userId, interestId);
     return ResponseEntity.ok(CustomApiResponse.ok(null));
   }
 
@@ -93,7 +93,7 @@ public class InterestController implements InterestControllerDocs {
       @PathVariable UUID interestId,
       @RequestHeader("Monew-Request-User-Id") UUID userId
   ) {
-    subscriptionService.unsubscribe(interestId, userId);
+    subscriptionService.unsubscribe(userId, interestId);
     return ResponseEntity.ok(CustomApiResponse.ok(null));
   }
 
