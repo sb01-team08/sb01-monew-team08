@@ -16,6 +16,7 @@ import com.example.monewteam08.repository.SubscriptionRepository;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
 import com.example.monewteam08.service.Interface.ArticleService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
+import com.example.monewteam08.service.Interface.NewsViewLogService;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,6 +47,7 @@ public class ArticleServiceImpl implements ArticleService {
   private final NotificationService notificationService;
   private final CommentRepository commentRepository;
   private final ArticleMapper articleMapper;
+  private final NewsViewLogService newsViewLogService;
 
   @Transactional
   @Override

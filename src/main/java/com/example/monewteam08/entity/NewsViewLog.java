@@ -14,6 +14,7 @@ import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -42,6 +43,9 @@ public class NewsViewLog {
   @Column(name = "article_id", nullable = false)
   private UUID articleId;
 
+  @Column(name = "viewed_by", nullable = false)
+  private UUID viewedBy;
+
   @Column(name = "source")
   private String source;
 
@@ -57,11 +61,14 @@ public class NewsViewLog {
   @Column(name = "article_summary")
   private String articleSummary;
 
-  public NewsViewLog(String articleSummary, LocalDateTime articlePublishedDate, String articleTitle,
-      String sourceUrl, String source, UUID articleId, UserActivityLog activityLog) {
+  @Builder
+  private NewsViewLog(String articleSummary, LocalDateTime articlePublishedDate,
+      String articleTitle, UUID viewedBy, String sourceUrl, String source, UUID articleId,
+      UserActivityLog activityLog) {
     this.articleSummary = articleSummary;
     this.articlePublishedDate = articlePublishedDate;
     this.articleTitle = articleTitle;
+    this.viewedBy = viewedBy;
     this.sourceUrl = sourceUrl;
     this.source = source;
     this.articleId = articleId;
