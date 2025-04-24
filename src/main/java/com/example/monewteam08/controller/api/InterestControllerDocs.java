@@ -35,7 +35,7 @@ public interface InterestControllerDocs {
       @Schema(description = "보조 커서(Cursor) 값") @RequestParam(required = false)
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime after,
       @Schema(description = "커서 페이지 크기") @RequestParam(defaultValue = "20") int limit,
-      @Schema(description = "요청자 ID") @RequestHeader("Monew-Request-user-Id") UUID userId);
+      @Schema(description = "요청자 ID") @RequestHeader("Monew-Request-User-Id") UUID userId);
 
   @Operation(summary = "관심사 정보 수정", description = "관심사의 키워드를 수정합니다.")
   ResponseEntity<CustomApiResponse<InterestResponse>> updateKeywords(
@@ -49,10 +49,10 @@ public interface InterestControllerDocs {
   @Operation(summary = "관심사 구독", description = "관심사를 구독합니다.")
   ResponseEntity<CustomApiResponse<InterestResponse>> subscribe(
       @Schema(description = "관심사 ID") @PathVariable UUID interestId,
-      @Schema(description = "요청자 ID") @RequestHeader("Monew-Request-user-Id") UUID userId);
+      @Schema(description = "요청자 ID") @RequestHeader("Monew-Request-User-Id") UUID userId);
 
   @Operation(summary = "관심사 구독 취소", description = "관심사를 구독을 취소합니다.")
   ResponseEntity<CustomApiResponse<InterestResponse>> unsubscribe(
       @Schema(description = "관심사 ID") @PathVariable UUID interestId,
-      @Schema(description = "요청자 ID") @RequestHeader("Monew-Request-user-Id") UUID userId);
+      @Schema(description = "요청자 ID") @RequestHeader("Monew-Request-User-Id") UUID userId);
 }

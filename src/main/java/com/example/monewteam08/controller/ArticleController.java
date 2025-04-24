@@ -30,9 +30,9 @@ public class ArticleController {
   // 테스트용: 즉시 기사 불러오기
   @PostMapping("/fetch")
   public ResponseEntity<List<ArticleDto>> fetchAndSave(
-      @RequestHeader(name = "Monew-Request-User-Id") UUID userId
+      @RequestHeader(name = "Monew-Request-User-ID") UUID userId
   ) {
-    List<ArticleDto> articles = articleService.fetchAndSave();
+    List<ArticleDto> articles = articleService.fetchAndSave(userId);
     return ResponseEntity.ok(articles);
   }
 

@@ -90,7 +90,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
             "NAVER",
             item.title(),
             item.description(),
-            item.originalLink(),
+            item.link(),
             parsePubDate(item.pubDate())
         )).toList();
   }
