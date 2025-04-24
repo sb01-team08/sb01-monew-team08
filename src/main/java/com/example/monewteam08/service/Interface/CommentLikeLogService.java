@@ -3,6 +3,7 @@ package com.example.monewteam08.service.Interface;
 import com.example.monewteam08.dto.response.useractivitylog.CommentLikeLogResponse;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentLike;
+import com.example.monewteam08.entity.UserActivityLog;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +16,6 @@ public interface CommentLikeLogService {
   void removeCommentLikeLogOnCancel(UUID userId, UUID commentId);
 
   // 좋아요 조회
-  List<CommentLikeLogResponse> getCommentLikeLogs(UUID userId);
+  List<CommentLikeLogResponse> getCommentLikeLogs(UserActivityLog userActivityLog);
 
 }

@@ -6,10 +6,12 @@ import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentLike;
 import com.example.monewteam08.entity.CommentLikeLog;
 import com.example.monewteam08.entity.UserActivityLog;
+import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.mapper.CommentLikeLogMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentLikeLogRepository;
 import com.example.monewteam08.repository.CommentLikeRepository;
+import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserActivityLogRepository;
 import com.example.monewteam08.service.Interface.CommentLikeLogService;
 import java.util.List;
@@ -34,6 +36,7 @@ public class CommentLikeLogServiceImpl implements CommentLikeLogService {
 
   private static final int LIMIT_SIZE = 10;
   private final CommentLikeRepository commentLikeRepository;
+  private final CommentRepository commentRepository;
 
   // 이미 시작된 트랜잭션 내에서만 실행되도록
   @Transactional(propagation = Propagation.MANDATORY)
@@ -60,25 +63,24 @@ public class CommentLikeLogServiceImpl implements CommentLikeLogService {
     log.info("댓글 좋아요 로그 삭제 완료: userId={}, commentId={}", userId, commentId);
   }
 
-  // 이미 시작된 트랜잭션 내에서만 실행되도록
-  @Transactional(propagation = Propagation.MANDATORY)
   @Override
-  public List<CommentLikeLogResponse> getCommentLikeLogs(UUID userId) {
-    log.debug("댓글 좋아요 로그 조회 요청: userId={}", userId);
+  public List<CommentLikeLogResponse> getCommentLikeLogs(UserActivityLog userActivityLog) {
+    log.debug("댓글 좋아요 로그 조회 요청: userId={}", userActivityLog.getUser().getId());
     // todo: exception 필요
-    UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow();
     List<CommentLikeLog> commentLikeLogs = commentLikeLogRepository.getCommentLikeLogsByActivityLogOrderByCreatedAtDesc(
         userActivityLog, PageRequest.of(0, LIMIT_SIZE));
 
     List<CommentLikeLogResponse> responseList = commentLikeLogs.stream()
         .map(commentLikeLog -> {
-          int likeCount = commentLikeRepository.countCommentLikeById(commentLikeLog.getCommentId());
+          Comment comment = commentRepository.findById(commentLikeLog.getCommentId()).orElseThrow(
+              CommentNotFoundException::new);
           String nickname = userActivityLog.getUser().getNickname();
-          return commentLikeLogMapper.toResponse(commentLikeLog, likeCount, nickname);
+          return commentLikeLogMapper.toResponse(commentLikeLog, comment.getLikeCount(), nickname);
         })
         .toList();
 
-    log.info("댓글 좋아요 로그 조회 완료: userId={}, userActivityLogId={}", userId, userActivityLog.getId());
+    log.info("댓글 좋아요 로그 조회 완료: userId={}, userActivityLogId={}", userActivityLog.getUser().getId(),
+        userActivityLog.getId());
     return responseList;
   }
 }

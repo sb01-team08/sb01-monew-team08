@@ -16,6 +16,6 @@ public class WebConfig implements WebMvcConfigurer {
     registry.addInterceptor(authenticatedUserInterceptor)
         .addPathPatterns("/api/**")
         .excludePathPatterns("/api/users/**", "/api/comments",
-            "/api/interests"); // todo: header 검사 제외하고 싶을 때
+            "/api/interests", "/api/user-activities"); // todo: header 검사 제외하고 싶을 때
   }
 }

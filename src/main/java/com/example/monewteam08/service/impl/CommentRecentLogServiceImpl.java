@@ -59,7 +59,6 @@ public class CommentRecentLogServiceImpl implements CommentRecentLogService {
 
   }
 
-  @Transactional(propagation = Propagation.MANDATORY)
   @Override
   public List<CommentRecentLogResponse> getCommentRecentLogs(UserActivityLog userActivityLog) {
     log.debug("최신 작성 댓글 로그 조회 요청: userId={}", userActivityLog.getId());

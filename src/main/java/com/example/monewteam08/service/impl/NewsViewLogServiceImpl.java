@@ -7,7 +7,6 @@ import com.example.monewteam08.entity.UserActivityLog;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.mapper.NewsViewLogMapper;
 import com.example.monewteam08.repository.ArticleRepository;
-import com.example.monewteam08.repository.ArticleViewRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.NewsViewLogRepository;
 import com.example.monewteam08.repository.UserActivityLogRepository;
@@ -18,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -31,8 +32,8 @@ public class NewsViewLogServiceImpl implements NewsViewLogService {
   private static final int LIMIT_SIZE = 10;
   private final ArticleRepository articleRepository;
   private final CommentRepository commentRepository;
-  private final ArticleViewRepository articleViewRepository;
 
+  @Transactional(propagation = Propagation.MANDATORY)
   @Override
   public void addNewsViewLog(UUID userId, Article article) {
     log.debug("뉴스 조회 로그 추가 요청: userId={}", userId);
@@ -44,6 +45,7 @@ public class NewsViewLogServiceImpl implements NewsViewLogService {
     log.info("뉴스 조회 로그 생성 완료: userId={}, logId={}", userId, newsViewLog.getId());
   }
 
+  @Transactional(propagation = Propagation.MANDATORY)
   @Override
   public void removeNewsViewLog(UUID userId, UUID articleId) {
     // todo: 추후 뉴스 뷰 삭제 부분에 UserId 필요하다구 하기

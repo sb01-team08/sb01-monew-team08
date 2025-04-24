@@ -155,7 +155,6 @@ class CommentLikeLogServiceImplTest {
             .build())
         .toList();
 
-    given(userActivityLogRepository.findByUserId(userId)).willReturn(Optional.of(userActivityLog));
     given(commentLikeLogRepository.getCommentLikeLogsByActivityLogOrderByCreatedAtDesc(
         eq(userActivityLog), any(PageRequest.class))).willReturn(logs);
 
@@ -179,7 +178,8 @@ class CommentLikeLogServiceImplTest {
     }
 
     // when
-    List<CommentLikeLogResponse> responses = commentLikeLogService.getCommentLikeLogs(userId);
+    List<CommentLikeLogResponse> responses = commentLikeLogService.getCommentLikeLogs(
+        userActivityLog);
 
     // then
     Assertions.assertThat(responses).isNotEmpty();

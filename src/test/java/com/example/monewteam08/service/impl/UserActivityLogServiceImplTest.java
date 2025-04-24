@@ -2,6 +2,8 @@ package com.example.monewteam08.service.impl;
 
 import com.example.monewteam08.repository.UserActivityLogRepository;
 import com.example.monewteam08.repository.UserRepository;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -20,5 +22,16 @@ class UserActivityLogServiceImplTest {
 
   @Mock
   private UserRepository userRepository;
+
+  @Test
+  @DisplayName("사용자 활동 내역을 전달한다.")
+  void getUserActivityLog() {
+    // given
+
+    // when
+
+    // then
+//    Assertions.assertThat();
+  }
 
 }
