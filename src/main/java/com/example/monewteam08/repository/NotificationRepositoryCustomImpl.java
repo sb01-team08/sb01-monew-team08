@@ -3,6 +3,7 @@ package com.example.monewteam08.repository;
 import static com.example.monewteam08.entity.QNotification.notification;
 
 import com.example.monewteam08.entity.Notification;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +32,7 @@ public class NotificationRepositoryCustomImpl implements NotificationRepositoryC
         .fetch();
   }
 
-  private com.querydsl.core.types.dsl.BooleanExpression cursorCondition(LocalDateTime cursor,
+  private BooleanExpression cursorCondition(LocalDateTime cursor,
       UUID after) {
     if (cursor != null && after != null) {
       return notification.createdAt.lt(cursor)

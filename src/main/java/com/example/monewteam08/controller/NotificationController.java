@@ -42,7 +42,7 @@ public class NotificationController {
   public ResponseEntity<Void> Read(
       @PathVariable("notificationId") String notificationId,
       @RequestHeader("Monew-Request-User-Id") String requestUserId) {
-    notificationService.confirmNotification(requestUserId, notificationId);
+    notificationService.confirmNotification(notificationId, requestUserId);
     return ResponseEntity.ok().build();
   }
 }

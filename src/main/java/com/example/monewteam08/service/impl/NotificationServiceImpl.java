@@ -92,7 +92,7 @@ public class NotificationServiceImpl implements NotificationService {
       nextAfter = last.getId().toString();
     }
 
-    int totalElements = notificationRepository.countByUserId(userIdUuid);
+    int totalElements = notificationRepository.countByUserIdAndIsConfirmedFalse(userIdUuid);
 
     CursorPageResponseNotificationDto reponse = CursorPageResponseNotificationDto.builder()
         .content(new ArrayList<>(content))
