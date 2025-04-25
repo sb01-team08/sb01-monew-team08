@@ -6,6 +6,7 @@ import com.example.monewteam08.dto.response.useractivitylog.CommentRecentLogResp
 import com.example.monewteam08.dto.response.useractivitylog.NewsViewLogResponse;
 import com.example.monewteam08.dto.response.useractivitylog.UserActivityLogResponse;
 import com.example.monewteam08.entity.UserActivityLog;
+import com.example.monewteam08.exception.useractivitylog.UserActicityLogNotFoundException;
 import com.example.monewteam08.mapper.UserActivityLogMapper;
 import com.example.monewteam08.repository.UserActivityLogRepository;
 import com.example.monewteam08.service.Interface.CommentLikeLogService;
@@ -36,7 +37,8 @@ public class UserActivityLogServiceImpl implements UserActivityLogService {
   @Override
   public UserActivityLogResponse getUserActivityLog(UUID userId) {
     // todo: exception
-    UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow();
+    UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow(
+        () -> new UserActicityLogNotFoundException(userId));
 
     List<UserActivitySubscriptionResponse> subscriptionResponses = subscriptionService.getSubscribeForUserActivity(
         userId);

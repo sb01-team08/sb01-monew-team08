@@ -7,6 +7,7 @@ import com.example.monewteam08.entity.CommentRecentLog;
 import com.example.monewteam08.entity.UserActivityLog;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.exception.comment.CommentNotFoundException;
+import com.example.monewteam08.exception.useractivitylog.UserActicityLogNotFoundException;
 import com.example.monewteam08.mapper.CommentRecentLogMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentRecentLogRepository;
@@ -29,19 +30,19 @@ public class CommentRecentLogServiceImpl implements CommentRecentLogService {
 
   private final UserActivityLogRepository userActivityLogRepository;
   private final CommentRecentLogRepository commentRecentLogRepository;
+  private final CommentRepository commentRepository;
+  private final ArticleRepository articleRepository;
 
   private final CommentRecentLogMapper commentRecentLogMapper;
 
   private static final int LIMIT_SIZE = 10;
-  private final CommentRepository commentRepository;
-  private final ArticleRepository articleRepository;
 
   @Transactional(propagation = Propagation.MANDATORY)
   @Override
   public void addCommentRecentLog(UUID userId, Comment comment) {
     log.debug("최신 작성 댓글 로그 추가 요청: userId={}", userId);
-    // todo: exception 필요
-    UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow();
+    UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow(
+        () -> new UserActicityLogNotFoundException(userId));
     Article article = articleRepository.findById(comment.getArticleId())
         .orElseThrow(() -> new ArticleNotFoundException(comment.getArticleId()));
     CommentRecentLog commentRecentLog = commentRecentLogMapper.toEntity(userActivityLog, comment,

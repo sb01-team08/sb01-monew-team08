@@ -3,6 +3,7 @@ package com.example.monewteam08.service.impl;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -13,6 +14,9 @@ import com.example.monewteam08.entity.CommentLike;
 import com.example.monewteam08.entity.CommentLikeLog;
 import com.example.monewteam08.entity.User;
 import com.example.monewteam08.entity.UserActivityLog;
+import com.example.monewteam08.exception.ErrorCode;
+import com.example.monewteam08.exception.article.ArticleNotFoundException;
+import com.example.monewteam08.exception.useractivitylog.UserActicityLogNotFoundException;
 import com.example.monewteam08.mapper.CommentLikeLogMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentLikeLogRepository;
@@ -106,38 +110,51 @@ class CommentLikeLogServiceImplTest {
     int countLogs = 1;
     given(userActivityLogRepository.findByUserId(userId)).willReturn(Optional.of(userActivityLog));
     given(articleRepository.findById(comment.getArticleId())).willReturn(Optional.of(article));
-    given(commentLikeLogMapper.toEntity(userActivityLog, comment, article)).willReturn(
+    given(commentLikeLogMapper.toEntity(userActivityLog, comment, article
+        , user.getNickname())).willReturn(
         commentLikeLog);
 
     // when
-    commentLikeLogService.addCommentLikeLog(userId, commentLike, comment);
+    commentLikeLogService.addCommentLikeLog(userId, commentLike, comment, user.getNickname());
 
     // then
     verify(commentLikeLogRepository, never()).deleteAll(any());
     verify(commentLikeLogRepository).save(any(CommentLikeLog.class));
   }
 
-//  @Test
-//  @DisplayName("UserActivityLog를 불러오지 못해 예외를 반환한다.")
-//  void failed_addCommentLikeLog_cannotLoadUserActivityLog() {
-//    // given
-//
-//    // when
-//
-//    // then
-//    Assertions.assertThat();
-//  }
+  @Test
+  @DisplayName("UserActivityLog를 불러오지 못해 예외를 반환한다.")
+  void failed_addCommentLikeLog_cannotLoadUserActivityLog() {
+    // given
+    UUID id = UUID.randomUUID();
+    given(userActivityLogRepository.findByUserId(id)).willReturn(Optional.empty());
 
-//  @Test
-//  @DisplayName("Article을 불러오지 못해 예외를 반환한다.")
-//  void failed_addCommentLikeLog_cannotLoadArticle() {
-//    // given
-//
-//    // when
-//
-//    // then
-//    Assertions.assertThat();
-//  }
+    // when & then
+    Assertions.assertThatThrownBy(
+            () -> commentLikeLogService.addCommentLikeLog(id, commentLike, comment, user.getNickname()))
+        .isInstanceOf(UserActicityLogNotFoundException.class)
+        .hasMessage(
+            ErrorCode.USER_ACTIVITY_LOG_NOT_FOUND.getCode() + ": "
+                + ErrorCode.USER_ACTIVITY_LOG_NOT_FOUND.getMessage());
+
+  }
+
+  @Test
+  @DisplayName("Article을 불러오지 못해 예외를 반환한다.")
+  void failed_addCommentLikeLog_cannotLoadArticle() {
+    // given
+    given(userActivityLogRepository.findByUserId(userId)).willReturn(Optional.of(userActivityLog));
+    given(articleRepository.findById(comment.getArticleId())).willReturn(Optional.empty());
+
+    // when & then
+    Assertions.assertThatThrownBy(
+            () -> commentLikeLogService.addCommentLikeLog(userId, commentLike, comment,
+                user.getNickname()))
+        .isInstanceOf(ArticleNotFoundException.class)
+        .hasMessage(
+            ErrorCode.ARTICLE_NOT_FOUND.getCode() + ": "
+                + ErrorCode.ARTICLE_NOT_FOUND.getMessage());
+  }
 
   @Test
   @DisplayName("최대 10개의 댓글 좋아요 로그를 성공적으로 불러온다.")
@@ -154,6 +171,7 @@ class CommentLikeLogServiceImplTest {
             .commentContent("Comment " + i)
             .commentCreatedAt(LocalDateTime.now().minusDays(i))
             .commentUserId(userId)
+            .commentUserNickname("User" + i)
             .build())
         .toList();
 
@@ -170,8 +188,7 @@ class CommentLikeLogServiceImplTest {
       given(commentRepository.findById(log.getCommentId()))
           .willReturn(Optional.of(comment));
 
-      given(commentLikeLogMapper.toResponse(eq(log), eq(5),
-          eq(userActivityLog.getUser().getNickname())))
+      given(commentLikeLogMapper.toResponse(eq(log), eq(5)))
           .willReturn(new CommentLikeLogResponse(
               log.getId(),
               log.getCreatedAt(),
@@ -179,7 +196,7 @@ class CommentLikeLogServiceImplTest {
               log.getArticleId(),
               log.getArticleTitle(),
               log.getCommentUserId(),
-              "nickname",
+              log.getCommentUserNickname(),
               log.getCommentContent(),
               5,
               log.getCommentCreatedAt()
@@ -193,6 +210,19 @@ class CommentLikeLogServiceImplTest {
     // then
     Assertions.assertThat(responses).isNotEmpty();
     Assertions.assertThat(responses).hasSize(9);
+  }
+
+  @Test
+  @DisplayName("댓글 좋아요 삭제 시 로그도 함께 삭제한다")
+  void removeCommentLikeLogOnCancel() {
+    // given
+    willDoNothing().given(commentLikeLogRepository)
+        .deleteCommentLikeLogByCommentIdAndUserId(userId, commentId);
+    // when
+    commentLikeLogService.removeCommentLikeLogOnCancel(userId, commentId);
+
+    // then
+    verify(commentLikeLogRepository).deleteCommentLikeLogByCommentIdAndUserId(userId, commentId);
   }
 
 }
