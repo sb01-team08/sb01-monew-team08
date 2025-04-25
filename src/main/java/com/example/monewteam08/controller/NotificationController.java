@@ -1,5 +1,6 @@
 package com.example.monewteam08.controller;
 
+import com.example.monewteam08.controller.api.NotificationControllerDocs;
 import com.example.monewteam08.dto.response.notification.CursorPageResponseNotificationDto;
 import com.example.monewteam08.service.Interface.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
-public class NotificationController {
+public class NotificationController implements NotificationControllerDocs {
 
   private final NotificationService notificationService;
 
+  @Override
   @GetMapping
   public ResponseEntity<CursorPageResponseNotificationDto> getNotifications(
       @RequestParam(required = false) String cursor,
@@ -31,6 +33,7 @@ public class NotificationController {
     return ResponseEntity.ok(result);
   }
 
+  @Override
   @PatchMapping
   public ResponseEntity<Void> ReadAll(
       @RequestHeader("Monew-Request-User-Id") String requestUserId) {
@@ -38,6 +41,7 @@ public class NotificationController {
     return ResponseEntity.ok().build();
   }
 
+  @Override
   @PatchMapping("/{notificationId}")
   public ResponseEntity<Void> Read(
       @PathVariable("notificationId") String notificationId,
