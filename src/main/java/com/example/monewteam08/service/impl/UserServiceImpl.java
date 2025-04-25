@@ -6,6 +6,7 @@ import com.example.monewteam08.dto.request.user.UserUpdateRequest;
 import com.example.monewteam08.dto.response.user.UserResponse;
 import com.example.monewteam08.entity.User;
 import com.example.monewteam08.entity.UserActivityLog;
+import com.example.monewteam08.event.UserLoginEvent;
 import com.example.monewteam08.exception.user.DeletedAccountException;
 import com.example.monewteam08.exception.user.EmailAlreadyExistException;
 import com.example.monewteam08.exception.user.LoginFailedException;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
+  private final ApplicationEventPublisher publisher;
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
@@ -104,6 +108,7 @@ public class UserServiceImpl implements UserService {
     }
 
     log.info("성공적으로 로그인 되었습니다. - id: {}", user.getId());
+    publisher.publishEvent(new UserLoginEvent(user.getId()));
     return userMapper.toResponse(user);
   }
 }

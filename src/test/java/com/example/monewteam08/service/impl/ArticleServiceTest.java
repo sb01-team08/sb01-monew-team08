@@ -3,23 +3,24 @@ package com.example.monewteam08.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.example.monewteam08.dto.ArticleInterestCount;
-import com.example.monewteam08.dto.FilteredArticleDto;
 import com.example.monewteam08.dto.response.article.ArticleDto;
+import com.example.monewteam08.dto.response.article.ArticleInterestCount;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
+import com.example.monewteam08.dto.response.article.FilteredArticleDto;
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.Interest;
 import com.example.monewteam08.entity.Subscription;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
+import com.example.monewteam08.repository.ArticleRepositoryCustom;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
@@ -35,11 +36,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,6 +64,10 @@ public class ArticleServiceTest {
   @Mock
   private NotificationService notificationService;
 
+  @Mock
+  private ArticleRepositoryCustom articleRepositoryCustom;
+
+  @Spy
   @InjectMocks
   private ArticleServiceImpl articleService;
 
@@ -124,8 +126,10 @@ public class ArticleServiceTest {
     FilteredArticleDto filtered = new FilteredArticleDto(articles, List.of(count));
 
     given(articleFetchService.fetchAllArticles()).willReturn(articles);
-    given(articleRepository.findAll()).willReturn(List.of());
-    given(articleService.filterWithKeywords(anyList(), eq(userId))).willReturn(filtered);
+    given(articleRepository.findAll()).willReturn(
+        List.of(new Article("NAVER", "이미 있는 기사", "중복 설명", "http://b.com", LocalDateTime.now(), null)
+        ));
+    doReturn(filtered).when(articleService).filterWithKeywords(articles, userId);
 
     // when
     articleService.fetchAndSave(userId);
@@ -145,7 +149,7 @@ public class ArticleServiceTest {
     Article article2 = new Article("NAVER", "중복 기사", "중복 설명", "http://b.com", LocalDateTime.now(),
         null);
 
-    // 기사
+    //기사
     List<Article> fetchedArticles = List.of(article1, article2);
     given(articleRepository.findAll()).willReturn(
         List.of(
@@ -166,6 +170,7 @@ public class ArticleServiceTest {
     articleService.fetchAndSave(userId);
 
     // then
+    assertThat(article1.getInterestId()).isEqualTo(interest.getId());
     verify(articleRepository).saveAll(List.of(article1));
     verify(articleRepository, never()).saveAll(List.of(article2));
 
@@ -187,10 +192,11 @@ public class ArticleServiceTest {
     UUID userId = UUID.randomUUID();
 
     Article article = mock(Article.class);
-    Page<Article> articlePage = new PageImpl<>(List.of(article));
+    List<Article> articlePage = List.of(article);
 
-    given(articleRepository.findAll(any(Specification.class), any(Pageable.class))).willReturn(
-        articlePage);
+    given(articleRepositoryCustom.findAllByCursor(keyword, interestId, sourceIn,
+        publishDateFrom, publishDateTo, orderBy, direction, cursor, after, limit))
+        .willReturn(articlePage);
 
     ArticleDto dto = mock(ArticleDto.class);
     given(articleMapper.toDto(any(Article.class), anyBoolean())).willReturn(dto);
@@ -201,8 +207,7 @@ public class ArticleServiceTest {
 
     // then
     assertThat(result).isNotNull();
-//    assertThat(result.articles()).httpasSize(1);
-
+    assertThat(result.content()).hasSize(1);
   }
 
   @Test
