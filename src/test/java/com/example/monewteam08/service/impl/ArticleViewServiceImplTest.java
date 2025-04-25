@@ -15,10 +15,9 @@ import com.example.monewteam08.entity.User;
 import com.example.monewteam08.mapper.ArticleViewMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.ArticleViewRepository;
-import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
+import com.example.monewteam08.service.Interface.NewsViewLogService;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -34,9 +33,6 @@ class ArticleViewServiceImplTest {
   UserRepository userRepository;
 
   @Mock
-  CommentRepository commentRepository;
-
-  @Mock
   ArticleRepository articleRepository;
 
   @Mock
@@ -44,6 +40,9 @@ class ArticleViewServiceImplTest {
 
   @Mock
   ArticleViewMapper articleViewMapper;
+
+  @Mock
+  NewsViewLogService newsViewLogService;
 
   @InjectMocks
   ArticleViewServiceImpl articleViewServiceImpl;
@@ -62,7 +61,6 @@ class ArticleViewServiceImplTest {
 
     given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
     given(userRepository.findById(userId)).willReturn(Optional.of(user));
-    given(commentRepository.findAll()).willReturn(List.of(comment));
     given(articleViewMapper.toDto(any(), any()))
         .willReturn(articleViewDto);
 

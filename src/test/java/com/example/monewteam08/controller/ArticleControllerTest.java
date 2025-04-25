@@ -51,8 +51,7 @@ public class ArticleControllerTest {
 
     // when & then
     mockMvc.perform(delete("/api/articles/{id}/hard", articleId).header("Monew-Request-User-Id",
-        UUID.randomUUID())).andExpect(status().isNoContent())
-    ;
+        UUID.randomUUID())).andExpect(status().isNoContent());
 
     verify(articleService).hardDelete(articleId);
   }
@@ -68,10 +67,10 @@ public class ArticleControllerTest {
     int limit = 10;
 
     // when & then
-    mockMvc.perform(
-        get("/api/articles").param("keyword", keyword).param("interestId", interestId.toString())
-            .param("orderBy", orderBy).param("direction", direction).param("cursor", cursor)
-            .param("limit", String.valueOf(limit))).andExpect(status().isOk());
+    mockMvc.perform(get("/api/articles").header("Monew-Request-User-Id", UUID.randomUUID())
+        .param("keyword", keyword).param("interestId", interestId.toString())
+        .param("orderBy", orderBy).param("direction", direction).param("cursor", cursor)
+        .param("limit", String.valueOf(limit))).andExpect(status().isOk());
   }
 
   @Test
