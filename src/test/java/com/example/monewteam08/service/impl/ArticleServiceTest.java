@@ -145,7 +145,7 @@ public class ArticleServiceTest {
     Article article2 = new Article("NAVER", "중복 기사", "중복 설명", "http://b.com", LocalDateTime.now(),
         null);
 
-    // 기사
+    //기사
     List<Article> fetchedArticles = List.of(article1, article2);
     given(articleRepository.findAll()).willReturn(
         List.of(
@@ -166,6 +166,7 @@ public class ArticleServiceTest {
     articleService.fetchAndSave(userId);
 
     // then
+    assertThat(article1.getInterestId()).isEqualTo(interest.getId());
     verify(articleRepository).saveAll(List.of(article1));
     verify(articleRepository, never()).saveAll(List.of(article2));
 
@@ -201,7 +202,7 @@ public class ArticleServiceTest {
 
     // then
     assertThat(result).isNotNull();
-//    assertThat(result.articles()).httpasSize(1);
+    assertThat(result.content()).hasSize(1);
   }
 
   @Test
