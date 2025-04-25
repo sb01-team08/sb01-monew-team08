@@ -59,7 +59,7 @@ public class ArticleController {
       @RequestParam String direction,
       @RequestParam(required = false) String cursor,
       @RequestParam(required = false) LocalDateTime after, //createdAt
-      @RequestParam int limit,
+      @RequestParam(defaultValue = "10") Integer limit,
       @RequestHeader(name = "Monew-Request-User-Id") UUID monewRequestUserId
   ) {
     CursorPageResponseArticleDto response = articleService.getArticles(
@@ -72,7 +72,7 @@ public class ArticleController {
         direction,
         cursor,
         after,
-        limit,
+        10,
         monewRequestUserId
     );
     return ResponseEntity.ok(response);

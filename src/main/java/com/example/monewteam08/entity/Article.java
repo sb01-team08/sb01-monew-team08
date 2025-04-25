@@ -73,4 +73,8 @@ public class Article {
   public void addViewCount() {
     this.viewCount++;
   }
+
+  public void setInterestId(UUID interestId) {
+    this.interestId = interestId;
+  }
 }

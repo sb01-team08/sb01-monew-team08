@@ -16,7 +16,7 @@ public interface ArticleRepositoryCustom {
       String orderBy,
       String direction,
       String cursor,
-      String after,
+      LocalDateTime after,
       int limit
   );
 

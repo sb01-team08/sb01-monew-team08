@@ -1,26 +1,26 @@
 package com.example.monewteam08.service.impl;
 
-import com.example.monewteam08.dto.ArticleInterestCount;
-import com.example.monewteam08.dto.FilteredArticleDto;
 import com.example.monewteam08.dto.response.article.ArticleDto;
+import com.example.monewteam08.dto.response.article.ArticleInterestCount;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
+import com.example.monewteam08.dto.response.article.FilteredArticleDto;
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.Interest;
 import com.example.monewteam08.entity.Subscription;
+import com.example.monewteam08.exception.Interest.InterestNotFoundException;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.ArticleRepositoryCustom;
-import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
 import com.example.monewteam08.service.Interface.ArticleService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
-import com.example.monewteam08.service.Interface.NewsViewLogService;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -40,10 +40,8 @@ public class ArticleServiceImpl implements ArticleService {
   private final SubscriptionRepository subscriptionRepository;
   private final InterestRepository interestRepository;
   private final NotificationService notificationService;
-  private final CommentRepository commentRepository;
   private final ArticleRepositoryCustom articleRepositoryCustom;
   private final ArticleMapper articleMapper;
-  private final NewsViewLogService newsViewLogService;
 
   @Transactional
   @Override
@@ -85,7 +83,7 @@ public class ArticleServiceImpl implements ArticleService {
   public CursorPageResponseArticleDto getArticles(String keyword,
       UUID interestId, List<String> sourceIn, LocalDateTime publishDateFrom,
       LocalDateTime publishDateTo, String orderBy, String direction,
-      String cursor, LocalDateTime after, int limit, UUID userId) {
+      String cursor, LocalDateTime after, Integer limit, UUID userId) {
 
     List<Article> articles = articleRepositoryCustom.findAllByCursor(
         keyword,
@@ -96,11 +94,12 @@ public class ArticleServiceImpl implements ArticleService {
         orderBy,
         direction,
         cursor,
-        after != null ? after.toString() : null,
+        after,
         limit
     );
 
     List<ArticleDto> articleDtos = articles.stream()
+        .limit(limit)
         .map(article -> {
           boolean viewedByMe = articleViewService.isViewedByUser(userId, article.getId());
           return articleMapper.toDto(article, viewedByMe);
@@ -156,26 +155,46 @@ public class ArticleServiceImpl implements ArticleService {
 
   protected FilteredArticleDto filterWithKeywords(List<Article> articles, UUID userId) {
     List<UUID> interestIds = subscriptionRepository.findAll().stream()
-        .filter(subscription -> subscription.getUserId() == userId)
+        .filter(subscription -> subscription.getUserId().equals(userId))
         .map(Subscription::getInterestId)
         .toList();
+
+    log.debug("User 관심사 id 목록: {}", interestIds);
 
     List<ArticleInterestCount> articleInterestCounts = countArticleByInterest(articles,
         interestIds);
 
     if (interestIds.isEmpty()) {
-      return new FilteredArticleDto(articles, articleInterestCounts);
+      interestIds = interestRepository.findAll().stream()
+          .map(Interest::getId)
+          .toList();
+    }
+    if (interestIds.isEmpty()) {
+      return new FilteredArticleDto(articles, List.of());
     }
 
-    List<String> keywords = interestIds.stream()
-        .flatMap(interestId -> interestRepository.findById(interestId).stream())
-        .flatMap(interest -> interest.getKeywords().stream())
-        .toList();
+    Map<UUID, List<String>> interestIdAndKeywords = interestIds.stream()
+        .map(interestId -> interestRepository.findById(interestId)
+            .orElseThrow(() -> new InterestNotFoundException(interestId.toString())))
+        .collect(Collectors.toMap(Interest::getId, Interest::getKeywords));
 
     List<Article> filteredArticles = articles.stream()
-        .filter(article -> keywords.stream()
-            .anyMatch(keyword ->
-                article.getTitle().contains(keyword) || article.getSummary().contains(keyword)))
+        .filter(article -> {
+          boolean matched = false;
+          for (Map.Entry<UUID, List<String>> entry : interestIdAndKeywords.entrySet()) {
+            UUID interestId = entry.getKey();
+            List<String> keywords = entry.getValue();
+            boolean containsKeyword = keywords.stream().anyMatch(keyword ->
+                article.getTitle().contains(keyword) || article.getSummary().contains(keyword)
+            );
+            if (containsKeyword) {
+              article.setInterestId(interestId);
+              matched = true;
+            }
+          }
+
+          return matched;
+        })
         .toList();
 
     return new FilteredArticleDto(filteredArticles, articleInterestCounts);
