@@ -13,6 +13,7 @@ import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.NotificationRepository;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -69,13 +70,15 @@ public class NotificationServiceImpl implements NotificationService {
   public CursorPageResponseNotificationDto getUnreadNotifications(String userId,
       String cursor, String after,
       int limit) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     UUID userIdUuid = UUID.fromString(userId);
     LocalDateTime cursorTime =
-        (cursor != null && !cursor.isBlank()) ? LocalDateTime.parse(cursor) : null;
-    UUID afterUuid = (after != null && !after.isBlank()) ? UUID.fromString(after) : null;
+        (cursor != null && !cursor.isBlank()) ? LocalDateTime.parse(cursor, formatter) : null;
+    LocalDateTime afterTime =
+        (cursor != null && !cursor.isBlank()) ? LocalDateTime.parse(cursor, formatter) : null;
 
     List<Notification> result = notificationRepository.findUnreadByCursor(
-        userIdUuid, cursorTime, afterUuid, limit + 1);
+        userIdUuid, cursorTime, afterTime, limit + 1);
 
     boolean hasNext = result.size() > limit;
     if (hasNext) {

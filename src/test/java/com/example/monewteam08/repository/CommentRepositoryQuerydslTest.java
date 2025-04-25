@@ -3,6 +3,7 @@ package com.example.monewteam08.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.monewteam08.config.QuerydslConfig;
+import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.Comment;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,12 +24,16 @@ class CommentRepositoryQuerydslTest {
   @Autowired
   private CommentRepository commentRepository;
 
+  @Autowired
+  private ArticleRepository articleRepository;
+
   private UUID articleId;
 
   @BeforeEach
   void setUp() {
-    articleId = UUID.randomUUID();
-
+    Article article = new Article("네이버", "제목", "요약", "123", LocalDateTime.now(), null);
+    articleRepository.save(article);
+    articleId = article.getId();
     LocalDateTime baseTime = LocalDateTime.of(2023, 1, 1, 0, 0);
     for (int i = 0; i < 100; i++) {
       Comment comment = new Comment(articleId, UUID.randomUUID(), "댓글 " + i);

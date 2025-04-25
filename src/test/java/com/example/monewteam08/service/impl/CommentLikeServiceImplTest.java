@@ -1,4 +1,4 @@
-package com.example.monewteam08.service;
+package com.example.monewteam08.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -13,6 +13,7 @@ import com.example.monewteam08.mapper.CommentLikeMapper;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
+import com.example.monewteam08.service.Interface.CommentLikeLogService;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,6 +36,8 @@ class CommentLikeServiceImplTest {
   private CommentLikeMapper commentLikeMapper;
   @Mock
   private UserRepository userRepository;
+  @Mock
+  private CommentLikeLogService commentLikeLogService;
   @Mock
   private NotificationService notificationService;
 

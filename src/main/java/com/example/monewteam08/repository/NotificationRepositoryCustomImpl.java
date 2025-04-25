@@ -18,7 +18,8 @@ public class NotificationRepositoryCustomImpl implements NotificationRepositoryC
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public List<Notification> findUnreadByCursor(UUID userId, LocalDateTime cursor, UUID after,
+  public List<Notification> findUnreadByCursor(UUID userId, LocalDateTime cursor,
+      LocalDateTime after,
       int limit) {
     return queryFactory
         .selectFrom(notification)
@@ -33,10 +34,10 @@ public class NotificationRepositoryCustomImpl implements NotificationRepositoryC
   }
 
   private BooleanExpression cursorCondition(LocalDateTime cursor,
-      UUID after) {
+      LocalDateTime after) {
     if (cursor != null && after != null) {
       return notification.createdAt.lt(cursor)
-          .or(notification.createdAt.eq(cursor).and(notification.id.lt(after)));
+          .or(notification.createdAt.eq(cursor).and(notification.createdAt.lt(after)));
     } else if (cursor != null) {
       return notification.createdAt.lt(cursor);
     } else {

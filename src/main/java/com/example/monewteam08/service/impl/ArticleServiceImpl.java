@@ -59,10 +59,13 @@ public class ArticleServiceImpl implements ArticleService {
           .toList();
 
       filteredArticles = filterWithKeywords(uniqueArticles, userId);
-      filteredArticles.getArticleInterestCounts().forEach(interest ->
-          notificationService.createArticleNotification(userId, interest.interestId(),
-              interest.interestName(), interest.articleCount())
-      );
+      filteredArticles.getArticleInterestCounts()
+          .stream()
+          .filter(interest -> interest.articleCount() > 0)
+          .forEach(interest ->
+              notificationService.createArticleNotification(userId, interest.interestId(),
+                  interest.interestName(), interest.articleCount())
+          );
 
     } else {
       filteredArticles = filterWithKeywords(allArticles, userId);

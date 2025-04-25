@@ -1,4 +1,4 @@
-package com.example.monewteam08.service;
+package com.example.monewteam08.service.impl;
 
 import com.example.monewteam08.dto.request.comment.CommentRegisterRequest;
 import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
@@ -168,7 +168,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     comment.deactivate();
-    
+
     commentRecentLogService.removeCommentRecentLog(userId, id);   // 최신 작성 댓글 로그 삭제
 
     log.info("댓글 논리 삭제 완료 id={}", id);

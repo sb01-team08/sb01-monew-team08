@@ -1,4 +1,4 @@
-package com.example.monewteam08.service;
+package com.example.monewteam08.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -25,6 +25,8 @@ import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
+import com.example.monewteam08.service.Interface.CommentLikeLogService;
+import com.example.monewteam08.service.Interface.CommentRecentLogService;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-class CommentServiceTest {
+class CommentServiceImplTest {
 
   @Mock
   private CommentRepository commentRepository;
@@ -49,6 +51,12 @@ class CommentServiceTest {
 
   @Mock
   private CommentLikeRepository commentLikeRepository;
+
+  @Mock
+  private CommentLikeLogService commentLikeLogService;
+
+  @Mock
+  private CommentRecentLogService commentRecentLogService;
 
   @Mock
   private CommentMapper commentMapper;
@@ -73,7 +81,7 @@ class CommentServiceTest {
         userId.toString(),
         "테스트"
     );
-    mockComment = new Comment(articleId, userId, "테스트" );
+    mockComment = new Comment(articleId, userId, "테스트");
     ReflectionTestUtils.setField(mockComment, "id", commentId);
   }
 
@@ -82,20 +90,20 @@ class CommentServiceTest {
     when(articleRepository.findById(articleId)).thenReturn(Optional.of(mock(Article.class)));
 
     User mockUser = mock(User.class);
-    when(mockUser.getNickname()).thenReturn("닉네임" );
+    when(mockUser.getNickname()).thenReturn("닉네임");
     when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
 
     when(commentRepository.save(any(Comment.class))).thenReturn(mockComment);
 
-    when(commentMapper.toDto(any(Comment.class), eq("닉네임" ), eq(false))).thenReturn(
+    when(commentMapper.toDto(any(Comment.class), eq("닉네임"), eq(false))).thenReturn(
         CommentDto.builder()
             .id(commentId.toString())
             .articleId(articleId.toString())
             .userId(userId.toString())
-            .content("테스트" )
+            .content("테스트")
             .likeCount(0)
             .likedByMe(false)
-            .userNickname("닉네임" )
+            .userNickname("닉네임")
             .createdAt(null)
             .build()
     );
@@ -128,7 +136,7 @@ class CommentServiceTest {
             .userId(userId.toString())
             .content(newContent)
             .likedByMe(true)
-            .userNickname("닉네임" )
+            .userNickname("닉네임")
             .createdAt(null)
             .build()
     );
@@ -145,7 +153,7 @@ class CommentServiceTest {
   @Test
   void 존재하지_않는_댓글_수정() {
     UUID userId = UUID.randomUUID();
-    CommentUpdateRequest updateRequest = new CommentUpdateRequest("수정" );
+    CommentUpdateRequest updateRequest = new CommentUpdateRequest("수정");
 
     when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
 
