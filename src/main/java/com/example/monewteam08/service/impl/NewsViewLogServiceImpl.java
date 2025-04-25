@@ -5,6 +5,7 @@ import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.NewsViewLog;
 import com.example.monewteam08.entity.UserActivityLog;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
+import com.example.monewteam08.exception.useractivitylog.UserActicityLogNotFoundException;
 import com.example.monewteam08.mapper.NewsViewLogMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentRepository;
@@ -26,19 +27,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class NewsViewLogServiceImpl implements NewsViewLogService {
 
   private final UserActivityLogRepository userActivityLogRepository;
-  private final NewsViewLogMapper newsViewLogMapper;
-  private final NewsViewLogRepository newsViewLogRepository;
-
-  private static final int LIMIT_SIZE = 10;
   private final ArticleRepository articleRepository;
   private final CommentRepository commentRepository;
+  private final NewsViewLogRepository newsViewLogRepository;
+
+  private final NewsViewLogMapper newsViewLogMapper;
+
+  private static final int LIMIT_SIZE = 10;
 
   @Transactional(propagation = Propagation.MANDATORY)
   @Override
   public void addNewsViewLog(UUID userId, Article article) {
     log.debug("뉴스 조회 로그 추가 요청: userId={}", userId);
-    // todo: exception
-    UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow();
+    UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow(
+        () -> new UserActicityLogNotFoundException(userId));
     NewsViewLog newsViewLog = newsViewLogMapper.toEntity(userActivityLog, article, userId);
 
     newsViewLogRepository.save(newsViewLog);

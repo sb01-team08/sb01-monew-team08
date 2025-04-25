@@ -35,6 +35,9 @@ public enum ErrorCode {
   EMAIL_IS_ALREADY_EXIST(HttpStatus.CONFLICT, "USER001", "이미 사용 중인 이메일입니다."),
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER002", "사용자를 찾을 수 없습니다."),
 
+  // UserActivityLog
+  USER_ACTIVITY_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "USERACTIVITY001", "사용자 활동 로그가 존재하지 않습니다."),
+
   // Article
   ARTICLE_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLE001", "기사 가져오기에 실패했습니다."),
   ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE002", "기사를 찾을 수 없습니다."),

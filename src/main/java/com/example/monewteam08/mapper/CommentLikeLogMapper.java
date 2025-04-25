@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CommentLikeLogMapper {
 
-  public CommentLikeLogResponse toResponse(CommentLikeLog commentLikeLog, int commentLikeCount,
-      String commentUserNickname) {
+  public CommentLikeLogResponse toResponse(CommentLikeLog commentLikeLog, int commentLikeCount) {
     return CommentLikeLogResponse.builder()
         .id(commentLikeLog.getId())
         .createdAt(commentLikeLog.getCreatedAt())
@@ -21,7 +20,7 @@ public class CommentLikeLogMapper {
         .articleId(commentLikeLog.getArticleId())
         .articleTitle(commentLikeLog.getArticleTitle())
         .commentUserId(commentLikeLog.getCommentUserId())
-        .commentUserNickname(commentUserNickname)
+        .commentUserNickname(commentLikeLog.getCommentUserNickname())
         .commentContent(commentLikeLog.getCommentContent())
         .commentLikeCount(commentLikeCount)
         .commentCreatedAt(commentLikeLog.getCommentCreatedAt())
@@ -29,13 +28,14 @@ public class CommentLikeLogMapper {
   }
 
   public CommentLikeLog toEntity(UserActivityLog userActivityLog, Comment comment,
-      Article article) {
+      Article article, String nickname) {
     return CommentLikeLog.builder()
         .activityLog(userActivityLog)
         .commentId(comment.getId())
         .articleId(article.getId())
         .articleTitle(article.getTitle())
         .commentUserId(comment.getUserId())
+        .commentUserNickname(nickname)
         .commentContent(comment.getContent())
         .commentCreatedAt(comment.getCreatedAt())
         .build();
