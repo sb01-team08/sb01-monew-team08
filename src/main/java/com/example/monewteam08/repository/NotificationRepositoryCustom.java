@@ -7,5 +7,6 @@ import java.util.UUID;
 
 public interface NotificationRepositoryCustom {
 
-  List<Notification> findUnreadByCursor(UUID userId, LocalDateTime cursor, UUID after, int limit);
+  List<Notification> findUnreadByCursor(UUID userId, LocalDateTime cursor, LocalDateTime after,
+      int limit);
 }
