@@ -8,6 +8,7 @@ import com.example.monewteam08.mapper.CommentLikeMapper;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
+import com.example.monewteam08.service.Interface.CommentLikeLogService;
 import com.example.monewteam08.service.Interface.CommentLikeService;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
   private final CommentLikeMapper commentLikeMapper;
   private final NotificationService notificationService;
   private final UserRepository userRepository;
+  private final CommentLikeLogService commentLikeLogService;
 
   @Transactional
   @Override
@@ -43,6 +45,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     CommentLike liked = commentLikeRepository.save(new CommentLike(userId, commentId));
     comment.increaseLikeCount();
     notificationService.createCommentLikeNotification(userId, commentId, nickname);
+    commentLikeLogService.addCommentLikeLog(userId, liked, comment);  // 댓글 좋아요 로그 추가
 
     log.info("댓글 좋아요 성공");
     return commentLikeMapper.toDto(liked, comment, nickname);
@@ -58,6 +61,9 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
     commentLikeRepository.deleteByUserIdAndCommentId(userId, commentId);
     comment.decreaseLikeCount();
+
+    commentLikeLogService.removeCommentLikeLogOnCancel(userId, commentId); // 댓글 좋아요 로그 삭제
+
     log.info("댓글 취소 성공");
   }
 }

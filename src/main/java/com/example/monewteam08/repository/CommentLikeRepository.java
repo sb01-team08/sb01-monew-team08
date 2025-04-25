@@ -13,4 +13,6 @@ public interface CommentLikeRepository extends CrudRepository<CommentLike, UUID>
   List<CommentLike> findAllByUserIdAndCommentIdIn(UUID userId, Set<UUID> commentIds);
 
   boolean existsByUserIdAndCommentId(UUID userId, UUID commentId);
+
+  int countCommentLikeById(UUID id);
 }

@@ -16,6 +16,7 @@ import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
+import com.example.monewteam08.service.Interface.CommentRecentLogService;
 import com.example.monewteam08.service.Interface.CommentService;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,8 @@ public class CommentServiceImpl implements CommentService {
   private final ArticleRepository articleRepository;
   private final CommentMapper commentMapper;
   private final CommentLikeRepository commentLikeRepository;
+
+  private final CommentRecentLogService commentRecentLogService;
 
   @Override
   public CursorPageResponseCommentDto getCommentsByCursor(String articleId, String orderBy,
@@ -125,6 +128,8 @@ public class CommentServiceImpl implements CommentService {
     Comment comment = new Comment(articleId, userId, request.getContent());
     Comment save = commentRepository.save(comment);
 
+    commentRecentLogService.addCommentRecentLog(userId, comment); // 최신 작성 댓글 로그 추가
+
     return commentMapper.toDto(save, user.getNickname(), false);
   }
 
@@ -141,11 +146,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     comment.update(request.getContent());
-    log.info("댓글 수정 완료" );
+    log.info("댓글 수정 완료");
 
     boolean likedByMe = commentLikeRepository.existsByUserIdAndCommentId(userId, comment.getId());
 
-    String nickname = userRepository.findById(userId).map(User::getNickname).orElse("" );
+    String nickname = userRepository.findById(userId).map(User::getNickname).orElse("");
 
     return commentMapper.toDto(comment, nickname, likedByMe);
   }
@@ -163,6 +168,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     comment.deactivate();
+    
+    commentRecentLogService.removeCommentRecentLog(userId, id);   // 최신 작성 댓글 로그 삭제
+
     log.info("댓글 논리 삭제 완료 id={}", id);
   }
 
@@ -175,6 +183,8 @@ public class CommentServiceImpl implements CommentService {
     Comment comment = commentRepository.findById(id)
         .orElseThrow(CommentNotFoundException::new);
 
+    commentRecentLogService.removeCommentRecentLog(comment.getUserId(), id);  // 최신 작성 댓글 로그 삭제
+
     commentRepository.deleteById(id);
     log.info("댓글 물리 삭제 완료 id={}", id);
   }
@@ -183,7 +193,7 @@ public class CommentServiceImpl implements CommentService {
     return switch (orderBy) {
       case "likeCount" -> String.valueOf(last.getLikeCount());
       case "createdAt" -> String.valueOf(last.getCreatedAt());
-      default -> throw new IllegalArgumentException("유효하지 않는 정렬 기준입니다." );
+      default -> throw new IllegalArgumentException("유효하지 않는 정렬 기준입니다.");
     };
   }
 }

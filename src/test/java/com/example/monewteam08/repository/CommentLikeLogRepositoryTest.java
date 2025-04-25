@@ -31,40 +31,39 @@ class CommentLikeLogRepositoryTest {
   private UserRepository userRepository;
 
   @Test
-  @DisplayName("같은 ActivityLog(같은 사용자) CommentLikeLogs의 개수를 센다")
-  void countCommentLikeLogByActivityLog() {
+  @DisplayName("좋아요 취소 시 댓글 좋아요 로그를 userId와 commnetId를 받아 삭제한다.")
+  void deleteCommentLikeLogByUserIdAndCommentId() {
     // given
+    UUID commentId = UUID.randomUUID();
     User user = userRepository.save(new User("test@example.com", "tester", "tester1234!"));
     UserActivityLog activityLog = userActivityLogRepository.save(new UserActivityLog(user));
-
-    for (int i = 0; i < 5; i++) {
-      CommentLikeLog log = CommentLikeLog.builder()
-          .activityLog(activityLog)
-          .commentId(UUID.randomUUID())
-          .articleId(UUID.randomUUID())
-          .articleTitle("title" + i)
-          .commentContent("content" + i)
-          .commentCreatedAt(LocalDateTime.now().minusDays(i))
-          .commentUserId(user.getId())
-          .commentUserNickname(user.getNickname())
-          .build();
-      commentLikeLogRepository.save(log);
-    }
+    CommentLikeLog log = CommentLikeLog.builder()
+        .activityLog(activityLog)
+        .commentId(commentId)
+        .articleId(UUID.randomUUID())
+        .articleTitle("title")
+        .commentContent("content")
+        .commentCreatedAt(LocalDateTime.now())
+        .commentUserId(user.getId())
+        .build();
+    commentLikeLogRepository.save(log);
 
     // when
-    int count = commentLikeLogRepository.countCommentLikeLogByUserId(user.getId());
+    commentLikeLogRepository.deleteCommentLikeLogByCommentIdAndUserId(user.getId(), commentId);
 
     // then
-    Assertions.assertThat(count).isEqualTo(5);
+    int count = commentLikeLogRepository.countCommentLikeLogByUserId(user.getId());
+    Assertions.assertThat(count).isZero();
   }
 
   @Test
-  @DisplayName("오래된 n개의 로그를 가져온다.")
-  void findOldestLogs() {
+  @DisplayName("댓글 좋아요 로그를 가장 최신 순으로 10개 가져온다.")
+  void getCommentLikeLogsByUserActivityLogDesc() {
     // given
-    User user = userRepository.save(new User("test@example.com", "tester", "secure123!"));
+    int limit = 10;
+    UUID commentId = UUID.randomUUID();
+    User user = userRepository.save(new User("test@example.com", "tester", "tester1234!"));
     UserActivityLog activityLog = userActivityLogRepository.save(new UserActivityLog(user));
-
     List<CommentLikeLog> logs = IntStream.range(0, 12)
         .mapToObj(i -> CommentLikeLog.builder()
             .activityLog(activityLog)
@@ -74,20 +73,19 @@ class CommentLikeLogRepositoryTest {
             .commentContent("Comment " + i)
             .commentCreatedAt(LocalDateTime.now().minusDays(5 - i)) // 오래된 순
             .commentUserId(user.getId())
-            .commentUserNickname(user.getNickname())
             .build())
         .toList();
 
     commentLikeLogRepository.saveAll(logs);
 
     // when
-    List<CommentLikeLog> oldLogs = commentLikeLogRepository.findOldestLogs(user.getId(),
-        PageRequest.of(0, 2));
+    List<CommentLikeLog> result = commentLikeLogRepository.getCommentLikeLogsByActivityLogOrderByCreatedAtDesc(
+        activityLog,
+        PageRequest.of(0, limit));
 
     // then
-    Assertions.assertThat(oldLogs).hasSize(2);
-    Assertions.assertThat(oldLogs.get(0).getCommentContent()).isEqualTo("Comment 0");
-    Assertions.assertThat(oldLogs.get(1).getCommentContent()).isEqualTo("Comment 1");
+    Assertions.assertThat(result).hasSize(10);
+    Assertions.assertThat(result.get(0).getCommentContent()).isEqualTo("Comment 11");
   }
 
 }
