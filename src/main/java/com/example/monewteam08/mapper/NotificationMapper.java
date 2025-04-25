@@ -1,6 +1,6 @@
 package com.example.monewteam08.mapper;
 
-import com.example.monewteam08.dto.response.nodtification.NotificationDto;
+import com.example.monewteam08.dto.response.notification.NotificationDto;
 import com.example.monewteam08.entity.Notification;
 import org.springframework.stereotype.Component;
 

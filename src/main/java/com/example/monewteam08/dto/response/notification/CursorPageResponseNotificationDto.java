@@ -1,4 +1,4 @@
-package com.example.monewteam08.dto.response.nodtification;
+package com.example.monewteam08.dto.response.notification;
 
 import java.util.ArrayList;
 import lombok.AllArgsConstructor;
