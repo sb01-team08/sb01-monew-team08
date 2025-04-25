@@ -73,7 +73,7 @@ class NewsViewLogServiceImplTest {
     userActivityLog = new UserActivityLog(user);
     ReflectionTestUtils.setField(userActivityLog, "id", userId);
     article = new Article("testurl", "mocktitle", "mocksummary", "sourceUrl",
-        LocalDateTime.now());
+        LocalDateTime.now(), null);
     ReflectionTestUtils.setField(article, "id", articleId);
 
     newsViewLog = NewsViewLog.builder()
