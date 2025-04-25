@@ -17,6 +17,7 @@ import com.example.monewteam08.mapper.CommentLikeLogMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentLikeLogRepository;
 import com.example.monewteam08.repository.CommentLikeRepository;
+import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserActivityLogRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,6 +51,8 @@ class CommentLikeLogServiceImplTest {
   private ArticleRepository articleRepository;
   @Mock
   private CommentLikeRepository commentLikeRepository;
+  @Mock
+  private CommentRepository commentRepository;
   @Mock
   private CommentLikeLogMapper commentLikeLogMapper;
 
@@ -105,7 +108,6 @@ class CommentLikeLogServiceImplTest {
     given(articleRepository.findById(comment.getArticleId())).willReturn(Optional.of(article));
     given(commentLikeLogMapper.toEntity(userActivityLog, comment, article)).willReturn(
         commentLikeLog);
-    given(commentLikeLogRepository.countCommentLikeLogByUserId(userId)).willReturn(countLogs);
 
     // when
     commentLikeLogService.addCommentLikeLog(userId, commentLike, comment);
@@ -159,8 +161,15 @@ class CommentLikeLogServiceImplTest {
         eq(userActivityLog), any(PageRequest.class))).willReturn(logs);
 
     for (CommentLikeLog log : logs) {
-      given(commentLikeRepository.countCommentLikeById(log.getCommentId())).willReturn(
-          5); // 예시로 모두 5개
+      Comment comment = new Comment(log.getArticleId(), log.getCommentUserId(),
+          log.getCommentContent());
+      ReflectionTestUtils.setField(comment, "id", log.getCommentId());
+      ReflectionTestUtils.setField(comment, "createdAt", log.getCommentCreatedAt());
+      ReflectionTestUtils.setField(comment, "likeCount", 5);
+
+      given(commentRepository.findById(log.getCommentId()))
+          .willReturn(Optional.of(comment));
+
       given(commentLikeLogMapper.toResponse(eq(log), eq(5),
           eq(userActivityLog.getUser().getNickname())))
           .willReturn(new CommentLikeLogResponse(
