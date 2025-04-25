@@ -1,4 +1,4 @@
-package com.example.monewteam08.service;
+package com.example.monewteam08.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;

@@ -1,4 +1,4 @@
-package com.example.monewteam08.service;
+package com.example.monewteam08.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -38,7 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-class CommentServiceTest {
+class CommentServiceImplTest {
 
   @Mock
   private CommentRepository commentRepository;
