@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ArticleViewMapper {
 
-  public ArticleViewDto toDto(ArticleView articleView, Article article, long commentCount) {
+  public ArticleViewDto toDto(ArticleView articleView, Article article) {
 
     return new ArticleViewDto(
         articleView.getId(),
@@ -20,7 +20,7 @@ public class ArticleViewMapper {
         article.getTitle(),
         article.getPublishDate(),
         article.getSummary(),
-        commentCount,
+        article.getComments().size(),
         article.getViewCount()
     );
   }
