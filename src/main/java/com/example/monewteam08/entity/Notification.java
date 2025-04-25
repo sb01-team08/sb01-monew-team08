@@ -19,7 +19,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "notifications" )
+@Table(name = "notifications")
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,7 +31,7 @@ public class Notification {
 
   @Column(name = "user_id", nullable = false)
   private UUID userId;
-  @Column(columnDefinition = "TEXT" )
+  @Column(columnDefinition = "TEXT")
   private String content;
 
   @Enumerated(EnumType.STRING)
@@ -39,7 +39,7 @@ public class Notification {
   private ResourceType resource_type;
   @Column(name = "resource_id", nullable = false)
   private UUID resourceId;
-  @Column(name = "is_confirmed" )
+  @Column(name = "is_confirmed")
   private Boolean isConfirmed = false;
 
   @CreatedDate
@@ -47,7 +47,7 @@ public class Notification {
   private LocalDateTime createdAt;
 
   @LastModifiedDate
-  @Column(name = "update_at" )
+  @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
   public void confirm() {

@@ -21,12 +21,12 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "comment_like_log", uniqueConstraints = @UniqueConstraint(columnNames = {
+@Table(name = "comment_recent_log", uniqueConstraints = @UniqueConstraint(columnNames = {
     "activity_log_id", "comment_id"}))
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class CommentLikeLog {
+public class CommentRecentLog {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -49,26 +49,30 @@ public class CommentLikeLog {
   @Column(name = "article_title")
   private String articleTitle;
 
-  @Column(name = "comment_user_id", nullable = false)
-  private UUID commentUserId;
+  @Column(name = "user_id", nullable = false)
+  private UUID userId;
 
-  @Column(name = "comment_content")
+  @Column(name = "user_nickname")
+  private String userNickname;
+
+  @Column(name = "content")
   private String commentContent;
 
   @Column(name = "comment_created_at")
   private LocalDateTime commentCreatedAt;
 
   @Builder
-  private CommentLikeLog(UUID commentId, UUID articleId, String articleTitle, UUID commentUserId,
-      String commentContent, LocalDateTime commentCreatedAt,
+  private CommentRecentLog(UUID commentId, UUID articleId, String articleTitle, UUID userId,
+      String userNickname, String commentContent, LocalDateTime commentCreatedAt,
       UserActivityLog activityLog) {
+    this.activityLog = activityLog;
     this.commentId = commentId;
     this.articleId = articleId;
     this.articleTitle = articleTitle;
-    this.commentUserId = commentUserId;
+    this.userId = userId;
+    this.userNickname = userNickname;
     this.commentContent = commentContent;
     this.commentCreatedAt = commentCreatedAt;
-    this.activityLog = activityLog;
   }
 
 }

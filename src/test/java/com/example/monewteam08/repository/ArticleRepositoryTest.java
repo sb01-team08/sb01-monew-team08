@@ -27,9 +27,9 @@ class ArticleRepositoryTest {
   @Test
   void 기사_전체_조회() {
     // given
-    Article article1 = new Article("NAVER", "제목1", "내용1", "url1", LocalDateTime.now());
-    Article article2 = new Article("NAVER", "제목2", "내용2", "url2", LocalDateTime.now());
-    Article article3 = new Article("NAVER", "제목3", "내용3", "url3", LocalDateTime.now());
+    Article article1 = new Article("NAVER", "제목1", "내용1", "url1", LocalDateTime.now(), null);
+    Article article2 = new Article("NAVER", "제목2", "내용2", "url2", LocalDateTime.now(), null);
+    Article article3 = new Article("NAVER", "제목3", "내용3", "url3", LocalDateTime.now(), null);
 
     articleRepository.save(article1);
     articleRepository.save(article2);

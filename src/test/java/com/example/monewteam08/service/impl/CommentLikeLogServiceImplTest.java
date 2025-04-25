@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import com.example.monewteam08.dto.response.useractivitylog.CommentLikeLogResponse;
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentLike;
@@ -15,13 +16,14 @@ import com.example.monewteam08.entity.UserActivityLog;
 import com.example.monewteam08.mapper.CommentLikeLogMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentLikeLogRepository;
+import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.UserActivityLogRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,6 +48,8 @@ class CommentLikeLogServiceImplTest {
   private UserActivityLogRepository userActivityLogRepository;
   @Mock
   private ArticleRepository articleRepository;
+  @Mock
+  private CommentLikeRepository commentLikeRepository;
   @Mock
   private CommentLikeLogMapper commentLikeLogMapper;
 
@@ -73,7 +77,7 @@ class CommentLikeLogServiceImplTest {
     userActivityLog = new UserActivityLog(user);
     ReflectionTestUtils.setField(userActivityLog, "id", userId);
     article = new Article("testurl", "mocktitle", "mocksummary", "sourceUrl",
-        LocalDateTime.now());
+        LocalDateTime.now(), null);
     ReflectionTestUtils.setField(article, "id", articleId);
     comment = new Comment(articleId, userId, "testComment");
     ReflectionTestUtils.setField(comment, "id", commentId);
@@ -86,7 +90,6 @@ class CommentLikeLogServiceImplTest {
         .articleId(article.getId())
         .articleTitle(article.getTitle())
         .commentUserId(comment.getUserId())
-        .commentUserNickname(user.getNickname())
         .commentContent(comment.getContent())
         .commentCreatedAt(LocalDateTime.now())
         .activityLog(userActivityLog)
@@ -135,36 +138,52 @@ class CommentLikeLogServiceImplTest {
 //  }
 
   @Test
-  @DisplayName("댓글 좋아요 로그 기록이 10개 이상이면 해당 개수의 로그를 삭제한다.")
-  void deleteExcessCommentLikeLogs() {
+  @DisplayName("최대 10개의 댓글 좋아요 로그를 성공적으로 불러온다.")
+  void getCommentLikeLogs() {
     // given
-    int limitLogs = 10;
-    int countLogs = 12;
-    given(commentLikeLogRepository.countCommentLikeLogByUserId(userId)).willReturn(countLogs);
+    int limit = 10;
 
-    List<CommentLikeLog> logsToDelete = IntStream.range(0, countLogs - limitLogs)
+    List<CommentLikeLog> logs = IntStream.range(0, 9)
         .mapToObj(i -> CommentLikeLog.builder()
             .activityLog(userActivityLog)
             .commentId(UUID.randomUUID())
             .articleId(UUID.randomUUID())
-            .articleTitle("title" + i)
-            .commentContent("content" + i)
-            .commentCreatedAt(LocalDateTime.now().minusDays(i + 1))
+            .articleTitle("Article " + i)
+            .commentContent("Comment " + i)
+            .commentCreatedAt(LocalDateTime.now().minusDays(i))
             .commentUserId(userId)
-            .commentUserNickname("tester")
             .build())
-        .collect(Collectors.toList());
+        .toList();
 
-    given(commentLikeLogRepository.findOldestLogs(userId,
-        PageRequest.of(0, countLogs - limitLogs))).willReturn(logsToDelete);
+    given(commentLikeLogRepository.getCommentLikeLogsByActivityLogOrderByCreatedAtDesc(
+        eq(userActivityLog), any(PageRequest.class))).willReturn(logs);
+
+    for (CommentLikeLog log : logs) {
+      given(commentLikeRepository.countCommentLikeById(log.getCommentId())).willReturn(
+          5); // 예시로 모두 5개
+      given(commentLikeLogMapper.toResponse(eq(log), eq(5),
+          eq(userActivityLog.getUser().getNickname())))
+          .willReturn(new CommentLikeLogResponse(
+              log.getId(),
+              log.getCreatedAt(),
+              log.getCommentId(),
+              log.getArticleId(),
+              log.getArticleTitle(),
+              log.getCommentUserId(),
+              "nickname",
+              log.getCommentContent(),
+              5,
+              log.getCommentCreatedAt()
+          ));
+    }
 
     // when
-    commentLikeLogService.deleteExcessCommentLikeLogs(userId);
+    List<CommentLikeLogResponse> responses = commentLikeLogService.getCommentLikeLogs(
+        userActivityLog);
 
     // then
-    verify(commentLikeLogRepository).findOldestLogs(eq(userId),
-        eq(PageRequest.of(0, countLogs - limitLogs)));
-    verify(commentLikeLogRepository).deleteAll(logsToDelete);
+    Assertions.assertThat(responses).isNotEmpty();
+    Assertions.assertThat(responses).hasSize(9);
   }
 
 }

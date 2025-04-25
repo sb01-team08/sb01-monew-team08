@@ -91,7 +91,8 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
             item.title(),
             item.description(),
             item.link(),
-            parsePubDate(item.pubDate())
+            parsePubDate(item.pubDate()),
+            null
         )).toList();
   }
 
@@ -110,7 +111,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
         articles.add(
             new Article(source, entry.getTitle(), description,
                 entry.getLink(),
-                publishedAt));
+                publishedAt, null));
       }
     } catch (IOException | FeedException e) {
       throw new ArticleFetchFailedException(source);

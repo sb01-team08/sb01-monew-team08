@@ -12,7 +12,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, UUID> {
+public interface NotificationRepository extends JpaRepository<Notification, UUID>,
+    NotificationRepositoryCustom {
 
   Optional<Notification> findByIdAndUserId(UUID id, UUID userId);
 
@@ -27,11 +28,11 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
       "order by n.createdAt DESC "
   )
   List<Notification> findUnreadByUserIdBefore(
-      @Param("userId" ) UUID userIdBefore,
-      @Param("cursor" ) LocalDateTime cursor,
-      @Param("after" ) LocalDateTime after,
+      @Param("userId") UUID userIdBefore,
+      @Param("cursor") LocalDateTime cursor,
+      @Param("after") UUID after,
       Pageable pageable
   );
 
-  int countByUserId(UUID userIdUuid);
+  int countByUserIdAndIsConfirmedFalse(UUID userIdUuid);
 }

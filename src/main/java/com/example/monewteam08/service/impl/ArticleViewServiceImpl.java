@@ -11,6 +11,7 @@ import com.example.monewteam08.repository.ArticleViewRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.ArticleViewService;
+import com.example.monewteam08.service.Interface.NewsViewLogService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,8 @@ public class ArticleViewServiceImpl implements ArticleViewService {
   private final CommentRepository commentRepository;
   private final ArticleViewMapper articleViewMapper;
 
+  private final NewsViewLogService newsViewLogService;
+
   @Transactional
   @Override
   public ArticleViewDto save(UUID userId, UUID articleId) {
@@ -43,8 +46,10 @@ public class ArticleViewServiceImpl implements ArticleViewService {
           ArticleView newArticleView = new ArticleView(userId, articleId);
           article.addViewCount();
           articleRepository.save(article);
+          newsViewLogService.addNewsViewLog(userId, article);   // 뉴스 조회 로그 추가
           return articleViewRepository.save(newArticleView);
         });
+
     return articleViewMapper.toDto(articleView, article, commentCount);
   }
 

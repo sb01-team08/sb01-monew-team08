@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.example.monewteam08.dto.response.nodtification.CursorPageResponseNotificationDto;
+import com.example.monewteam08.dto.response.notification.CursorPageResponseNotificationDto;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -44,20 +44,20 @@ class NotificationControllerTest {
             .hasNext(false)
             .build());
 
-    mockMvc.perform(get("/api/notifications" )
-            .param("cursor", "2025-04-23T00:00:00" )
-            .param("after", "2025-04-22T00:00:00" )
-            .param("limit", "10" )
+    mockMvc.perform(get("/api/notifications")
+            .param("cursor", "2025-04-23T00:00:00")
+            .param("after", "2025-04-22T00:00:00")
+            .param("limit", "10")
             .header("Monew-Request-User-ID", USER_ID))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.size" ).value(10));
+        .andExpect(jsonPath("$.size").value(10));
   }
 
   @Test
   void 전체_알림_읽음_처리_성공() throws Exception {
     doNothing().when(notificationService).confirmAllNotifications(USER_ID);
 
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/notifications" )
+    mockMvc.perform(MockMvcRequestBuilders.patch("/api/notifications")
             .header("Monew-Request-User-ID", USER_ID))
         .andExpect(status().isOk());
   }

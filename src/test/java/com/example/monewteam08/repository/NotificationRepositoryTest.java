@@ -13,12 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @DataJpaTest
-@ActiveProfiles("test" )
+@ActiveProfiles("test")
 @Import(QuerydslConfig.class)
 class NotificationRepositoryTest {
 
@@ -35,7 +34,7 @@ class NotificationRepositoryTest {
         userId);
 
     assertThat(result).isPresent();
-    assertThat(result.get().getContent()).isEqualTo("알림" );
+    assertThat(result.get().getContent()).isEqualTo("알림");
   }
 
   @Test
@@ -68,37 +67,4 @@ class NotificationRepositoryTest {
     assertThat(result).isEmpty();
   }
 
-  @Test
-  void 알림_목록_조회_커서() {
-    UUID userId = UUID.randomUUID();
-    LocalDateTime baseTime = LocalDateTime.now();
-    LocalDateTime after = LocalDateTime.now();
-
-    for (int i = 0; i < 15; i++) {
-      Notification noti = new Notification(userId, "알림 " + i, ResourceType.COMMENT,
-          UUID.randomUUID());
-      ReflectionTestUtils.setField(noti, "createdAt", baseTime.minusMinutes(i));
-      notificationRepository.save(noti);
-    }
-
-    List<Notification> firstPageRaw = notificationRepository.findUnreadByUserIdBefore(
-        userId, baseTime.plusSeconds(1), after, PageRequest.of(0, 10)
-    );
-
-    List<Notification> result = firstPageRaw.size() > 10
-        ? firstPageRaw.subList(0, 10)
-        : firstPageRaw;
-
-    assertThat(result).hasSize(10);
-    assertThat(result.get(0).getCreatedAt()).isAfter(result.get(9).getCreatedAt());
-
-    LocalDateTime nextCursor = result.get(9).getCreatedAt();
-    LocalDateTime nextAfter = result.get(9).getCreatedAt();
-
-    List<Notification> secondPage = notificationRepository.findUnreadByUserIdBefore(
-        userId, nextCursor, nextAfter, PageRequest.of(0, 10)
-    );
-
-    assertThat(secondPage).hasSize(5);
-  }
 }

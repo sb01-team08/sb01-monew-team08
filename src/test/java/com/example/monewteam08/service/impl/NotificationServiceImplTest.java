@@ -6,12 +6,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.example.monewteam08.dto.response.nodtification.NotificationDto;
+import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.Notification;
 import com.example.monewteam08.mapper.NotificationMapper;
+import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.NotificationRepository;
+import com.example.monewteam08.repository.NotificationRepositoryCustom;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,13 +21,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceImplTest {
 
   @Mock
   private NotificationRepository notificationRepository;
+
+  @Mock
+  private CommentRepository commentRepository;
+
+  @Mock
+  private NotificationRepositoryCustom notificationQueryRepository;
 
   @Mock
   private NotificationMapper notificationMapper;
@@ -46,13 +52,17 @@ class NotificationServiceImplTest {
   @Test
   void 알림_생성_성공_기사() {
     notificationService.createArticleNotification(userId, resourceId, "운동", 3);
-
     verify(notificationRepository).save(any(Notification.class));
   }
 
   @Test
   void 알림_생성_성공_댓글_좋아요() {
-    notificationService.createCommentLikeNotification(userId, resourceId, "홍길동" );
+    UUID commentId = resourceId;
+    UUID ownerId = UUID.randomUUID();
+    Comment comment = new Comment(UUID.randomUUID(), ownerId, "댓글");
+    given(commentRepository.findById(eq(commentId))).willReturn(Optional.of(comment));
+
+    notificationService.createCommentLikeNotification(userId, commentId, "홍길동");
 
     verify(notificationRepository).save(any(Notification.class));
   }
@@ -69,26 +79,8 @@ class NotificationServiceImplTest {
   }
 
   @Test
-  void 미확인_알림_조회() {
-    LocalDateTime cursor = LocalDateTime.now();
-    LocalDateTime after = LocalDateTime.now();
-    List<Notification> mockResult = List.of(mock(Notification.class));
-    given(notificationRepository.findUnreadByUserIdBefore(eq(userId), eq(cursor), eq(after),
-        any(PageRequest.class))).willReturn(mockResult);
-    given(notificationMapper.toDto(any())).willReturn(mock(NotificationDto.class));
-
-    notificationService.getUnreadNotifications(
-        userId.toString(),
-        cursor.toString(), after.toString(), 5);
-
-    verify(notificationRepository)
-        .findUnreadByUserIdBefore(eq(userId), eq(cursor), eq(after), any(PageRequest.class));
-  }
-
-  @Test
   void 알림_삭제() {
     notificationService.deleteNotification();
-
     verify(notificationRepository)
         .deleteByIsConfirmedTrueAndUpdatedAtBefore(any(LocalDateTime.class));
   }

@@ -3,10 +3,13 @@ package com.example.monewteam08.service.impl;
 import static com.example.monewteam08.entity.ResourceType.ARTICLE_INTEREST;
 import static com.example.monewteam08.entity.ResourceType.COMMENT;
 
-import com.example.monewteam08.dto.response.nodtification.CursorPageResponseNotificationDto;
-import com.example.monewteam08.dto.response.nodtification.NotificationDto;
+import com.example.monewteam08.dto.response.notification.CursorPageResponseNotificationDto;
+import com.example.monewteam08.dto.response.notification.NotificationDto;
+import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.Notification;
+import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.mapper.NotificationMapper;
+import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.NotificationRepository;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.time.LocalDateTime;
@@ -14,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,10 +26,11 @@ public class NotificationServiceImpl implements NotificationService {
 
   private final NotificationRepository notificationRepository;
   private final NotificationMapper notificationMapper;
+  private final CommentRepository commentRepository;
 
   @Override
   public void createArticleNotification(UUID userId, UUID interestId, String interest, int count) {
-    String content = String.format("[%s]와 관련된 기사가 %d건 등록되었습니다.", interestId, count);
+    String content = String.format("[%s]와 관련된 기사가 %d건 등록되었습니다.", interest, count);
     Notification notification = new Notification(userId, content, ARTICLE_INTEREST, interestId);
     notificationRepository.save(notification);
   }
@@ -35,8 +38,11 @@ public class NotificationServiceImpl implements NotificationService {
   @Override
   public void createCommentLikeNotification(UUID userId, UUID commentId,
       String likerNickname) {
+    Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(CommentNotFoundException::new);
+    UUID ownerId = comment.getUserId();
     String content = String.format("[%s]님이 나의 댓글을 좋아합니다.", likerNickname);
-    Notification notification = new Notification(userId, content, COMMENT, commentId);
+    Notification notification = new Notification(ownerId, content, COMMENT, commentId);
     notificationRepository.save(notification);
   }
 
@@ -46,7 +52,7 @@ public class NotificationServiceImpl implements NotificationService {
     UUID idUuid = UUID.fromString(id);
     UUID userUuid = UUID.fromString(userId);
     Notification notification = notificationRepository.findByIdAndUserId(idUuid, userUuid)
-        .orElseThrow(() -> new IllegalArgumentException("해당 알림이 존재하지 않거나 권한이 없습니다." ));
+        .orElseThrow(() -> new IllegalArgumentException("해당 알림이 존재하지 않거나 권한이 없습니다."));
     notification.confirm();
   }
 
@@ -64,10 +70,12 @@ public class NotificationServiceImpl implements NotificationService {
       String cursor, String after,
       int limit) {
     UUID userIdUuid = UUID.fromString(userId);
-    LocalDateTime cursorFormat = LocalDateTime.parse(cursor);
-    LocalDateTime afterFormat = LocalDateTime.parse(after);
-    List<Notification> result = notificationRepository.findUnreadByUserIdBefore(
-        userIdUuid, cursorFormat, afterFormat, PageRequest.of(0, limit + 1));
+    LocalDateTime cursorTime =
+        (cursor != null && !cursor.isBlank()) ? LocalDateTime.parse(cursor) : null;
+    UUID afterUuid = (after != null && !after.isBlank()) ? UUID.fromString(after) : null;
+
+    List<Notification> result = notificationRepository.findUnreadByCursor(
+        userIdUuid, cursorTime, afterUuid, limit + 1);
 
     boolean hasNext = result.size() > limit;
     if (hasNext) {
@@ -84,7 +92,7 @@ public class NotificationServiceImpl implements NotificationService {
       nextAfter = last.getId().toString();
     }
 
-    int totalElements = notificationRepository.countByUserId(userIdUuid);
+    int totalElements = notificationRepository.countByUserIdAndIsConfirmedFalse(userIdUuid);
 
     CursorPageResponseNotificationDto reponse = CursorPageResponseNotificationDto.builder()
         .content(new ArrayList<>(content))

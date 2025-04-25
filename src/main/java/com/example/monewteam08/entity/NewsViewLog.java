@@ -21,12 +21,12 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "comment_like_log", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "activity_log_id", "comment_id"}))
+@Table(name = "news_view_log", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "activity_log_id", "article_id"}))
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class CommentLikeLog {
+public class NewsViewLog {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -40,35 +40,38 @@ public class CommentLikeLog {
   @Column(name = "created_at", nullable = false, updatable = false, insertable = true)
   private LocalDateTime createdAt;
 
-  @Column(name = "comment_id", nullable = false)
-  private UUID commentId;
-
   @Column(name = "article_id", nullable = false)
   private UUID articleId;
+
+  @Column(name = "viewed_by", nullable = false)
+  private UUID viewedBy;
+
+  @Column(name = "source")
+  private String source;
+
+  @Column(name = "source_url")
+  private String sourceUrl;
 
   @Column(name = "article_title")
   private String articleTitle;
 
-  @Column(name = "comment_user_id", nullable = false)
-  private UUID commentUserId;
+  @Column(name = "article_published_date")
+  private LocalDateTime articlePublishedDate;
 
-  @Column(name = "comment_content")
-  private String commentContent;
-
-  @Column(name = "comment_created_at")
-  private LocalDateTime commentCreatedAt;
+  @Column(name = "article_summary")
+  private String articleSummary;
 
   @Builder
-  private CommentLikeLog(UUID commentId, UUID articleId, String articleTitle, UUID commentUserId,
-      String commentContent, LocalDateTime commentCreatedAt,
+  private NewsViewLog(String articleSummary, LocalDateTime articlePublishedDate,
+      String articleTitle, UUID viewedBy, String sourceUrl, String source, UUID articleId,
       UserActivityLog activityLog) {
-    this.commentId = commentId;
-    this.articleId = articleId;
+    this.articleSummary = articleSummary;
+    this.articlePublishedDate = articlePublishedDate;
     this.articleTitle = articleTitle;
-    this.commentUserId = commentUserId;
-    this.commentContent = commentContent;
-    this.commentCreatedAt = commentCreatedAt;
+    this.viewedBy = viewedBy;
+    this.sourceUrl = sourceUrl;
+    this.source = source;
+    this.articleId = articleId;
     this.activityLog = activityLog;
   }
-
 }
