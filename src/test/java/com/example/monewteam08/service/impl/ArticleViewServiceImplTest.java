@@ -2,7 +2,6 @@ package com.example.monewteam08.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -64,7 +63,7 @@ class ArticleViewServiceImplTest {
     given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
     given(userRepository.findById(userId)).willReturn(Optional.of(user));
     given(commentRepository.findAll()).willReturn(List.of(comment));
-    given(articleViewMapper.toDto(any(), any(), eq(1L)))
+    given(articleViewMapper.toDto(any(), any()))
         .willReturn(articleViewDto);
 
     // when
