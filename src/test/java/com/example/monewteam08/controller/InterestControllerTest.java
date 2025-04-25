@@ -66,10 +66,10 @@ public class InterestControllerTest {
             .header("Monew-Request-User-Id", UUID.randomUUID().toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.data.id").value(id.toString()))
-        .andExpect(jsonPath("$.data.name").value("인공지능"))
-        .andExpect(jsonPath("$.data.keywords[0]").value("AI"))
-        .andExpect(jsonPath("$.data.subscriberCount").value(0));
+        .andExpect(jsonPath("$.id").value(id.toString()))
+        .andExpect(jsonPath("$.name").value("인공지능"))
+        .andExpect(jsonPath("$.keywords[0]").value("AI"))
+        .andExpect(jsonPath("$.subscriberCount").value(0));
 
   }
 
@@ -105,8 +105,8 @@ public class InterestControllerTest {
             .header("Monew-Request-User-Id", userId.toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.data.content[0].name").value("환경보호"))
-        .andExpect(jsonPath("$.data.content[1].subscriberCount").value(80));
+        .andExpect(jsonPath("$.content[0].name").value("환경보호"))
+        .andExpect(jsonPath("$.content[1].subscriberCount").value(80));
 
   }
 
@@ -127,9 +127,9 @@ public class InterestControllerTest {
             .header("Monew-Request-User-Id", UUID.randomUUID().toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.data.id").value(id.toString()))
-        .andExpect(jsonPath("$.data.keywords[0]").value("GPT"))
-        .andExpect(jsonPath("$.data.keywords[1]").value("Depp learning"));
+        .andExpect(jsonPath("$.id").value(id.toString()))
+        .andExpect(jsonPath("$.keywords[0]").value("GPT"))
+        .andExpect(jsonPath("$.keywords[1]").value("Depp learning"));
   }
 
   @Test
@@ -146,8 +146,8 @@ public class InterestControllerTest {
             .header("Monew-Request-User-Id", UUID.randomUUID().toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.data.id").value(id.toString()))
-        .andExpect(jsonPath("$.data.name").value("인공지능"));
+        .andExpect(jsonPath("$.id").value(id.toString()))
+        .andExpect(jsonPath("$.name").value("인공지능"));
   }
 
   @Test

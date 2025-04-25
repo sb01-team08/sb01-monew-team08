@@ -199,7 +199,7 @@ public class ArticleServiceTest {
 
     // then
     assertThat(result).isNotNull();
-    assertThat(result.articles()).hasSize(1);
+    assertThat(result.content()).hasSize(1);
   }
 
   @Test
