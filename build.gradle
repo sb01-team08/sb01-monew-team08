@@ -20,6 +20,19 @@ jacocoTestReport {
         xml.required = true
         html.required = true
     }
+    // Q클래스 등 자동 생성 코드 제외
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, exclude: [
+                            '**/Q*.class',                        // QueryDSL Q클래스
+                            '**/generated/**',                   // generated 경로
+                            '**/com/example/monewteam08/mapper/**',              // mapper 패키지 제외
+                            '**/com/example/monewteam08/scheduler/**',            // scheduler 패키지 제외
+                    ])
+                })
+        )
+    }
 }
 
 group = 'com.example'
