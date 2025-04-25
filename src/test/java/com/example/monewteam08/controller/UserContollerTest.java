@@ -60,10 +60,10 @@ class UserContollerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(userRequest)))
         .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.data.id").value(id.toString()))
-        .andExpect(jsonPath("$.data.email").value(email))
-        .andExpect(jsonPath("$.data.nickname").value(nickname))
-        .andExpect(jsonPath("$.data.createdAt").value(
+        .andExpect(jsonPath("$.id").value(id.toString()))
+        .andExpect(jsonPath("$.email").value(email))
+        .andExpect(jsonPath("$.nickname").value(nickname))
+        .andExpect(jsonPath("$.createdAt").value(
             Matchers.startsWith(createdAt.toString().substring(0, 23))));
   }
 
@@ -136,10 +136,10 @@ class UserContollerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(updateRequest)))
         .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.data.id").value(id.toString()))
-        .andExpect(jsonPath("$.data.email").value(email))
-        .andExpect(jsonPath("$.data.nickname").value(changeNickname))
-        .andExpect(jsonPath("$.data.createdAt").value(
+        .andExpect(jsonPath("$.id").value(id.toString()))
+        .andExpect(jsonPath("$.email").value(email))
+        .andExpect(jsonPath("$.nickname").value(changeNickname))
+        .andExpect(jsonPath("$.createdAt").value(
             Matchers.startsWith(createdAt.toString().substring(0, 23))));
   }
 
@@ -217,10 +217,10 @@ class UserContollerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(userRequest)))
         .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.data.id").value(id.toString()))
-        .andExpect(jsonPath("$.data.email").value(email))
-        .andExpect(jsonPath("$.data.nickname").value(nickname))
-        .andExpect(jsonPath("$.data.createdAt").value(
+        .andExpect(jsonPath("$.id").value(id.toString()))
+        .andExpect(jsonPath("$.email").value(email))
+        .andExpect(jsonPath("$.nickname").value(nickname))
+        .andExpect(jsonPath("$.createdAt").value(
             Matchers.startsWith(createdAt.toString().substring(0, 23))));
   }
 

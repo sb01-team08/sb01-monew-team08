@@ -16,8 +16,7 @@ public class ArticleScheduler {
 
   private final ArticleService articleService;
   private final UserRepository userRepository;
-
-
+  
   @PostConstruct
   public void init() {
     try {
