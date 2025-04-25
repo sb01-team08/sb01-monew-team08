@@ -12,13 +12,11 @@ import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.ArticleRepositoryCustom;
-import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
 import com.example.monewteam08.service.Interface.ArticleService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
-import com.example.monewteam08.service.Interface.NewsViewLogService;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,10 +40,8 @@ public class ArticleServiceImpl implements ArticleService {
   private final SubscriptionRepository subscriptionRepository;
   private final InterestRepository interestRepository;
   private final NotificationService notificationService;
-  private final CommentRepository commentRepository;
   private final ArticleRepositoryCustom articleRepositoryCustom;
   private final ArticleMapper articleMapper;
-  private final NewsViewLogService newsViewLogService;
 
   @Transactional
   @Override
@@ -87,7 +83,7 @@ public class ArticleServiceImpl implements ArticleService {
   public CursorPageResponseArticleDto getArticles(String keyword,
       UUID interestId, List<String> sourceIn, LocalDateTime publishDateFrom,
       LocalDateTime publishDateTo, String orderBy, String direction,
-      String cursor, LocalDateTime after, int limit, UUID userId) {
+      String cursor, LocalDateTime after, Integer limit, UUID userId) {
 
     List<Article> articles = articleRepositoryCustom.findAllByCursor(
         keyword,
@@ -98,11 +94,12 @@ public class ArticleServiceImpl implements ArticleService {
         orderBy,
         direction,
         cursor,
-        after != null ? after.toString() : null,
+        after,
         limit
     );
 
     List<ArticleDto> articleDtos = articles.stream()
+        .limit(limit)
         .map(article -> {
           boolean viewedByMe = articleViewService.isViewedByUser(userId, article.getId());
           return articleMapper.toDto(article, viewedByMe);
