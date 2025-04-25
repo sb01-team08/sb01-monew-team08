@@ -1,6 +1,6 @@
 package com.example.monewteam08.service.Interface;
 
-import com.example.monewteam08.dto.response.nodtification.CursorPageResponseNotificationDto;
+import com.example.monewteam08.dto.response.notification.CursorPageResponseNotificationDto;
 import java.util.UUID;
 
 public interface NotificationService {

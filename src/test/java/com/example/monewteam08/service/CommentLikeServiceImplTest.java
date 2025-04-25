@@ -50,8 +50,8 @@ class CommentLikeServiceImplTest {
   void setUp() {
     commentId = UUID.randomUUID();
     userId = UUID.randomUUID();
-    mockUser = new User("test@example.com", "nickname", "password" );
-    mockComment = new Comment(UUID.randomUUID(), UUID.randomUUID(), "내용" );
+    mockUser = new User("test@example.com", "nickname", "password");
+    mockComment = new Comment(UUID.randomUUID(), UUID.randomUUID(), "내용");
     ReflectionTestUtils.setField(mockComment, "id", commentId);
   }
 
@@ -66,7 +66,7 @@ class CommentLikeServiceImplTest {
         .build();
 
     when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-    when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
+    when(commentRepository.findByIdAndIsActiveTrue(commentId)).thenReturn(Optional.of(mockComment));
     when(commentLikeRepository.save(any())).thenReturn(like);
     when(commentLikeMapper.toDto(any(), any(), any())).thenReturn(dto);
 

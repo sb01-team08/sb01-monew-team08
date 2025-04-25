@@ -1,6 +1,6 @@
 package com.example.monewteam08.controller;
 
-import com.example.monewteam08.dto.response.nodtification.CursorPageResponseNotificationDto;
+import com.example.monewteam08.dto.response.notification.CursorPageResponseNotificationDto;
 import com.example.monewteam08.service.Interface.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/notifications" )
+@RequestMapping("/api/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
 
@@ -24,7 +24,7 @@ public class NotificationController {
       @RequestParam(required = false) String cursor,
       @RequestParam(required = false) String after,
       @RequestParam Integer limit,
-      @RequestHeader("Monew-Request-User-ID" ) String requestUserId
+      @RequestHeader("Monew-Request-User-Id") String requestUserId
   ) {
     CursorPageResponseNotificationDto result = notificationService.getUnreadNotifications(
         requestUserId, cursor, after, limit);
@@ -33,16 +33,16 @@ public class NotificationController {
 
   @PatchMapping
   public ResponseEntity<Void> ReadAll(
-      @RequestHeader("Monew-Request-User-ID" ) String requestUserId) {
+      @RequestHeader("Monew-Request-User-Id") String requestUserId) {
     notificationService.confirmAllNotifications(requestUserId);
     return ResponseEntity.ok().build();
   }
 
-  @PatchMapping("/{notificationId}" )
+  @PatchMapping("/{notificationId}")
   public ResponseEntity<Void> Read(
-      @PathVariable("notificationId" ) String notificationId,
-      @RequestHeader("Monew-Request-User-ID" ) String requestUserId) {
-    notificationService.confirmNotification(requestUserId, notificationId);
+      @PathVariable("notificationId") String notificationId,
+      @RequestHeader("Monew-Request-User-Id") String requestUserId) {
+    notificationService.confirmNotification(notificationId, requestUserId);
     return ResponseEntity.ok().build();
   }
 }
