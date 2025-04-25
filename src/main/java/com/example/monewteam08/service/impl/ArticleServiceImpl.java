@@ -1,9 +1,9 @@
 package com.example.monewteam08.service.impl;
 
-import com.example.monewteam08.dto.ArticleInterestCount;
-import com.example.monewteam08.dto.FilteredArticleDto;
 import com.example.monewteam08.dto.response.article.ArticleDto;
+import com.example.monewteam08.dto.response.article.ArticleInterestCount;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
+import com.example.monewteam08.dto.response.article.FilteredArticleDto;
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.Interest;
 import com.example.monewteam08.entity.Subscription;
@@ -158,9 +158,11 @@ public class ArticleServiceImpl implements ArticleService {
 
   protected FilteredArticleDto filterWithKeywords(List<Article> articles, UUID userId) {
     List<UUID> interestIds = subscriptionRepository.findAll().stream()
-        .filter(subscription -> subscription.getUserId() == userId)
+        .filter(subscription -> subscription.getUserId().equals(userId))
         .map(Subscription::getInterestId)
         .toList();
+
+    log.debug("User 관심사 id 목록: {}", interestIds);
 
     List<ArticleInterestCount> articleInterestCounts = countArticleByInterest(articles,
         interestIds);

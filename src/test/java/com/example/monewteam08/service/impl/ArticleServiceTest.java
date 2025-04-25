@@ -11,10 +11,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.example.monewteam08.dto.ArticleInterestCount;
-import com.example.monewteam08.dto.FilteredArticleDto;
 import com.example.monewteam08.dto.response.article.ArticleDto;
+import com.example.monewteam08.dto.response.article.ArticleInterestCount;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
+import com.example.monewteam08.dto.response.article.FilteredArticleDto;
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.Interest;
 import com.example.monewteam08.entity.Subscription;
