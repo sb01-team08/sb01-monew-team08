@@ -1,6 +1,9 @@
 # TEST
 
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   config:
     import: optional:file:.env.test.properties
   datasource:

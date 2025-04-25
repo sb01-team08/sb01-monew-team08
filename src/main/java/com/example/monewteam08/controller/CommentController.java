@@ -1,5 +1,6 @@
 package com.example.monewteam08.controller;
 
+import com.example.monewteam08.controller.api.CommentControllerDocs;
 import com.example.monewteam08.dto.request.comment.CommentRegisterRequest;
 import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
 import com.example.monewteam08.dto.response.comment.CommentDto;
@@ -26,11 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/comments")
 @RequiredArgsConstructor
-public class CommentController {
+public class CommentController implements CommentControllerDocs {
 
   private final CommentService commentService;
   private final CommentLikeService commentLikeService;
 
+  @Override
   @GetMapping
   public ResponseEntity<CursorPageResponseCommentDto> getComments(
       @RequestParam(required = false) String articleId,
@@ -47,6 +49,7 @@ public class CommentController {
     return ResponseEntity.ok(result);
   }
 
+  @Override
   @PostMapping
   public ResponseEntity<CommentDto> createComment(
       @RequestBody @Valid CommentRegisterRequest request) {
@@ -54,6 +57,7 @@ public class CommentController {
     return ResponseEntity.status(HttpStatus.CREATED).body(result);
   }
 
+  @Override
   @PostMapping("/{commentId}/comment-likes")
   public ResponseEntity<CommentLikeDto> like(
       @PathVariable UUID commentId,
@@ -63,6 +67,7 @@ public class CommentController {
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
+  @Override
   @DeleteMapping("/{commentId}/comment-likes")
   public ResponseEntity<Void> unlike(
       @PathVariable UUID commentId,
@@ -71,6 +76,7 @@ public class CommentController {
     return ResponseEntity.noContent().build();
   }
 
+  @Override
   @PatchMapping("/{commentId}")
   public ResponseEntity<CommentDto> updateComment(
       @PathVariable UUID commentId,
@@ -81,6 +87,7 @@ public class CommentController {
     return ResponseEntity.status(HttpStatus.OK).body(result);
   }
 
+  @Override
   @DeleteMapping("/{commentId}")
   public ResponseEntity<Void> deleteComment(
       @PathVariable UUID commentId,
@@ -90,6 +97,7 @@ public class CommentController {
     return ResponseEntity.noContent().build();
   }
 
+  @Override
   @DeleteMapping("/{commentId}/hard")
   public ResponseEntity<Void> deleteComment(
       @PathVariable UUID commentId

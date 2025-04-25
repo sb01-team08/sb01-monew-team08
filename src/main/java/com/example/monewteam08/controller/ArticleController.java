@@ -72,7 +72,7 @@ public class ArticleController {
         direction,
         cursor,
         after,
-        10,
+        12,
         monewRequestUserId
     );
     return ResponseEntity.ok(response);

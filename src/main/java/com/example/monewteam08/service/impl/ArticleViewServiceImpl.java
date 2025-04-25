@@ -8,10 +8,10 @@ import com.example.monewteam08.exception.user.UserNotFoundException;
 import com.example.monewteam08.mapper.ArticleViewMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.ArticleViewRepository;
-import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.ArticleViewService;
 import com.example.monewteam08.service.Interface.NewsViewLogService;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,6 @@ public class ArticleViewServiceImpl implements ArticleViewService {
   private final ArticleViewRepository articleViewRepository;
   private final ArticleRepository articleRepository;
   private final UserRepository userRepository;
-  private final CommentRepository commentRepository;
   private final ArticleViewMapper articleViewMapper;
 
   private final NewsViewLogService newsViewLogService;
@@ -39,8 +38,6 @@ public class ArticleViewServiceImpl implements ArticleViewService {
     userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(userId));
 
-    long commentCount = countComment(articleId);
-
     ArticleView articleView = articleViewRepository.findByUserIdAndArticleId(userId, articleId)
         .orElseGet(() -> {
           ArticleView newArticleView = new ArticleView(userId, articleId);
@@ -50,19 +47,13 @@ public class ArticleViewServiceImpl implements ArticleViewService {
           return articleViewRepository.save(newArticleView);
         });
 
-    return articleViewMapper.toDto(articleView, article, commentCount);
+    return articleViewMapper.toDto(articleView, article);
   }
 
   @Override
   public boolean isViewedByUser(UUID userId, UUID articleId) {
-    return articleViewRepository.findByUserIdAndArticleId(userId, articleId)
-        .isPresent();
-  }
-
-  private long countComment(UUID articleId) {
-    return commentRepository.findAll().stream()
-        .filter(comment -> comment.getArticleId().equals(articleId))
-        .count();
+    List<UUID> articleIds = articleViewRepository.findViewedArticleIds(userId);
+    return articleIds.contains(articleId);
   }
 
 }

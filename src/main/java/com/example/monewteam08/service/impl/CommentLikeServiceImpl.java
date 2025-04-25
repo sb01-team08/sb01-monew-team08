@@ -1,4 +1,4 @@
-package com.example.monewteam08.service;
+package com.example.monewteam08.service.impl;
 
 import com.example.monewteam08.dto.response.comment.CommentLikeDto;
 import com.example.monewteam08.entity.Comment;
