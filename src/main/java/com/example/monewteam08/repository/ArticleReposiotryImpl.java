@@ -25,7 +25,7 @@ public class ArticleReposiotryImpl implements ArticleRepositoryCustom {
   public List<Article> findAllByCursor(
       String keyword, UUID interestId, List<String> sourceIn,
       LocalDateTime publishDateFrom, LocalDateTime publishDateTo,
-      String orderBy, String direction, String cursor, String after, int limit) {
+      String orderBy, String direction, String cursor, LocalDateTime after, int limit) {
 
     QArticle article = QArticle.article;
     QComment comment = QComment.comment;
@@ -140,34 +140,33 @@ public class ArticleReposiotryImpl implements ArticleRepositoryCustom {
   }
 
   private BooleanExpression buildCursorCondition(QArticle article, QComment comment,
-      String orderBy, String direction, String cursor, String after) {
+      String orderBy, String direction, String cursor, LocalDateTime after) {
 
     if (cursor == null || after == null) {
       return null;
     }
-    UUID cursorId = UUID.fromString(after);
 
     if ("commentCount".equalsIgnoreCase(orderBy)) {
       long commentCount = Long.parseLong(cursor);
       return ("DESC".equalsIgnoreCase(direction)) ?
           comment.count().lt(commentCount)
-              .or(comment.count().eq(commentCount).and(article.id.lt(cursorId))) :
+              .or(comment.count().eq(commentCount).and(article.publishDate.lt(after))) :
           comment.count().gt(commentCount)
-              .or(comment.count().eq(commentCount).and(article.id.gt(cursorId)));
+              .or(comment.count().eq(commentCount).and(article.publishDate.gt(after)));
     } else if ("viewCount".equalsIgnoreCase(orderBy)) {
       long viewCount = Long.parseLong(cursor);
       return ("DESC".equalsIgnoreCase(direction)) ?
           article.viewCount.lt(viewCount)
-              .or(article.viewCount.eq(viewCount).and(article.id.lt(cursorId))) :
+              .or(article.viewCount.eq(viewCount).and(article.publishDate.lt(after))) :
           article.viewCount.gt(viewCount)
-              .or(article.viewCount.eq(viewCount).and(article.id.gt(cursorId)));
+              .or(article.viewCount.eq(viewCount).and(article.publishDate.gt(after)));
     } else {
       LocalDateTime dateCursor = LocalDateTime.parse(cursor);
       return ("DESC".equalsIgnoreCase(direction)) ?
           article.publishDate.lt(dateCursor)
-              .or(article.publishDate.eq(dateCursor).and(article.id.lt(cursorId))) :
+              .or(article.publishDate.eq(dateCursor).and(article.publishDate.lt(after))) :
           article.publishDate.gt(dateCursor)
-              .or(article.publishDate.eq(dateCursor).and(article.id.gt(cursorId)));
+              .or(article.publishDate.eq(dateCursor).and(article.publishDate.gt(after)));
     }
   }
 }

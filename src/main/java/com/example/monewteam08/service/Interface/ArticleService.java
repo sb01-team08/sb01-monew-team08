@@ -13,7 +13,7 @@ public interface ArticleService {
   CursorPageResponseArticleDto getArticles(String keyword,
       UUID interestId, List<String> sourceIn, LocalDateTime publishDateFrom,
       LocalDateTime publishDateTo, String orderBy, String direction,
-      String cursor, LocalDateTime after, int limit, UUID userId);
+      String cursor, LocalDateTime after, Integer limit, UUID userId);
 
   void softDelete(UUID id);
 

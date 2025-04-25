@@ -1,4 +1,4 @@
-package com.example.monewteam08.dto;
+package com.example.monewteam08.dto.response.article;
 
 import com.example.monewteam08.entity.Article;
 import java.util.List;
