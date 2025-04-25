@@ -1,18 +1,20 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   jpa:
     hibernate:
       ddl-auto: none
     database: postgresql
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
         highlight_sql: true
-        generate_statistics: false
+        generate_statistics: true
         cache:
           use_second_level_cache: false
         open-in-view: false
