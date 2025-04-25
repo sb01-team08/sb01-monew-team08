@@ -20,6 +20,7 @@ import com.example.monewteam08.entity.Interest;
 import com.example.monewteam08.entity.Subscription;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
+import com.example.monewteam08.repository.ArticleRepositoryCustom;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
@@ -37,10 +38,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,6 +63,9 @@ public class ArticleServiceTest {
 
   @Mock
   private NotificationService notificationService;
+
+  @Mock
+  private ArticleRepositoryCustom articleRepositoryCustom;
 
   @Spy
   @InjectMocks
@@ -192,10 +192,11 @@ public class ArticleServiceTest {
     UUID userId = UUID.randomUUID();
 
     Article article = mock(Article.class);
-    Page<Article> articlePage = new PageImpl<>(List.of(article));
+    List<Article> articlePage = List.of(article);
 
-    given(articleRepository.findAll(any(Specification.class), any(Pageable.class))).willReturn(
-        articlePage);
+    given(articleRepositoryCustom.findAllByCursor(keyword, interestId, sourceIn,
+        publishDateFrom, publishDateTo, orderBy, direction, cursor, after, limit))
+        .willReturn(articlePage);
 
     ArticleDto dto = mock(ArticleDto.class);
     given(articleMapper.toDto(any(Article.class), anyBoolean())).willReturn(dto);
