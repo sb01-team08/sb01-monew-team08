@@ -56,7 +56,7 @@ class ArticleViewServiceImplTest {
     UUID userId = UUID.randomUUID();
     UUID articleId = UUID.randomUUID();
     Article article = spy(new Article("NAVER", "오늘의 경제 뉴스", "경제가 어렵습니다", "http://a.com",
-        LocalDateTime.now()));
+        LocalDateTime.now(), null));
     User user = new User("test@test.com", "testUser", "password");
     Comment comment = new Comment(articleId, userId, "Great article!");
     ArticleViewDto articleViewDto = mock(ArticleViewDto.class);

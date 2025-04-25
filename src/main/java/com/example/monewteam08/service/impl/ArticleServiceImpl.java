@@ -10,6 +10,7 @@ import com.example.monewteam08.entity.Subscription;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
+import com.example.monewteam08.repository.ArticleRepositoryCustom;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
@@ -25,12 +26,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +41,7 @@ public class ArticleServiceImpl implements ArticleService {
   private final InterestRepository interestRepository;
   private final NotificationService notificationService;
   private final CommentRepository commentRepository;
+  private final ArticleRepositoryCustom articleRepositoryCustom;
   private final ArticleMapper articleMapper;
   private final NewsViewLogService newsViewLogService;
 
@@ -81,7 +77,7 @@ public class ArticleServiceImpl implements ArticleService {
     List<Article> savedArticles = articleRepository.saveAll(filteredArticles.getArticles());
 
     return savedArticles.stream()
-        .map(article -> articleMapper.toDto(article, 0L, false))
+        .map(article -> articleMapper.toDto(article, false))
         .toList();
   }
 
@@ -91,36 +87,53 @@ public class ArticleServiceImpl implements ArticleService {
       LocalDateTime publishDateTo, String orderBy, String direction,
       String cursor, LocalDateTime after, int limit, UUID userId) {
 
-    Pageable pageable = createPageable(limit, orderBy, direction, "publishDate", "desc");
-    Specification<Article> spec = getSpec(keyword, interestId, sourceIn, publishDateFrom,
-        publishDateTo, after);
-
-    Page<Article> articles = articleRepository.findAll(spec, pageable);
+    List<Article> articles = articleRepositoryCustom.findAllByCursor(
+        keyword,
+        interestId,
+        sourceIn,
+        publishDateFrom,
+        publishDateTo,
+        orderBy,
+        direction,
+        cursor,
+        after != null ? after.toString() : null,
+        limit
+    );
 
     List<ArticleDto> articleDtos = articles.stream()
         .map(article -> {
-          long commentCount = commentRepository.countByArticleId(article.getId());
           boolean viewedByMe = articleViewService.isViewedByUser(userId, article.getId());
-          return articleMapper.toDto(article, commentCount, viewedByMe);
+          return articleMapper.toDto(article, viewedByMe);
         }).toList();
 
     String nextCursor = null;
     LocalDateTime nextAfter = null;
 
-    if (articles.hasNext()) {
-      LocalDateTime lastPublishedAt = articles.getContent().get(articles.getNumberOfElements() - 1)
-          .getPublishDate();
-      nextCursor = lastPublishedAt.toString();
-      nextAfter = lastPublishedAt;
+    if (articles.size() > limit) {
+      Article last = articles.get(limit);
+      nextAfter = last.getPublishDate();
+      switch (orderBy) {
+        case "commentCount" -> nextCursor = String.valueOf(last.getComments().size());
+        case "viewCount" -> nextCursor = String.valueOf(last.getViewCount());
+        default -> nextCursor = last.getPublishDate().toString();
+      }
     }
+
+    long totalElements = articleRepositoryCustom.countAllByCondition(
+        keyword,
+        interestId,
+        sourceIn,
+        publishDateFrom,
+        publishDateTo
+    );
 
     return new CursorPageResponseArticleDto(
         articleDtos,
         nextCursor,
         nextAfter,
-        articles.getSize(),
-        articles.getTotalElements(),
-        articles.hasNext()
+        articleDtos.size(),
+        totalElements,
+        articles.size() > limit
     );
   }
 
@@ -182,64 +195,5 @@ public class ArticleServiceImpl implements ArticleService {
         })
         .toList();
   }
-
-  private Pageable createPageable(int limit, String sortField, String sortDirection,
-      String defaultSortField, String defaultSortDirection) {
-    if (limit <= 0) {
-      limit = 10;
-    }
-
-    Sort sort;
-    Direction direction;
-    if (sortField != null && !sortField.isEmpty()) {
-      direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
-      sort = Sort.by(direction, sortField);
-    } else {
-      direction =
-          "desc".equalsIgnoreCase(defaultSortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
-      sort = Sort.by(direction, defaultSortField);
-    }
-
-    return PageRequest.of(0, limit, sort);
-  }
-
-  private Specification<Article> getSpec(String keyword, UUID interestId,
-      List<String> sourceIn, LocalDateTime publishDateFrom,
-      LocalDateTime publishDateTo, LocalDateTime after) {
-    Specification<Article> spec = (root, query, cb) -> cb.isTrue(root.get("isActive"));
-
-    if (keyword != null) {
-      spec = spec.and((root, query, cb) -> cb.or(
-          cb.like(root.get("title"), "%" + keyword + "%"),
-          cb.like(root.get("summary"), "%" + keyword + "%")
-      ));
-    }
-    if (interestId != null) {
-      spec = spec.and((root, query, cb) -> cb.equal(root.get("interestId"), interestId));
-    }
-
-    if (sourceIn != null && !sourceIn.isEmpty()) {
-      spec = spec.and((root, query, cb) -> root.get("source").in(sourceIn));
-    }
-
-    if (publishDateFrom != null && publishDateTo != null) {
-      spec = spec.and(
-          (root, query, cb) -> cb.between(root.get("publishDate"), publishDateFrom, publishDateTo));
-    } else if (publishDateFrom != null && publishDateTo == null) {
-      spec = spec.and(
-          (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("publishDate"), publishDateFrom));
-    } else if (publishDateFrom == null && publishDateTo != null) {
-      spec = spec.and(
-          (root, query, cb) -> cb.lessThanOrEqualTo(root.get("publishDate"), publishDateTo));
-    }
-
-    if (after != null) {
-      spec = spec.and(
-          (root, query, cb) -> cb.lessThan(root.get("publishDate"), after));
-    }
-
-    return spec;
-  }
-
 
 }
