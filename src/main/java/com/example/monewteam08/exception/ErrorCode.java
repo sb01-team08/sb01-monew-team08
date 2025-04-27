@@ -38,6 +38,7 @@ public enum ErrorCode {
   // Article
   ARTICLE_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLE001", "기사 가져오기에 실패했습니다."),
   ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE002", "기사를 찾을 수 없습니다."),
+  ARTICLE_EXPORT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLE003", "기사 CSV파일 변환에 실패했습니다."),
 
   // Interest
   DUPLICATE_INTEREST(HttpStatus.CONFLICT, "INTEREST001", "이미 유사한 관심사가 존재합니다."),
