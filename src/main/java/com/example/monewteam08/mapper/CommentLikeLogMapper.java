@@ -21,8 +21,8 @@ public class CommentLikeLogMapper {
         .articleId(commentLikeLog.getArticleId())
         .articleTitle(commentLikeLog.getArticleTitle())
         .commentUserId(commentLikeLog.getCommentUser().getId())
-        .commentUserNickname(commentLikeLog.getCommentUserNickname())
-        .commentContent(commentLikeLog.getCommentContent())
+        .commentUserNickname(commentLikeLog.getCommentUser().getNickname())
+        .commentContent(commentLikeLog.getComment().getContent())
         .commentLikeCount(commentLikeLog.getComment().getLikeCount())
         .commentCreatedAt(commentLikeLog.getCommentCreatedAt())
         .build();

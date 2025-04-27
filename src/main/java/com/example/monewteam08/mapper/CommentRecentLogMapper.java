@@ -15,8 +15,8 @@ public class CommentRecentLogMapper {
         .articleId(commentRecentLog.getArticleId())
         .articleTitle(commentRecentLog.getArticleTitle())
         .userId(commentRecentLog.getUser().getId())
-        .userNickname(commentRecentLog.getUserNickname())
-        .content(commentRecentLog.getCommentContent())
+        .userNickname(commentRecentLog.getUser().getNickname())
+        .content(commentRecentLog.getComment().getContent())
         .likeCount(commentRecentLog.getComment().getLikeCount())
         .createdAt(commentRecentLog.getCreatedAt())
         .build();
