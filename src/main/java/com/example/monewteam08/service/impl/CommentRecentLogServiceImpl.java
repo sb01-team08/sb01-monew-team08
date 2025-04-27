@@ -6,7 +6,6 @@ import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentRecentLog;
 import com.example.monewteam08.entity.UserActivityLog;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
-import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.exception.useractivitylog.UserActicityLogNotFoundException;
 import com.example.monewteam08.mapper.CommentRecentLogMapper;
 import com.example.monewteam08.repository.ArticleRepository;
@@ -63,15 +62,11 @@ public class CommentRecentLogServiceImpl implements CommentRecentLogService {
   @Override
   public List<CommentRecentLogResponse> getCommentRecentLogs(UserActivityLog userActivityLog) {
     log.debug("최신 작성 댓글 로그 조회 요청: userId={}", userActivityLog.getId());
-    List<CommentRecentLog> commentRecentLogs = commentRecentLogRepository.getCommentLikeLogsByActivityLogOrderByCreatedAtDesc(
+    List<CommentRecentLog> commentRecentLogs = commentRecentLogRepository.getCommentRecentLogsByActivityLogOrderByCreatedAtDesc(
         userActivityLog, PageRequest.of(0, LIMIT_SIZE));
 
     List<CommentRecentLogResponse> commentRecentLogResponses = commentRecentLogs.stream()
-        .map(commentRecentLog -> {
-          Comment comment = commentRepository.findById(commentRecentLog.getCommentId()).orElseThrow(
-              CommentNotFoundException::new);
-          return commentRecentLogMapper.toResponse(commentRecentLog, comment.getLikeCount());
-        })
+        .map(commentRecentLogMapper::toResponse)
         .toList();
 
     log.info("최신 작성 댓글 로그 조회 완료: userId={}, userActivityLogId={}", userActivityLog.getId(),

@@ -18,10 +18,11 @@ public interface CommentLikeLogRepository extends JpaRepository<CommentLikeLog, 
   int countCommentLikeLogByUserId(@Param("userId") UUID userId);
 
   @Modifying
-  @Query("delete from CommentLikeLog c where c.commentId = :commentId and c.activityLog.user.id = :userId")
+  @Query("delete from CommentLikeLog c where c.comment.id = :commentId and c.activityLog.user.id = :userId")
   void deleteCommentLikeLogByCommentIdAndUserId(@Param("userId") UUID userId,
       @Param("commentId") UUID commentId);
 
+  @Query("select cll from CommentLikeLog cll join fetch cll.comment join fetch cll.commentUser where cll.activityLog = :activityLog order by cll.createdAt desc")
   List<CommentLikeLog> getCommentLikeLogsByActivityLogOrderByCreatedAtDesc(
-      UserActivityLog activityLog, Pageable pageable);
+      @Param("activityLog") UserActivityLog activityLog, Pageable pageable);
 }

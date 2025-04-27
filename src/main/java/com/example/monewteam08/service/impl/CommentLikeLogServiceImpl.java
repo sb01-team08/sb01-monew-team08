@@ -5,9 +5,10 @@ import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentLike;
 import com.example.monewteam08.entity.CommentLikeLog;
+import com.example.monewteam08.entity.User;
 import com.example.monewteam08.entity.UserActivityLog;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
-import com.example.monewteam08.exception.comment.CommentNotFoundException;
+import com.example.monewteam08.exception.user.UserNotFoundException;
 import com.example.monewteam08.exception.useractivitylog.UserActicityLogNotFoundException;
 import com.example.monewteam08.mapper.CommentLikeLogMapper;
 import com.example.monewteam08.repository.ArticleRepository;
@@ -43,16 +44,16 @@ public class CommentLikeLogServiceImpl implements CommentLikeLogService {
   // 이미 시작된 트랜잭션 내에서만 실행되도록
   @Transactional(propagation = Propagation.MANDATORY)
   @Override
-  public void addCommentLikeLog(UUID userId, CommentLike commentLike, Comment comment,
-      String nickname) {
+  public void addCommentLikeLog(UUID userId, CommentLike commentLike, Comment comment) {
     log.debug("댓글 좋아요 로그 추가 요청: userId={}", userId);
     UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow(
         () -> new UserActicityLogNotFoundException(userId));
     Article article = articleRepository.findById(comment.getArticleId())
         .orElseThrow(() -> new ArticleNotFoundException(comment.getArticleId()));
-
+    User commentUser = userRepository.findById(comment.getUserId())
+        .orElseThrow(() -> new UserNotFoundException(comment.getUserId()));
     CommentLikeLog commentLikeLog = commentLikeLogMapper.toEntity(userActivityLog, comment,
-        article, nickname);
+        article, commentUser);
 
     commentLikeLogRepository.save(commentLikeLog);
     log.info("댓글 좋아요 로그 생성 완료");
@@ -74,12 +75,7 @@ public class CommentLikeLogServiceImpl implements CommentLikeLogService {
         userActivityLog, PageRequest.of(0, LIMIT_SIZE));
 
     List<CommentLikeLogResponse> responseList = commentLikeLogs.stream()
-        .map(commentLikeLog -> {
-          Comment comment = commentRepository.findById(commentLikeLog.getCommentId()).orElseThrow(
-              CommentNotFoundException::new);
-          String nickname = userActivityLog.getUser().getNickname();
-          return commentLikeLogMapper.toResponse(commentLikeLog, comment.getLikeCount());
-        })
+        .map(commentLikeLogMapper::toResponse)
         .toList();
 
     log.info("댓글 좋아요 로그 조회 완료");

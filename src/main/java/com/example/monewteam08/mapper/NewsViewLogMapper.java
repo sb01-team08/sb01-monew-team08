@@ -14,7 +14,7 @@ public class NewsViewLogMapper {
     return NewsViewLog.builder()
         .activityLog(userActivityLog)
         .viewedBy(userId)
-        .articleId(article.getId())
+        .article(article)
         .articleSummary(article.getSummary())
         .articlePublishedDate(article.getPublishDate())
         .articleTitle(article.getTitle())
@@ -23,20 +23,19 @@ public class NewsViewLogMapper {
         .build();
   }
 
-  public NewsViewLogResponse toResponse(NewsViewLog newsViewLog, int articleCommentCount,
-      int articleViewCount) {
+  public NewsViewLogResponse toResponse(NewsViewLog newsViewLog, int articleCommentCount) {
     return NewsViewLogResponse.builder()
         .id(newsViewLog.getId())
         .viewedBy(newsViewLog.getViewedBy())
         .createdAt(newsViewLog.getCreatedAt())
-        .articleId(newsViewLog.getArticleId())
+        .articleId(newsViewLog.getArticle().getId())
         .source(newsViewLog.getSource())
         .sourceUrl(newsViewLog.getSourceUrl())
         .articleTitle(newsViewLog.getArticleTitle())
         .articlePublishedDate(newsViewLog.getArticlePublishedDate())
         .articleSummary(newsViewLog.getArticleSummary())
         .articleCommentCount(articleCommentCount)
-        .articleViewCount(articleViewCount)
+        .articleViewCount((int) newsViewLog.getArticle().getViewCount())
         .build();
   }
 

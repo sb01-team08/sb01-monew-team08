@@ -15,11 +15,13 @@ import org.springframework.stereotype.Repository;
 public interface NewsViewLogRepository extends JpaRepository<NewsViewLog, UUID> {
 
   @Modifying
-  @Query("delete from NewsViewLog n where n.articleId = :articleId and n.activityLog.user.id = :userId")
+  @Query("delete from NewsViewLog n where n.article.id = :articleId and n.activityLog.user.id = :userId")
   void deleteNewsViewLogByCommentIdAndUserId(@Param("userId") UUID userId,
       @Param("articleId") UUID articleId);
 
-  List<NewsViewLog> getNewsViewLogsByActivityLogOrderByCreatedAtDesc(UserActivityLog activityLog,
+  @Query("select nvl from NewsViewLog nvl join fetch nvl.article where nvl.activityLog = :activityLog order by nvl.createdAt desc")
+  List<NewsViewLog> getNewsViewLogsByActivityLogOrderByCreatedAtDesc(
+      @Param("activityLog") UserActivityLog activityLog,
       Pageable pageable);
 
 }

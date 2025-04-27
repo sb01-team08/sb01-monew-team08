@@ -4,7 +4,6 @@ import com.example.monewteam08.dto.response.useractivitylog.NewsViewLogResponse;
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.NewsViewLog;
 import com.example.monewteam08.entity.UserActivityLog;
-import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.exception.useractivitylog.UserActicityLogNotFoundException;
 import com.example.monewteam08.mapper.NewsViewLogMapper;
 import com.example.monewteam08.repository.ArticleRepository;
@@ -65,13 +64,9 @@ public class NewsViewLogServiceImpl implements NewsViewLogService {
 
     List<NewsViewLogResponse> newsViewLogResponses = newsViewLogs.stream()
         .map(newsViewLog -> {
-          Article article = articleRepository.findById(newsViewLog.getArticleId())
-              .orElseThrow(() -> new ArticleNotFoundException(newsViewLog.getArticleId()));
-          long articleViewCount = article.getViewCount();
-          int articleCommentCount = commentRepository.countByArticleId(newsViewLog.getArticleId());
-
-          return newsViewLogMapper.toResponse(newsViewLog, articleCommentCount,
-              (int) articleViewCount);
+          int articleCommentCount = commentRepository.countByArticleId(
+              newsViewLog.getArticle().getId());
+          return newsViewLogMapper.toResponse(newsViewLog, articleCommentCount);
         })
         .toList();
     log.info("뉴스 조회 로그 조회 완료");

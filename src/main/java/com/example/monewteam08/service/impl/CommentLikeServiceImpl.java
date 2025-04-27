@@ -45,7 +45,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     CommentLike liked = commentLikeRepository.save(new CommentLike(userId, commentId));
     comment.increaseLikeCount();
     notificationService.createCommentLikeNotification(userId, commentId, nickname);
-    commentLikeLogService.addCommentLikeLog(userId, liked, comment, nickname);  // 댓글 좋아요 로그 추가
+    commentLikeLogService.addCommentLikeLog(userId, liked, comment);  // 댓글 좋아요 로그 추가
 
     log.info("댓글 좋아요 성공");
     return commentLikeMapper.toDto(liked, comment, nickname);

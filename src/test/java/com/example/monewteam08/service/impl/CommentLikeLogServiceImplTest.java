@@ -23,6 +23,7 @@ import com.example.monewteam08.repository.CommentLikeLogRepository;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserActivityLogRepository;
+import com.example.monewteam08.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,8 @@ class CommentLikeLogServiceImplTest {
   private CommentLikeRepository commentLikeRepository;
   @Mock
   private CommentRepository commentRepository;
+  @Mock
+  private UserRepository userRepository;
   @Mock
   private CommentLikeLogMapper commentLikeLogMapper;
 
@@ -93,10 +96,10 @@ class CommentLikeLogServiceImplTest {
     ReflectionTestUtils.setField(commentLike, "id", commentLikeId);
 
     commentLikeLog = CommentLikeLog.builder()
-        .commentId(comment.getId())
+        .comment(comment)
         .articleId(article.getId())
         .articleTitle(article.getTitle())
-        .commentUserId(comment.getUserId())
+        .commentUser(user)
         .commentContent(comment.getContent())
         .commentCreatedAt(LocalDateTime.now())
         .activityLog(userActivityLog)
@@ -110,12 +113,12 @@ class CommentLikeLogServiceImplTest {
     int countLogs = 1;
     given(userActivityLogRepository.findByUserId(userId)).willReturn(Optional.of(userActivityLog));
     given(articleRepository.findById(comment.getArticleId())).willReturn(Optional.of(article));
-    given(commentLikeLogMapper.toEntity(userActivityLog, comment, article
-        , user.getNickname())).willReturn(
+    given(userRepository.findById(comment.getUserId())).willReturn(Optional.of(user));
+    given(commentLikeLogMapper.toEntity(userActivityLog, comment, article, user)).willReturn(
         commentLikeLog);
 
     // when
-    commentLikeLogService.addCommentLikeLog(userId, commentLike, comment, user.getNickname());
+    commentLikeLogService.addCommentLikeLog(userId, commentLike, comment);
 
     // then
     verify(commentLikeLogRepository, never()).deleteAll(any());
@@ -131,7 +134,7 @@ class CommentLikeLogServiceImplTest {
 
     // when & then
     Assertions.assertThatThrownBy(
-            () -> commentLikeLogService.addCommentLikeLog(id, commentLike, comment, user.getNickname()))
+            () -> commentLikeLogService.addCommentLikeLog(id, commentLike, comment))
         .isInstanceOf(UserActicityLogNotFoundException.class)
         .hasMessage(
             ErrorCode.USER_ACTIVITY_LOG_NOT_FOUND.getCode() + ": "
@@ -148,8 +151,8 @@ class CommentLikeLogServiceImplTest {
 
     // when & then
     Assertions.assertThatThrownBy(
-            () -> commentLikeLogService.addCommentLikeLog(userId, commentLike, comment,
-                user.getNickname()))
+            () -> commentLikeLogService.addCommentLikeLog(userId, commentLike, comment
+            ))
         .isInstanceOf(ArticleNotFoundException.class)
         .hasMessage(
             ErrorCode.ARTICLE_NOT_FOUND.getCode() + ": "
@@ -165,12 +168,12 @@ class CommentLikeLogServiceImplTest {
     List<CommentLikeLog> logs = IntStream.range(0, 9)
         .mapToObj(i -> CommentLikeLog.builder()
             .activityLog(userActivityLog)
-            .commentId(UUID.randomUUID())
+            .comment(comment)
             .articleId(UUID.randomUUID())
             .articleTitle("Article " + i)
             .commentContent("Comment " + i)
             .commentCreatedAt(LocalDateTime.now().minusDays(i))
-            .commentUserId(userId)
+            .commentUser(user)
             .commentUserNickname("User" + i)
             .build())
         .toList();
@@ -179,23 +182,20 @@ class CommentLikeLogServiceImplTest {
         eq(userActivityLog), any(PageRequest.class))).willReturn(logs);
 
     for (CommentLikeLog log : logs) {
-      Comment comment = new Comment(log.getArticleId(), log.getCommentUserId(),
+      Comment comment = new Comment(log.getArticleId(), log.getCommentUser().getId(),
           log.getCommentContent());
-      ReflectionTestUtils.setField(comment, "id", log.getCommentId());
+      ReflectionTestUtils.setField(comment, "id", log.getComment().getId());
       ReflectionTestUtils.setField(comment, "createdAt", log.getCommentCreatedAt());
       ReflectionTestUtils.setField(comment, "likeCount", 5);
 
-      given(commentRepository.findById(log.getCommentId()))
-          .willReturn(Optional.of(comment));
-
-      given(commentLikeLogMapper.toResponse(eq(log), eq(5)))
+      given(commentLikeLogMapper.toResponse(eq(log)))
           .willReturn(new CommentLikeLogResponse(
               log.getId(),
               log.getCreatedAt(),
-              log.getCommentId(),
+              log.getComment().getId(),
               log.getArticleId(),
               log.getArticleTitle(),
-              log.getCommentUserId(),
+              log.getCommentUser().getId(),
               log.getCommentUserNickname(),
               log.getCommentContent(),
               5,

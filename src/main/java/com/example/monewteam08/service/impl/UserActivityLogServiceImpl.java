@@ -36,7 +36,6 @@ public class UserActivityLogServiceImpl implements UserActivityLogService {
   @Transactional(readOnly = true)
   @Override
   public UserActivityLogResponse getUserActivityLog(UUID userId) {
-    // todo: exception
     UserActivityLog userActivityLog = userActivityLogRepository.findByUserId(userId).orElseThrow(
         () -> new UserActicityLogNotFoundException(userId));
 
@@ -53,3 +52,5 @@ public class UserActivityLogServiceImpl implements UserActivityLogService {
         commentRecentLogResponses, commentLikeLogResponses, newsViewLogResponses);
   }
 }
+
+

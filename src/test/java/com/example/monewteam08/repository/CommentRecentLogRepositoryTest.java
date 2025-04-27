@@ -2,6 +2,8 @@ package com.example.monewteam08.repository;
 
 import com.example.monewteam08.config.JacConfig;
 import com.example.monewteam08.config.QuerydslConfig;
+import com.example.monewteam08.entity.Article;
+import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentRecentLog;
 import com.example.monewteam08.entity.User;
 import com.example.monewteam08.entity.UserActivityLog;
@@ -24,20 +26,30 @@ class CommentRecentLogRepositoryTest {
   private UserActivityLogRepository userActivityLogRepository;
   @Autowired
   private UserRepository userRepository;
+  @Autowired
+  private CommentRepository commentRepository;
+  @Autowired
+  private ArticleRepository articleRepository;
 
   @Test
   @DisplayName("사용자 아이디와 댓글 아이디를 받아 로그 삭제를 진행한다.")
   void removeCommentRecentLog() {
     // given
-    UUID commentId = UUID.randomUUID();
     User user = userRepository.save(new User("test@example.com", "tester", "tester1234!"));
+    Article article = articleRepository.save(
+        new Article("CNN", "Tech Breakthrough", "Latest breakthrough in AI research",
+            "https://cnn.com/tech/ai-breakthrough", LocalDateTime.now(), UUID.randomUUID()
+        )
+    );
+    Comment comment = commentRepository.save(
+        new Comment(article.getId(), user.getId(), "content"));
     UserActivityLog userActivityLog = userActivityLogRepository.save(new UserActivityLog(user));
     CommentRecentLog log = CommentRecentLog.builder()
         .activityLog(userActivityLog)
-        .commentId(commentId)
+        .comment(comment)
         .articleId(UUID.randomUUID())
         .articleTitle("title")
-        .userId(user.getId())
+        .user(user)
         .commentContent("content")
         .commentCreatedAt(LocalDateTime.now())
         .build();
@@ -45,7 +57,8 @@ class CommentRecentLogRepositoryTest {
     UUID id = log.getId();
 
     // when
-    commentRecentLogRepository.deleteCommentRecentLogByCommentIdAndUserId(user.getId(), commentId);
+    commentRecentLogRepository.deleteCommentRecentLogByCommentIdAndUserId(user.getId(),
+        comment.getId());
 
     // then
     boolean exist = commentRecentLogRepository.existsById(id);

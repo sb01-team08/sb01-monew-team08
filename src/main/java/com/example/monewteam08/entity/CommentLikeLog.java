@@ -40,8 +40,9 @@ public class CommentLikeLog {
   @Column(name = "created_at", nullable = false, updatable = false, insertable = true)
   private LocalDateTime createdAt;
 
-  @Column(name = "comment_id", nullable = false)
-  private UUID commentId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "comment_id", nullable = false)
+  private Comment comment;
 
   @Column(name = "article_id", nullable = false)
   private UUID articleId;
@@ -49,8 +50,9 @@ public class CommentLikeLog {
   @Column(name = "article_title")
   private String articleTitle;
 
-  @Column(name = "comment_user_id", nullable = false)
-  private UUID commentUserId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "comment_user_id", nullable = false)
+  private User commentUser;
 
   @Column(name = "comment_user_nickname")
   private String commentUserNickname;
@@ -62,13 +64,13 @@ public class CommentLikeLog {
   private LocalDateTime commentCreatedAt;
 
   @Builder
-  private CommentLikeLog(UUID commentId, UUID articleId, String articleTitle, UUID commentUserId,
+  private CommentLikeLog(Comment comment, UUID articleId, String articleTitle, User commentUser,
       String commentUserNickname, String commentContent, LocalDateTime commentCreatedAt,
       UserActivityLog activityLog) {
-    this.commentId = commentId;
+    this.comment = comment;
     this.articleId = articleId;
     this.articleTitle = articleTitle;
-    this.commentUserId = commentUserId;
+    this.commentUser = commentUser;
     this.commentUserNickname = commentUserNickname;
     this.commentContent = commentContent;
     this.commentCreatedAt = commentCreatedAt;

@@ -40,8 +40,9 @@ public class NewsViewLog {
   @Column(name = "created_at", nullable = false, updatable = false, insertable = true)
   private LocalDateTime createdAt;
 
-  @Column(name = "article_id", nullable = false)
-  private UUID articleId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "article_id", nullable = false)
+  private Article article;
 
   @Column(name = "viewed_by", nullable = false)
   private UUID viewedBy;
@@ -63,7 +64,7 @@ public class NewsViewLog {
 
   @Builder
   private NewsViewLog(String articleSummary, LocalDateTime articlePublishedDate,
-      String articleTitle, UUID viewedBy, String sourceUrl, String source, UUID articleId,
+      String articleTitle, UUID viewedBy, String sourceUrl, String source, Article article,
       UserActivityLog activityLog) {
     this.articleSummary = articleSummary;
     this.articlePublishedDate = articlePublishedDate;
@@ -71,7 +72,7 @@ public class NewsViewLog {
     this.viewedBy = viewedBy;
     this.sourceUrl = sourceUrl;
     this.source = source;
-    this.articleId = articleId;
+    this.article = article;
     this.activityLog = activityLog;
   }
 }
