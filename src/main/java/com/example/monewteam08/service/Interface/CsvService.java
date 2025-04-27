@@ -9,6 +9,6 @@ public interface CsvService {
 
   Path exportArticlesToCsv(LocalDate date, List<Article> articles);
 
-  void importArticlesFromCsv(String filePath);
+  List<Article> importArticlesFromCsv(String filePath);
 
 }

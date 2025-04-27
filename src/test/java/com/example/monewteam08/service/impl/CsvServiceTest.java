@@ -38,4 +38,20 @@ public class CsvServiceTest {
     assertThat(path).isNotNull();
     assertThat(path.toString()).contains("articles_2025-04-25.csv");
   }
+
+  @Test
+  void CSV로부터_복구하기_성공() throws Exception {
+    // given
+    Article article = new Article("NAVER", "title", "summary", "http://example.com",
+        LocalDateTime.now(), null);
+    String filePath = "articles_2025-04-25.csv";
+    when(csvService.importArticlesFromCsv(filePath)).thenReturn(List.of(article));
+
+    // when
+    List<Article> result = csvService.importArticlesFromCsv(filePath);
+
+    // then
+    assertThat(result).isNotNull();
+    assertThat(result.size()).isEqualTo(1);
+  }
 }
