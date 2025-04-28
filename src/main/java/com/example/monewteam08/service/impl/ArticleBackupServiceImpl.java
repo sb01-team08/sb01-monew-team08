@@ -7,6 +7,7 @@ import com.example.monewteam08.service.Interface.CsvService;
 import com.example.monewteam08.service.Interface.S3Service;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,10 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
   @Override
   public void backup() {
     LocalDate today = LocalDate.now();
+    LocalDateTime startOfDay = today.minusDays(1).atStartOfDay();
+    LocalDateTime endOfDay = today.atStartOfDay();
 
-    List<Article> articles = articleRepository.findByPublishDate(today);
+    List<Article> articles = articleRepository.findAllByPublishDateBetween(startOfDay, endOfDay);
 
     if (articles.isEmpty()) {
       log.info("No articles found for backup on {}", today);

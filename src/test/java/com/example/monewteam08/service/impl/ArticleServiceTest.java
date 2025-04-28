@@ -20,7 +20,6 @@ import com.example.monewteam08.entity.Interest;
 import com.example.monewteam08.entity.Subscription;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
-import com.example.monewteam08.repository.ArticleRepositoryCustom;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
@@ -62,9 +61,6 @@ public class ArticleServiceTest {
 
   @Mock
   private NotificationService notificationService;
-
-  @Mock
-  private ArticleRepositoryCustom articleRepositoryCustom;
 
   @Spy
   @InjectMocks
@@ -256,7 +252,7 @@ public class ArticleServiceTest {
 
     List<Article> articlePage = List.of(article1, article2, article3);
 
-    given(articleRepositoryCustom.findAllByCursor(keyword, interestId, sourceIn,
+    given(articleRepository.findAllByCursor(keyword, interestId, sourceIn,
         publishDateFrom, publishDateTo, orderBy, direction, cursor, after, limit))
         .willReturn(articlePage);
 

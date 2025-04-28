@@ -11,7 +11,6 @@ import com.example.monewteam08.exception.Interest.InterestNotFoundException;
 import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
-import com.example.monewteam08.repository.ArticleRepositoryCustom;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
 import com.example.monewteam08.service.Interface.ArticleFetchService;
@@ -40,7 +39,6 @@ public class ArticleServiceImpl implements ArticleService {
   private final SubscriptionRepository subscriptionRepository;
   private final InterestRepository interestRepository;
   private final NotificationService notificationService;
-  private final ArticleRepositoryCustom articleRepositoryCustom;
   private final ArticleMapper articleMapper;
 
   @Transactional
@@ -88,7 +86,7 @@ public class ArticleServiceImpl implements ArticleService {
       LocalDateTime publishDateTo, String orderBy, String direction,
       String cursor, LocalDateTime after, Integer limit, UUID userId) {
 
-    List<Article> articles = articleRepositoryCustom.findAllByCursor(
+    List<Article> articles = articleRepository.findAllByCursor(
         keyword,
         interestId,
         sourceIn,
@@ -121,7 +119,7 @@ public class ArticleServiceImpl implements ArticleService {
       }
     }
 
-    long totalElements = articleRepositoryCustom.countAllByCondition(
+    long totalElements = articleRepository.countAllByCondition(
         keyword,
         interestId,
         sourceIn,
