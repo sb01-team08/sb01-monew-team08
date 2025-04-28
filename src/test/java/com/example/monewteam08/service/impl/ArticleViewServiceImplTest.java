@@ -18,6 +18,7 @@ import com.example.monewteam08.repository.ArticleViewRepository;
 import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.NewsViewLogService;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -70,6 +71,23 @@ class ArticleViewServiceImplTest {
     // then
     assertNotNull(result);
     verify(article, times(1)).addViewCount();
+  }
+
+  @Test
+  void 본인_조회_여부_확인_성공() {
+    // given
+    UUID userId = UUID.randomUUID();
+    UUID articleId = UUID.randomUUID();
+
+    given(articleViewRepository.findViewedArticleIds(userId))
+        .willReturn(List.of(articleId));
+
+    // when
+    boolean result = articleViewServiceImpl.isViewedByUser(userId, articleId);
+
+    // then
+    assertNotNull(result);
+    verify(articleViewRepository, times(1)).findViewedArticleIds(userId);
   }
 
 }

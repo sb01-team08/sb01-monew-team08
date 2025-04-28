@@ -27,7 +27,6 @@ import com.example.monewteam08.service.Interface.ArticleFetchService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -72,8 +71,7 @@ public class ArticleServiceTest {
   private ArticleServiceImpl articleService;
 
   @Test
-  public void 기사_키워드_필터링()
-      throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+  public void 기사_키워드_필터링() throws Exception {
     // given
     UUID userId = UUID.randomUUID();
     UUID interestId = UUID.randomUUID();
@@ -114,6 +112,36 @@ public class ArticleServiceTest {
   }
 
   @Test
+  void 기사_필터링_구독하는_관심사가_없을_때() throws Exception {
+    // given
+    UUID userId = UUID.randomUUID();
+    UUID interestId = UUID.randomUUID();
+
+    when(subscriptionRepository.findAll()).thenReturn(List.of());
+
+    Interest interest = new Interest();
+    ReflectionTestUtils.setField(interest, "id", interestId);
+    ReflectionTestUtils.setField(interest, "name", "경제");
+    ReflectionTestUtils.setField(interest, "keywords", List.of("경제", "금융"));
+
+    when(interestRepository.findAll()).thenReturn(List.of(interest));
+    when(interestRepository.findById(interestId)).thenReturn(Optional.of(interest));
+
+    Constructor<Article> constructor = Article.class.getDeclaredConstructor();
+    constructor.setAccessible(true);
+    Article article = constructor.newInstance();
+    ReflectionTestUtils.setField(article, "title", "오늘의 경제 뉴스");
+    ReflectionTestUtils.setField(article, "summary", "금융 시장이 요동치고 있습니다.");
+    List<Article> allArticles = List.of(article);
+
+    // when
+    FilteredArticleDto result = articleService.filterWithKeywords(allArticles, userId);
+
+    // then
+    assertThat(result.getArticles()).hasSize(1);
+  }
+
+  @Test
   void 알림_생성_성공() {
     // given
     UUID userId = UUID.randomUUID();
@@ -140,7 +168,7 @@ public class ArticleServiceTest {
   }
 
   @Test
-  void 기사_불러와서_저장_성공() {
+  void 기사_불러와서_저장_성공_중복() {
     // given
     UUID userId = UUID.randomUUID();
 
@@ -151,9 +179,6 @@ public class ArticleServiceTest {
 
     //기사
     List<Article> fetchedArticles = List.of(article1, article2);
-    given(articleRepository.findAll()).willReturn(
-        List.of(
-            new Article("NAVER", "이미 있는 기사", "중복 설명", "http://b.com", LocalDateTime.now(), null)));
 
     given(articleFetchService.fetchAllArticles()).willReturn(fetchedArticles);
     given(articleRepository.findAll()).willReturn(
@@ -177,6 +202,38 @@ public class ArticleServiceTest {
   }
 
   @Test
+  void 기사_불러와서_저장_중복_없음() {
+    // given
+    UUID userId = UUID.randomUUID();
+
+    Article article1 = new Article("NAVER", "오늘의 경제 뉴스", "경제가 어렵습니다", "http://a.com",
+        LocalDateTime.now(), null);
+    Article article2 = new Article("NAVER", "경제 기사", "경제 설명", "http://b.com", LocalDateTime.now(),
+        null);
+
+    //기사
+    List<Article> fetchedArticles = List.of(article1, article2);
+    FilteredArticleDto filtered = new FilteredArticleDto(fetchedArticles, List.of());
+    given(articleRepository.findAll()).willReturn(List.of());
+    given(articleFetchService.fetchAllArticles()).willReturn(fetchedArticles);
+    when(articleRepository.saveAll(any())).thenReturn(fetchedArticles);
+    when(articleMapper.toDto(any(Article.class), anyBoolean())).thenReturn(mock(ArticleDto.class));
+
+    // 관심사
+    Interest interest = new Interest("경제", List.of("경제", "환율"));
+    Subscription subscription = new Subscription(userId, interest.getId());
+    given(subscriptionRepository.findAll()).willReturn(List.of(subscription));
+    given(interestRepository.findById(interest.getId())).willReturn(Optional.of(interest));
+
+    // when
+    List<ArticleDto> savedArticles = articleService.fetchAndSave(userId);
+
+    // then
+    verify(articleRepository).saveAll(fetchedArticles);
+    assertThat(savedArticles.size()).isEqualTo(2);
+  }
+
+  @Test
   void 기사_목록_조회_성공() {
     // given
     String keyword = "경제";
@@ -188,11 +245,17 @@ public class ArticleServiceTest {
     String direction = "DESC";
     String cursor = null;
     LocalDateTime after = null;
-    int limit = 10;
+    int limit = 2;
     UUID userId = UUID.randomUUID();
 
-    Article article = mock(Article.class);
-    List<Article> articlePage = List.of(article);
+    Article article1 = new Article("NAVER", "오늘의 경제 뉴스", "경제가 어렵습니다", "http://a.com",
+        LocalDateTime.now(), null);
+    Article article2 = new Article("NAVER", "경제 기사", "경제 설명", "http://b.com", LocalDateTime.now(),
+        null);
+    Article article3 = new Article("NAVER", "경제 뉴스", "경제 설명", "http://c.com", LocalDateTime.now(),
+        null);
+
+    List<Article> articlePage = List.of(article1, article2, article3);
 
     given(articleRepositoryCustom.findAllByCursor(keyword, interestId, sourceIn,
         publishDateFrom, publishDateTo, orderBy, direction, cursor, after, limit))
@@ -207,7 +270,8 @@ public class ArticleServiceTest {
 
     // then
     assertThat(result).isNotNull();
-    assertThat(result.content()).hasSize(1);
+    assertThat(result.content()).hasSize(2);
+
   }
 
   @Test
