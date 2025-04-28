@@ -66,6 +66,13 @@ public class Article {
     this.isActive = true;
   }
 
+  public static Article withId(UUID id, String source, String title, String summary,
+      String sourceUrl, LocalDateTime publishDate, UUID interestId) {
+    Article article = new Article(source, title, summary, sourceUrl, publishDate, interestId);
+    article.id = id;
+    return article;
+  }
+
   public void softDelete() {
     this.isActive = false;
   }

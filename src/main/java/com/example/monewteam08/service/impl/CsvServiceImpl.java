@@ -53,19 +53,23 @@ public class CsvServiceImpl implements CsvService {
   }
 
   @Override
-  public List<Article> importArticlesFromCsv(String filePath) {
+  public List<Article> importArticlesFromCsv(Path filePath) {
     List<Article> articles = new ArrayList<>();
-    try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
+    try (CSVReader reader = new CSVReader(new FileReader(filePath.toFile()))) {
+      String[] header = reader.readNext();
       String[] nextLine;
       while ((nextLine = reader.readNext()) != null) {
-        if (nextLine.length == 6) {
-          Article article = new Article(
+        if (nextLine.length >= 6) {
+          Article article = Article.withId(UUID.fromString(nextLine[0]),
               nextLine[1],
               nextLine[2],
               nextLine[3],
               nextLine[4],
               LocalDateTime.parse(nextLine[5]),
-              nextLine[6] != null ? UUID.fromString(nextLine[6]) : null
+              nextLine[6] != null
+                  && !"null".equalsIgnoreCase(nextLine[6])
+                  ? UUID.fromString(nextLine[6])
+                  : null
           );
           articles.add(article);
           log.debug("Article imported: {}", article.getId());
@@ -78,4 +82,5 @@ public class CsvServiceImpl implements CsvService {
     return articles;
 
   }
+
 }
