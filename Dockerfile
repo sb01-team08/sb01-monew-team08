@@ -9,7 +9,6 @@ COPY gradle ./gradle
 # 소스 코드 복사
 COPY src ./src
 COPY config ./config
-COPY monew.env ./monew.env
 
 # gradlew 실행 가능하도록
 RUN chmod +x ./gradlew
