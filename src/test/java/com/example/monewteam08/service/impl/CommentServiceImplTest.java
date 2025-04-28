@@ -1,11 +1,13 @@
 package com.example.monewteam08.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -15,9 +17,11 @@ import static org.mockito.Mockito.when;
 import com.example.monewteam08.dto.request.comment.CommentRegisterRequest;
 import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
 import com.example.monewteam08.dto.response.comment.CommentDto;
+import com.example.monewteam08.dto.response.comment.CursorPageResponseCommentDto;
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.User;
+import com.example.monewteam08.exception.article.ArticleNotFoundException;
 import com.example.monewteam08.exception.comment.CommentNotFoundException;
 import com.example.monewteam08.exception.comment.UnauthorizedCommentAccessException;
 import com.example.monewteam08.mapper.CommentMapper;
@@ -27,6 +31,7 @@ import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.CommentLikeLogService;
 import com.example.monewteam08.service.Interface.CommentRecentLogService;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -191,5 +196,80 @@ class CommentServiceImplTest {
     assertThrows(UnauthorizedCommentAccessException.class, () -> {
       commentService.delete(commentId, otherUserId);
     });
+  }
+
+  @Test
+  void 존재하지_않는_기사_댓글등록_실패() {
+    when(articleRepository.findById(articleId)).thenReturn(Optional.empty());
+
+    assertThrows(ArticleNotFoundException.class, () -> {
+      commentService.create(request);
+    });
+  }
+
+  @Test
+  void 다른_사용자_댓글_수정_실패() {
+    UUID otherUserId = UUID.randomUUID();
+    when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
+
+    assertThrows(UnauthorizedCommentAccessException.class, () -> {
+      commentService.update(commentId, new CommentUpdateRequest("수정"), otherUserId);
+    });
+  }
+
+  @Test
+  void 커서_기반_댓글_조회_성공() {
+    UUID commentId = UUID.randomUUID();
+    Comment comment = new Comment(articleId, userId, "테스트 댓글");
+    ReflectionTestUtils.setField(comment, "id", commentId);
+
+    when(commentRepository.findAllByCursor(any(), any(), any(), any(), any(), anyInt()))
+        .thenReturn(List.of(comment));
+
+    User user = new User("user@naver.com", "우디", "123qwe!@");
+    ReflectionTestUtils.setField(user, "id", userId);
+
+    when(userRepository.findByIdIn(any())).thenReturn(List.of(user));
+    when(commentLikeRepository.findAllByUserIdAndCommentIdIn(any(), any()))
+        .thenReturn(List.of());
+
+    when(commentRepository.countByArticleId(articleId)).thenReturn(1);
+
+    CursorPageResponseCommentDto result = commentService.getCommentsByCursor(
+        articleId.toString(), "createdAt", "desc", null, null, 10, userId.toString()
+    );
+
+    assertNotNull(result);
+    assertThat(result.getContent()).hasSize(1);
+    //assertFalse(result.getHasNext());
+  }
+
+  @Test
+  void 댓글_생성시_최신댓글로그_추가() {
+    when(articleRepository.findById(articleId)).thenReturn(Optional.of(mock(Article.class)));
+    when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
+    when(commentRepository.save(any())).thenReturn(mockComment);
+
+    commentService.create(request);
+
+    verify(commentRecentLogService).addCommentRecentLog(eq(userId), any(Comment.class));
+  }
+
+  @Test
+  void 댓글_논리삭제시_최신댓글로그_삭제() {
+    when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
+
+    commentService.delete(commentId, userId);
+
+    verify(commentRecentLogService).removeCommentRecentLog(userId, commentId);
+  }
+
+  @Test
+  void 댓글_물리삭제시_최신댓글로그_삭제() {
+    when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
+
+    commentService.delete_Hard(commentId);
+
+    verify(commentRecentLogService).removeCommentRecentLog(mockComment.getUserId(), commentId);
   }
 }

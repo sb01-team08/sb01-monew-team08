@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.example.monewteam08.config.QuerydslConfig;
 import com.example.monewteam08.entity.Notification;
 import com.example.monewteam08.entity.ResourceType;
+import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,9 @@ class NotificationRepositoryTest {
 
   @Autowired
   private NotificationRepository notificationRepository;
+
+  @Autowired
+  private EntityManager em;
 
   @Test
   void 알림_단건_조회() {
@@ -56,9 +60,12 @@ class NotificationRepositoryTest {
     UUID userId = UUID.randomUUID();
     Notification confirmed7 = new Notification(userId, "알림", ResourceType.COMMENT,
         UUID.randomUUID());
-    confirmed7.confirm();
+    confirmed7.confirm(true);
     ReflectionTestUtils.setField(confirmed7, "updatedAt", LocalDateTime.now().minusDays(8));
     notificationRepository.save(confirmed7);
+
+    em.flush();
+    em.clear();
 
     notificationRepository.deleteByIsConfirmedTrueAndUpdatedAtBefore(
         LocalDateTime.now().minusDays(7));
