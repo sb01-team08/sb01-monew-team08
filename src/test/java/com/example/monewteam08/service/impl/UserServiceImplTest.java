@@ -46,6 +46,9 @@ class UserServiceImplTest {
   @Mock
   private UserMapper userMapper;
 
+  @Mock
+  private ApplicationEventPublisher applicationEventPublisher;
+
   @InjectMocks
   private UserServiceImpl userService;
 
