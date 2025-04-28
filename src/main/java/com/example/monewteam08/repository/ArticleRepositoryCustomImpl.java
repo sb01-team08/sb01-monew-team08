@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class ArticleReposiotryImpl implements ArticleRepositoryCustom {
+public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 
   private final JPAQueryFactory queryFactory;
 
@@ -119,7 +119,7 @@ public class ArticleReposiotryImpl implements ArticleRepositoryCustom {
   private List<OrderSpecifier<?>> getOrderSpecifiers(QArticle article, QComment comment,
       String orderBy, String direction) {
 
-    Order order = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
+    Order order = "ASC".equalsIgnoreCase(direction) ? Order.ASC : Order.DESC;
 
     if ("commentCount".equalsIgnoreCase(orderBy)) {
       return List.of(
@@ -139,7 +139,7 @@ public class ArticleReposiotryImpl implements ArticleRepositoryCustom {
     }
   }
 
-  private BooleanExpression buildCursorCondition(QArticle article, QComment comment,
+  protected BooleanExpression buildCursorCondition(QArticle article, QComment comment,
       String orderBy, String direction, String cursor, LocalDateTime after) {
 
     if (cursor == null || after == null) {
@@ -162,10 +162,10 @@ public class ArticleReposiotryImpl implements ArticleRepositoryCustom {
               .or(article.viewCount.eq(viewCount).and(article.publishDate.gt(after)));
     } else {
       LocalDateTime dateCursor = LocalDateTime.parse(cursor);
-      return ("DESC".equalsIgnoreCase(direction)) ?
-          article.publishDate.lt(dateCursor)
-              .or(article.publishDate.eq(dateCursor).and(article.publishDate.lt(after))) :
+      return ("ASC".equalsIgnoreCase(direction)) ?
           article.publishDate.gt(dateCursor)
+              .or(article.publishDate.eq(dateCursor).and(article.publishDate.lt(after))) :
+          article.publishDate.lt(dateCursor)
               .or(article.publishDate.eq(dateCursor).and(article.publishDate.gt(after)));
     }
   }
