@@ -213,7 +213,6 @@ public class ArticleServiceTest {
 
     //기사
     List<Article> fetchedArticles = List.of(article1, article2);
-    FilteredArticleDto filtered = new FilteredArticleDto(fetchedArticles, List.of());
     given(articleRepository.findAll()).willReturn(List.of());
     given(articleFetchService.fetchAllArticles()).willReturn(fetchedArticles);
     when(articleRepository.saveAll(any())).thenReturn(fetchedArticles);
