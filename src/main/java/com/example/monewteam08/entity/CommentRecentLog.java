@@ -40,8 +40,9 @@ public class CommentRecentLog {
   @Column(name = "created_at", nullable = false, updatable = false, insertable = true)
   private LocalDateTime createdAt;
 
-  @Column(name = "comment_id", nullable = false)
-  private UUID commentId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "comment_id", nullable = false)
+  private Comment comment;
 
   @Column(name = "article_id", nullable = false)
   private UUID articleId;
@@ -49,8 +50,9 @@ public class CommentRecentLog {
   @Column(name = "article_title")
   private String articleTitle;
 
-  @Column(name = "user_id", nullable = false)
-  private UUID userId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
   @Column(name = "user_nickname")
   private String userNickname;
@@ -62,14 +64,14 @@ public class CommentRecentLog {
   private LocalDateTime commentCreatedAt;
 
   @Builder
-  private CommentRecentLog(UUID commentId, UUID articleId, String articleTitle, UUID userId,
+  private CommentRecentLog(Comment comment, UUID articleId, String articleTitle, User user,
       String userNickname, String commentContent, LocalDateTime commentCreatedAt,
       UserActivityLog activityLog) {
     this.activityLog = activityLog;
-    this.commentId = commentId;
+    this.comment = comment;
     this.articleId = articleId;
     this.articleTitle = articleTitle;
-    this.userId = userId;
+    this.user = user;
     this.userNickname = userNickname;
     this.commentContent = commentContent;
     this.commentCreatedAt = commentCreatedAt;

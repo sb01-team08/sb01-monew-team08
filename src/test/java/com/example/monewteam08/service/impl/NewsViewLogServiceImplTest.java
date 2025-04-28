@@ -1,7 +1,6 @@
 package com.example.monewteam08.service.impl;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -79,7 +78,7 @@ class NewsViewLogServiceImplTest {
     newsViewLog = NewsViewLog.builder()
         .activityLog(userActivityLog)
         .viewedBy(userId)
-        .articleId(article.getId())
+        .article(article)
         .articleSummary(article.getSummary())
         .articlePublishedDate(article.getPublishDate())
         .articleTitle(article.getTitle())
@@ -129,7 +128,7 @@ class NewsViewLogServiceImplTest {
         .mapToObj(i -> NewsViewLog.builder()
             .activityLog(userActivityLog)
             .viewedBy(userId)
-            .articleId(UUID.randomUUID())
+            .article(article)
             .articleSummary("Summary " + i)
             .articlePublishedDate(LocalDateTime.now().minusDays(i))
             .articleTitle("Article " + i)
@@ -142,16 +141,14 @@ class NewsViewLogServiceImplTest {
         eq(userActivityLog), any(PageRequest.class))).willReturn(logs);
 
     for (NewsViewLog log : logs) {
-      given(articleRepository.findById(log.getArticleId()))
-          .willReturn(Optional.of(article));
-      given(commentRepository.countByArticleId(log.getArticleId())).willReturn(commentCount);
+      given(commentRepository.countByArticleId(log.getArticle().getId())).willReturn(commentCount);
 
-      given(newsViewLogMapper.toResponse(eq(log), eq(commentCount), anyInt()))
+      given(newsViewLogMapper.toResponse(eq(log), eq(commentCount)))
           .willReturn(NewsViewLogResponse.builder()
               .id(log.getId())
               .viewedBy(log.getViewedBy())
               .createdAt(log.getCreatedAt())
-              .articleId(log.getArticleId())
+              .articleId(log.getArticle().getId())
               .source(log.getSource())
               .sourceUrl(log.getSourceUrl())
               .articleTitle(log.getArticleTitle())

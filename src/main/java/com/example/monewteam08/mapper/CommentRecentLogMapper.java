@@ -9,15 +9,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class CommentRecentLogMapper {
 
-  public CommentRecentLogResponse toResponse(CommentRecentLog commentRecentLog, int likeCount) {
+  public CommentRecentLogResponse toResponse(CommentRecentLog commentRecentLog) {
     return CommentRecentLogResponse.builder()
         .id(commentRecentLog.getId())
         .articleId(commentRecentLog.getArticleId())
         .articleTitle(commentRecentLog.getArticleTitle())
-        .userId(commentRecentLog.getUserId())
-        .userNickname(commentRecentLog.getUserNickname())
-        .content(commentRecentLog.getCommentContent())
-        .likeCount(likeCount)
+        .userId(commentRecentLog.getUser().getId())
+        .userNickname(commentRecentLog.getUser().getNickname())
+        .content(commentRecentLog.getComment().getContent())
+        .likeCount(commentRecentLog.getComment().getLikeCount())
         .createdAt(commentRecentLog.getCreatedAt())
         .build();
   }
@@ -25,10 +25,10 @@ public class CommentRecentLogMapper {
   public CommentRecentLog toEntity(UserActivityLog userActivityLog, Comment comment, String title) {
     return CommentRecentLog.builder()
         .activityLog(userActivityLog)
-        .commentId(comment.getId())
+        .comment(comment)
         .articleId(comment.getArticleId())
         .articleTitle(title)
-        .userId(comment.getUserId())
+        .user(userActivityLog.getUser())
         .userNickname(userActivityLog.getUser().getNickname())
         .commentContent(comment.getContent())
         .commentCreatedAt(comment.getCreatedAt())

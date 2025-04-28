@@ -82,10 +82,10 @@ class CommentRecentLogServiceImplTest {
 
     commentRecentLog = CommentRecentLog.builder()
         .activityLog(userActivityLog)
-        .commentId(commentId)
+        .comment(comment)
         .articleId(articleId)
         .articleTitle(article.getTitle())
-        .userId(userId)
+        .user(user)
         .commentContent(comment.getContent())
         .commentCreatedAt(comment.getCreatedAt())
         .build();
@@ -130,28 +130,25 @@ class CommentRecentLogServiceImplTest {
     List<CommentRecentLog> logs = IntStream.range(0, 9)
         .mapToObj(i -> CommentRecentLog.builder()
             .activityLog(userActivityLog)
-            .commentId(UUID.randomUUID())
+            .comment(comment)
             .articleId(UUID.randomUUID())
             .articleTitle("Article " + i)
-            .userId(userId)
+            .user(user)
             .commentContent("Comment " + i)
             .commentCreatedAt(LocalDateTime.now().minusDays(i))
             .build())
         .toList();
 
-    given(commentRecentLogRepository.getCommentLikeLogsByActivityLogOrderByCreatedAtDesc(
+    given(commentRecentLogRepository.getCommentRecentLogsByActivityLogOrderByCreatedAtDesc(
         eq(userActivityLog), any(PageRequest.class))).willReturn(logs);
 
     for (CommentRecentLog log : logs) {
-      given(commentRepository.findById(log.getCommentId()))
-          .willReturn(Optional.of(comment));
-
-      given(commentRecentLogMapper.toResponse(eq(log), eq(comment.getLikeCount())))
+      given(commentRecentLogMapper.toResponse(eq(log)))
           .willReturn(CommentRecentLogResponse.builder()
               .id(log.getId())
               .articleId(log.getArticleId())
               .articleTitle(log.getArticleTitle())
-              .userId(log.getUserId())
+              .userId(log.getUser().getId())
               .userNickname(userActivityLog.getUser().getNickname())
               .content(log.getCommentContent())
               .likeCount(comment.getLikeCount())

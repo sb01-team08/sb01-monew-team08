@@ -15,10 +15,11 @@ import org.springframework.stereotype.Repository;
 public interface CommentRecentLogRepository extends JpaRepository<CommentRecentLog, UUID> {
 
   @Modifying
-  @Query("delete from CommentRecentLog c where c.commentId = :commentId and c.activityLog.user.id = :userId")
+  @Query("delete from CommentRecentLog c where c.comment.id = :commentId and c.activityLog.user.id = :userId")
   void deleteCommentRecentLogByCommentIdAndUserId(@Param("userId") UUID userId,
       @Param("commentId") UUID commentId);
 
-  List<CommentRecentLog> getCommentLikeLogsByActivityLogOrderByCreatedAtDesc(
-      UserActivityLog activityLog, Pageable pageable);
+  @Query("select crl from CommentRecentLog crl join fetch crl.comment join fetch crl.user where crl.activityLog = :activityLog order by crl.createdAt desc")
+  List<CommentRecentLog> getCommentRecentLogsByActivityLogOrderByCreatedAtDesc(
+      @Param("activityLog") UserActivityLog activityLog, Pageable pageable);
 }
