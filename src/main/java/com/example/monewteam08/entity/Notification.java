@@ -55,6 +55,13 @@ public class Notification {
     this.updatedAt = LocalDateTime.now();
   }
 
+  public void confirm(boolean skipped) {
+    isConfirmed = true;
+    if (skipped) {
+      this.updatedAt = LocalDateTime.now();
+    }
+  }
+
   public Notification(UUID userId, String content, ResourceType resource_type, UUID resourceId) {
     this.userId = userId;
     this.content = content;
