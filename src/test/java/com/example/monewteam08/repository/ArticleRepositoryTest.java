@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import com.example.monewteam08.config.QuerydslConfig;
 import com.example.monewteam08.entity.Article;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +24,17 @@ class ArticleRepositoryTest {
   @Test
   void 발행일로_기사_검색_성공() {
     // given
-    LocalDate publishDate = LocalDate.of(2025, 4, 28);
+    Article article = new Article("NAVER", "기술 업데이트", "새 스마트폰 출시",
+        "http://b.com", LocalDateTime.of(2025, 4, 27, 10, 30), null);
+    articleRepository.save(article);
+
+    LocalDateTime startOfDay = LocalDate.of(2025, 4, 27).atStartOfDay();
+    LocalDateTime endOfDay = LocalDate.of(2025, 4, 28).atStartOfDay();
 
     // when
-    List<Article> articles = articleRepository.findByPublishDate(publishDate);
+    List<Article> articles = articleRepository.findAllByPublishDateBetween(startOfDay, endOfDay);
 
     // then
-    assertThat(articles).isNotEmpty();
+    assertThat(articles.size()).isEqualTo(1);
   }
 }
