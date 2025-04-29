@@ -1,5 +1,6 @@
 package com.example.monewteam08.controller.api;
 
+import com.example.monewteam08.dto.response.article.ArticleRestoreResultDto;
 import com.example.monewteam08.dto.response.article.ArticleViewDto;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,11 +15,9 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "뉴스 기사 관리", description = "뉴스 기사 관리 API")
-@RequestMapping("/api/articles")
 public interface ArticleControllerDocs {
 
   @Operation(summary = "기사 논리 삭제", description = "기사를 논리적으로 석제합니다.")
@@ -93,6 +92,20 @@ public interface ArticleControllerDocs {
   ResponseEntity<ArticleViewDto> registerArticleView(
       @PathVariable UUID articleId,
       @RequestHeader(name = "Monew-Request-User-Id") UUID userId
+  );
+
+  @Operation(summary = "뉴스 복구", description = "유실된 뉴스를 복구합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200", description = "복구 성공"
+      ),
+      @ApiResponse(
+          responseCode = "500", description = "서버 내부 오류"
+      )
+  })
+  ResponseEntity<ArticleRestoreResultDto> restore(
+      @RequestParam LocalDateTime from,
+      @RequestParam LocalDateTime to
   );
 
 }

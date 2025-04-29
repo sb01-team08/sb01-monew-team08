@@ -34,6 +34,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class ArticleFetchServiceImpl implements ArticleFetchService {
 
+  private static final String NO_SUMMARY = "요약을 확인할 수 없습니다. 원문을 확인해주세요.";
   private static final String NAVER_API_URL = "https://openapi.naver.com/v1/search/news.json";
   private static final String YONHAP_RSS_URL = "https://www.yonhapnewstv.co.kr/browse/feed/";
   private static final String CHOSUN_RSS_URL = "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml";
@@ -103,8 +104,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
       SyndFeed feed = new SyndFeedInput().build(reader);
       for (SyndEntry entry : feed.getEntries()) {
         String description = entry.getDescription() != null
-            ? entry.getDescription().getValue()
-            : "";
+            ? entry.getDescription().getValue() : NO_SUMMARY;
         LocalDateTime publishedAt = entry.getPublishedDate()
             .toInstant().atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
 

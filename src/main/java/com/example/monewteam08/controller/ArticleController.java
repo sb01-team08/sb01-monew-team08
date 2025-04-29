@@ -2,8 +2,10 @@ package com.example.monewteam08.controller;
 
 import com.example.monewteam08.controller.api.ArticleControllerDocs;
 import com.example.monewteam08.dto.response.article.ArticleDto;
+import com.example.monewteam08.dto.response.article.ArticleRestoreResultDto;
 import com.example.monewteam08.dto.response.article.ArticleViewDto;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
+import com.example.monewteam08.service.Interface.ArticleBackupService;
 import com.example.monewteam08.service.Interface.ArticleService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
 import java.time.LocalDateTime;
@@ -27,6 +29,7 @@ public class ArticleController implements ArticleControllerDocs {
 
   private final ArticleService articleService;
   private final ArticleViewService articleViewService;
+  private final ArticleBackupService articleBackupService;
 
   // 테스트용: 즉시 기사 불러오기
   @PostMapping("/fetch")
@@ -90,5 +93,14 @@ public class ArticleController implements ArticleControllerDocs {
   ) {
     ArticleViewDto articleViewDto = articleViewService.save(userId, articleId);
     return ResponseEntity.ok(articleViewDto);
+  }
+
+  @Override
+  @GetMapping("/restore")
+  public ResponseEntity<ArticleRestoreResultDto> restore(
+      @RequestParam LocalDateTime from,
+      @RequestParam LocalDateTime to) {
+    ArticleRestoreResultDto result = articleBackupService.restore(from, to);
+    return ResponseEntity.ok(result);
   }
 }
