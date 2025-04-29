@@ -118,11 +118,7 @@ clean {
     delete file(querydslDir)
 }
 
-
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
 bootJar {
+    layered {}
     archiveFileName = "${project.name}-${project.version}.jar"
 }
