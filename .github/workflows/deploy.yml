@@ -21,6 +21,10 @@ jobs:
   test: # 테스트
     name: Run Tests
     runs-on: ubuntu-latest
+    env:
+      SPRING_PROFILES_ACTIVE: test
+      NAVER_API_CLIENT_ID: ${{ secrets.NAVER_API_CLIENT_ID }}
+      NAVER_API_CLIENT_SECRET: ${{ secrets.NAVER_API_CLIENT_SECRET }}
 
     steps:
       - name: Checkout repository
