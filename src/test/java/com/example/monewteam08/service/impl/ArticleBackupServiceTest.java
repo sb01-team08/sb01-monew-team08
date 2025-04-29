@@ -11,6 +11,7 @@ import com.example.monewteam08.service.Interface.CsvService;
 import com.example.monewteam08.service.Interface.S3Service;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -58,19 +59,20 @@ public class ArticleBackupServiceTest {
   @Test
   void 복구_성공() {
     // given
-    LocalDate today = LocalDate.now();
-    Path dummyPath = Path.of("/tmp/articles_" + today + ".csv");
+    LocalDateTime from = LocalDateTime.now().minusDays(1);
+    LocalDateTime to = from.plusDays(1);
+    Path dummyPath = Path.of("/tmp/articles_" + from.toLocalDate() + ".csv");
 
     List<Article> articles = List.of(
         Article.withId(UUID.randomUUID(), "NAVER", "제목", "요약", "http://test.com",
-            today.minusDays(1).atTime(8, 0), null)
+            from.plusHours(8), null)
     );
 
-    when(s3Service.download(today)).thenReturn(dummyPath);
+    when(s3Service.download(from.toLocalDate())).thenReturn(dummyPath);
     when(csvService.importArticlesFromCsv(dummyPath)).thenReturn(articles);
 
     // when
-    articleBackupService.restore(today);
+    articleBackupService.restore(from, to);
 
     // then
     verify(articleRepository).saveAll(articles);

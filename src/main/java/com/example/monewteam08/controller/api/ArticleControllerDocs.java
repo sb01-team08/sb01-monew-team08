@@ -1,5 +1,6 @@
 package com.example.monewteam08.controller.api;
 
+import com.example.monewteam08.dto.response.article.ArticleRestoreResultDto;
 import com.example.monewteam08.dto.response.article.ArticleViewDto;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -93,6 +94,20 @@ public interface ArticleControllerDocs {
   ResponseEntity<ArticleViewDto> registerArticleView(
       @PathVariable UUID articleId,
       @RequestHeader(name = "Monew-Request-User-Id") UUID userId
+  );
+
+  @Operation(summary = "뉴스 복구", description = "유실된 뉴스를 복구합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(
+          responseCode = "200", description = "복구 성공"
+      ),
+      @ApiResponse(
+          responseCode = "500", description = "서버 내부 오류"
+      )
+  })
+  ResponseEntity<ArticleRestoreResultDto> restore(
+      @RequestParam LocalDateTime from,
+      @RequestParam LocalDateTime to
   );
 
 }

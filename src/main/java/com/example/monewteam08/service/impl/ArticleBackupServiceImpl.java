@@ -1,5 +1,6 @@
 package com.example.monewteam08.service.impl;
 
+import com.example.monewteam08.dto.response.article.ArticleRestoreResultDto;
 import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.service.Interface.ArticleBackupService;
@@ -8,6 +9,7 @@ import com.example.monewteam08.service.Interface.S3Service;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,18 +47,32 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
   }
 
   @Override
-  public void restore(LocalDate date) {
-    Path csvPath = s3Service.download(date);
-    List<Article> articles = csvService.importArticlesFromCsv(csvPath);
+  public ArticleRestoreResultDto restore(LocalDateTime from, LocalDateTime to) {
+    List<Article> articles = new ArrayList<>();
+    LocalDate dateFrom = from.toLocalDate();
+    LocalDate dateTo = to.toLocalDate();
+
+    Path csvPath;
+    for (LocalDate date = dateFrom; !date.isAfter(dateTo); date = date.plusDays(1)) {
+      csvPath = s3Service.download(date);
+      List<Article> articlesFromCsv = csvService.importArticlesFromCsv(csvPath);
+      articles.addAll(csvService.importArticlesFromCsv(csvPath));
+      log.info("Imported {} articles from backup for date {}", articlesFromCsv.size(), date);
+    }
 
     List<Article> lostArticles = articles.stream()
         .filter(article -> articleRepository.findById(article.getId()).isEmpty()).toList();
 
     List<Article> restoredArticles = articleRepository.saveAll(lostArticles);
+    log.info("Restored {} articles from backup", restoredArticles.size());
 
-    log.info("Restored {} articles from backup for date {}", restoredArticles.size(), date);
     for (Article article : restoredArticles) {
       log.debug("Restored article: {}", article);
     }
+    return new ArticleRestoreResultDto(
+        LocalDateTime.now(),
+        restoredArticles.stream().map(Article::getId).toList(),
+        restoredArticles.size()
+    );
   }
 }
