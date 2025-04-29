@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.monewteam08.service.Interface.ArticleBackupService;
 import com.example.monewteam08.service.Interface.ArticleService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
 import java.util.UUID;
@@ -28,6 +29,9 @@ public class ArticleControllerTest {
 
   @MockitoBean
   private ArticleViewService articleViewService;
+
+  @MockitoBean
+  private ArticleBackupService articleBackupService;
 
   @Test
   void 기사_논리_삭제_API_성공() throws Exception {
