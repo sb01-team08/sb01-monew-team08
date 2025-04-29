@@ -96,7 +96,10 @@ public class ArticleController implements ArticleControllerDocs {
   }
 
   @Override
-  public ResponseEntity<ArticleRestoreResultDto> restore(LocalDateTime from, LocalDateTime to) {
+  @GetMapping("/restore")
+  public ResponseEntity<ArticleRestoreResultDto> restore(
+      @RequestParam LocalDateTime from,
+      @RequestParam LocalDateTime to) {
     ArticleRestoreResultDto result = articleBackupService.restore(from, to);
     return ResponseEntity.ok(result);
   }
