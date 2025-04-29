@@ -6,8 +6,9 @@ plugins {
 }
 
 test {
-    useJUnitPlatform {
-        if (System.getProperty("excludeTags")) {
+    useJUnitPlatform()
+    if (System.getProperty("excludeTags")) {
+        useJUnitPlatform {
             excludeTags System.getProperty("excludeTags")
         }
     }

@@ -16,6 +16,9 @@ spring:
       - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
       - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
 
+  jackson:
+    time-zone: Asia/Seoul
+
 logging:
   level:
     root: info
