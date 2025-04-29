@@ -40,6 +40,7 @@ jobs:
 
   docker-build-and-push: # AWS Credentials 및 ECR 로그인 - # Docker Build 및 ECR에 Push
     runs-on: ubuntu-latest
+    needs: test
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
