@@ -78,20 +78,20 @@ class ArticleRepositoryCustomTest {
     assertThat(articles.get(0).getSource()).isEqualTo("HANKYUNG");
   }
 
-  // todo: test 안돌아가서 주석처리해 둠
-//  @Test
-//  void 발행일_범위_검색_성공() {
-//    // given
-//    LocalDateTime from = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
-//    LocalDateTime to = LocalDateTime.now();
-//
-//    // when
-//    List<Article> articles = articleRepository.findAllByCursor(null, null, null, from, to,
-//        "publishDate", "DESC", null, null, 10);
-//
-//    // then
-//    assertThat(articles).hasSize(2);
-//  }
+  @Test
+  void 발행일_범위_검색_성공() {
+    // given
+    LocalDateTime now = LocalDateTime.of(2025, 4, 28, 0, 0, 0);
+    LocalDateTime from = now.minusDays(1);
+    LocalDateTime to = now;
+
+    // when
+    List<Article> articles = articleRepository.findAllByCursor(null, null, null, from, to,
+        "publishDate", "DESC", null, null, 10);
+
+    // then
+    assertThat(articles).hasSize(2);
+  }
 
   @Test
   void 전체_카운트_성공() {
@@ -120,19 +120,18 @@ class ArticleRepositoryCustomTest {
     assertThat(count).isEqualTo(2);
   }
 
-  // todo: test 안돌아가서 주석처리해 둠
-//  @Test
-//  void 발행일_범위_카운트_성공() {
-//    // given
-//    LocalDateTime from = LocalDateTime.now().minusDays(3);
-//    LocalDateTime to = LocalDateTime.now();
-//
-//    // when
-//    long count = articleRepository.countAllByCondition(null, null, null, from, to);
-//
-//    // then
-//    assertThat(count).isEqualTo(3);
-//  }
+  @Test
+  void 발행일_범위_카운트_성공() {
+    // given
+    LocalDateTime now = LocalDateTime.of(2025, 4, 28, 0, 0, 0);
+    LocalDateTime from = now.minusDays(3);
+
+    // when
+    long count = articleRepository.countAllByCondition(null, null, null, from, now);
+
+    // then
+    assertThat(count).isEqualTo(3);
+  }
 
   @Test
   void 댓글수_내림차순_정렬_성공() {

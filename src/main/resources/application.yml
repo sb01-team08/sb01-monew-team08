@@ -22,3 +22,8 @@ spring:
 logging:
   level:
     root: info
+
+backup:
+  s3:
+    bucket: ${AWS_S3_BUCKET}
+    prefix: ${BACKUP_S3_STORAGE_PATH}

@@ -10,7 +10,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +24,7 @@ import org.springframework.stereotype.Service;
 public class CsvServiceImpl implements CsvService {
 
   @Override
-  public Path exportArticlesToCsv(LocalDate date, List<Article> articles) {
-    String fileName = "articles_" + date + ".csv";
-    Path path = Path.of(System.getProperty("java.io.tmpdir"), fileName);
+  public Path exportArticlesToCsv(Path path, List<Article> articles) {
 
     try (CSVWriter writer = new CSVWriter(new FileWriter(path.toFile()))) {
       String[] header = {"id", "source", "title", "summary", "sourceUrl", "publishDate",

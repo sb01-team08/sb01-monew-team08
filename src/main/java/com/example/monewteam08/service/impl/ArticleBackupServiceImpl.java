@@ -24,21 +24,24 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
 
   @Override
   public void backup() {
-    LocalDate today = LocalDate.now();
-    LocalDateTime startOfDay = today.minusDays(1).atStartOfDay();
-    LocalDateTime endOfDay = today.atStartOfDay();
+    LocalDate yesterday = LocalDate.now().minusDays(1);
+    LocalDateTime startOfDay = yesterday.atStartOfDay();
+    LocalDateTime endOfDay = yesterday.plusDays(1).atStartOfDay();
 
     List<Article> articles = articleRepository.findAllByPublishDateBetween(startOfDay, endOfDay);
 
     if (articles.isEmpty()) {
-      log.info("No articles found for backup on {}", today);
+      log.info("No articles found for backup on {}", yesterday);
       return;
     }
 
-    String csvPath = "backup/articles_" + today + ".csv";
-    csvService.exportArticlesToCsv(today, articles);
+    String fileName = "articles_" + yesterday + ".csv";
+    Path path = Path.of(System.getProperty("java.io.tmpdir"), fileName);
 
-    s3Service.upload(Path.of(csvPath), today);
+    csvService.exportArticlesToCsv(path, articles);
+    log.info("Exported {} articles to {}", articles.size(), path);
+    s3Service.upload(path, yesterday);
+    log.info("Uploaded backup to S3: {}", fileName);
   }
 
   @Override

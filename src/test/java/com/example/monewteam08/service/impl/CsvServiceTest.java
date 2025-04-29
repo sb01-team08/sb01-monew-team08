@@ -23,20 +23,23 @@ public class CsvServiceTest {
   void CSV로_내보내기_성공() {
     // given
     CsvService csvService = new CsvServiceImpl();
-    LocalDate today = LocalDate.now();
+    LocalDate yesterday = LocalDate.now().minusDays(1);
     UUID articleId = UUID.randomUUID();
     Article article = new Article("NAVER", "title", "summary", "http://example.com",
         LocalDateTime.now(), null);
     List<Article> articles = List.of(article);
     ReflectionTestUtils.setField(article, "id", articleId);
 
+    String fileName = "articles_" + yesterday + ".csv";
+    Path tmpPath = Path.of(System.getProperty("java.io.tmpdir"), fileName);
+
     // when
-    Path path = csvService.exportArticlesToCsv(LocalDate.now(), articles);
+    Path path = csvService.exportArticlesToCsv(tmpPath, articles);
 
     //then
     assertThat(path).isNotNull();
     assertThat(Files.exists(path)).isTrue();
-    assertThat(path.toString()).contains("articles_" + today + ".csv");
+    assertThat(path.toString()).contains("articles_" + yesterday + ".csv");
   }
 
   @Test
