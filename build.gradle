@@ -6,8 +6,9 @@ plugins {
 }
 
 test {
-    useJUnitPlatform {
-        if (System.getProperty("excludeTags")) {
+    useJUnitPlatform()
+    if (System.getProperty("excludeTags")) {
+        useJUnitPlatform {
             excludeTags System.getProperty("excludeTags")
         }
     }
@@ -118,11 +119,7 @@ clean {
     delete file(querydslDir)
 }
 
-
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
 bootJar {
+    layered {}
     archiveFileName = "${project.name}-${project.version}.jar"
 }
