@@ -30,5 +30,5 @@ public class MonewException extends RuntimeException {
   public String getMessage() {
     return errorCode.getCode() + ": " + errorCode.getMessage();
   }
-  
+
 }

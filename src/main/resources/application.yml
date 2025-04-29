@@ -1,3 +1,21 @@
 spring:
   application:
     name: monew-team08
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
+
+  servlet:
+    multipart:
+      enabled: true
+      max-request-size: 30MB
+      max-file-size: 10MB
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+
+logging:
+  level:
+    root: info
