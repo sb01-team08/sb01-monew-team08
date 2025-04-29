@@ -81,8 +81,9 @@ class ArticleRepositoryCustomTest {
   @Test
   void 발행일_범위_검색_성공() {
     // given
-    LocalDateTime from = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
-    LocalDateTime to = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.of(2025, 4, 28, 0, 0, 0);
+    LocalDateTime from = now.minusDays(1);
+    LocalDateTime to = now;
 
     // when
     List<Article> articles = articleRepository.findAllByCursor(null, null, null, from, to,
@@ -122,11 +123,11 @@ class ArticleRepositoryCustomTest {
   @Test
   void 발행일_범위_카운트_성공() {
     // given
-    LocalDateTime from = LocalDateTime.now().minusDays(3);
-    LocalDateTime to = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.of(2025, 4, 28, 0, 0, 0);
+    LocalDateTime from = now.minusDays(3);
 
     // when
-    long count = articleRepository.countAllByCondition(null, null, null, from, to);
+    long count = articleRepository.countAllByCondition(null, null, null, from, now);
 
     // then
     assertThat(count).isEqualTo(3);
