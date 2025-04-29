@@ -6,12 +6,15 @@ on:
       - main
       - dev
       - release
+      - cicd_test
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       SPRING_PROFILES_ACTIVE: test
+      NAVER_API_CLIENT_ID: ${{ secrets.NAVER_API_CLIENT_ID }}
+      NAVER_API_CLIENT_SECRET: ${{ secrets.NAVER_API_CLIENT_SECRET }}
 
     steps:
       - uses: actions/checkout@v4
