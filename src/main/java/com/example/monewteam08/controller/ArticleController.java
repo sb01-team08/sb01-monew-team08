@@ -1,8 +1,11 @@
 package com.example.monewteam08.controller;
 
+import com.example.monewteam08.controller.api.ArticleControllerDocs;
 import com.example.monewteam08.dto.response.article.ArticleDto;
+import com.example.monewteam08.dto.response.article.ArticleRestoreResultDto;
 import com.example.monewteam08.dto.response.article.ArticleViewDto;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
+import com.example.monewteam08.service.Interface.ArticleBackupService;
 import com.example.monewteam08.service.Interface.ArticleService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
 import java.time.LocalDateTime;
@@ -22,10 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/articles")
 @RequiredArgsConstructor
-public class ArticleController {
+public class ArticleController implements ArticleControllerDocs {
 
   private final ArticleService articleService;
   private final ArticleViewService articleViewService;
+  private final ArticleBackupService articleBackupService;
 
   // 테스트용: 즉시 기사 불러오기
   @PostMapping("/fetch")
@@ -36,18 +40,21 @@ public class ArticleController {
     return ResponseEntity.ok(articles);
   }
 
+  @Override
   @DeleteMapping("/{articleId}")
   public ResponseEntity<Void> softDelete(@PathVariable UUID articleId) {
     articleService.softDelete(articleId);
     return ResponseEntity.noContent().build();
   }
 
+  @Override
   @DeleteMapping("/{articleId}/hard")
   public ResponseEntity<Void> hardDelete(@PathVariable UUID articleId) {
     articleService.hardDelete(articleId);
     return ResponseEntity.noContent().build();
   }
 
+  @Override
   @GetMapping
   public ResponseEntity<CursorPageResponseArticleDto> getArticles(
       @RequestParam(required = false) String keyword,
@@ -78,6 +85,7 @@ public class ArticleController {
     return ResponseEntity.ok(response);
   }
 
+  @Override
   @PostMapping("/{articleId}/article-views")
   public ResponseEntity<ArticleViewDto> registerArticleView(
       @PathVariable UUID articleId,
@@ -85,5 +93,14 @@ public class ArticleController {
   ) {
     ArticleViewDto articleViewDto = articleViewService.save(userId, articleId);
     return ResponseEntity.ok(articleViewDto);
+  }
+
+  @Override
+  @GetMapping("/restore")
+  public ResponseEntity<ArticleRestoreResultDto> restore(
+      @RequestParam LocalDateTime from,
+      @RequestParam LocalDateTime to) {
+    ArticleRestoreResultDto result = articleBackupService.restore(from, to);
+    return ResponseEntity.ok(result);
   }
 }
