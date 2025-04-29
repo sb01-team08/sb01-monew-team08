@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - release
+      - cicd_test
   workflow_dispatch:  # 수동 실행
 
 # 공통 환경 변수
@@ -17,25 +18,25 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  #  test:
-  #    name: Run Tests
-  #    runs-on: ubuntu-latest
-  #
-  #    steps:
-  #      - name: Checkout repository
-  #        uses: actions/checkout@v4
-  #
-  #      - name: Set up JDK 17
-  #        uses: actions/setup-java@v4
-  #        with:
-  #          java-version: '17'
-  #          distribution: 'corretto'
-  #
-  #      - name: Grant execute permission for Gradle wrapper
-  #        run: chmod +x gradlew
-  #
-  #      - name: Run Tests
-  #        run: ./gradlew test
+  test: # 테스트
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Run Tests
+        run: ./gradlew test
 
   docker-build-and-push: # AWS Credentials 및 ECR 로그인 - # Docker Build 및 ECR에 Push
     runs-on: ubuntu-latest
