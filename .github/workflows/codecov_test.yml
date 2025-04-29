@@ -1,4 +1,4 @@
-name: Java CI with Gradle
+name: Codecov
 
 on:
   pull_request:
@@ -35,5 +35,8 @@ jobs:
           name: test-results
           path: build/test-results/test
 
-      - name: Upload coverage to Codecov (자동 감지)
+      - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
