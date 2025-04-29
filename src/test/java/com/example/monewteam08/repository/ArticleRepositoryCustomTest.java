@@ -78,6 +78,7 @@ class ArticleRepositoryCustomTest {
     assertThat(articles.get(0).getSource()).isEqualTo("HANKYUNG");
   }
 
+  // todo: test 안돌아가서 주석처리해 둠
 //  @Test
 //  void 발행일_범위_검색_성공() {
 //    // given
@@ -119,6 +120,7 @@ class ArticleRepositoryCustomTest {
     assertThat(count).isEqualTo(2);
   }
 
+  // todo: test 안돌아가서 주석처리해 둠
 //  @Test
 //  void 발행일_범위_카운트_성공() {
 //    // given
