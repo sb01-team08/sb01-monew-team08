@@ -611,3 +611,280 @@ sb01-monew-team08
          └─ schema.sql
 
 ```
+```
+sb01-monew-team08
+├─ .coderabbit.yaml
+├─ .dockerignore
+├─ codecov.yml
+├─ config
+│  └─ checkstyle
+│     └─ intellij-java-google-style.xml
+├─ docker-compose.yml
+├─ Dockerfile
+├─ gradle
+│  └─ wrapper
+│     └─ gradle-wrapper.properties
+├─ gradlew
+├─ gradlew.bat
+├─ HELP.md
+├─ README.md
+└─ src
+   ├─ main
+   │  ├─ java
+   │  │  └─ com
+   │  │     └─ example
+   │  │        └─ monewteam08
+   │  │           ├─ common
+   │  │           │  ├─ CustomApiResponse.java
+   │  │           │  └─ RegexPatternConstants.java
+   │  │           ├─ config
+   │  │           │  ├─ AuthenticatedUserInterceptor.java
+   │  │           │  ├─ AwsS3Config.java
+   │  │           │  ├─ BackupS3Properties.java
+   │  │           │  ├─ JacConfig.java
+   │  │           │  ├─ QuerydslConfig.java
+   │  │           │  ├─ RequestTracingFilter.java
+   │  │           │  ├─ RestTemplateConfig.java
+   │  │           │  ├─ SwaggerConfig.java
+   │  │           │  └─ WebConfig.java
+   │  │           ├─ controller
+   │  │           │  ├─ api
+   │  │           │  │  ├─ ArticleControllerDocs.java
+   │  │           │  │  ├─ CommentControllerDocs.java
+   │  │           │  │  ├─ InterestControllerDocs.java
+   │  │           │  │  ├─ NotificationControllerDocs.java
+   │  │           │  │  ├─ UserActivityLogControllerDocs.java
+   │  │           │  │  └─ UserControllerDocs.java
+   │  │           │  ├─ ArticleController.java
+   │  │           │  ├─ CommentController.java
+   │  │           │  ├─ IndexViewController.java
+   │  │           │  ├─ InterestController.java
+   │  │           │  ├─ NotificationController.java
+   │  │           │  ├─ UserActivityLogController.java
+   │  │           │  └─ UserContoller.java
+   │  │           ├─ dto
+   │  │           │  ├─ request
+   │  │           │  │  ├─ comment
+   │  │           │  │  │  ├─ CommentRegisterRequest.java
+   │  │           │  │  │  └─ CommentUpdateRequest.java
+   │  │           │  │  ├─ Interest
+   │  │           │  │  │  ├─ InterestRequest.java
+   │  │           │  │  │  └─ InterestUpdateRequest.java
+   │  │           │  │  └─ user
+   │  │           │  │     ├─ UserLoginRequest.java
+   │  │           │  │     ├─ UserRequest.java
+   │  │           │  │     └─ UserUpdateRequest.java
+   │  │           │  └─ response
+   │  │           │     ├─ article
+   │  │           │     │  ├─ ArticleDto.java
+   │  │           │     │  ├─ ArticleInterestCount.java
+   │  │           │     │  ├─ ArticleRestoreResultDto.java
+   │  │           │     │  ├─ ArticleViewDto.java
+   │  │           │     │  ├─ CursorPageResponseArticleDto.java
+   │  │           │     │  ├─ FilteredArticleDto.java
+   │  │           │     │  ├─ item
+   │  │           │     │  │  └─ NaverNewsItem.java
+   │  │           │     │  └─ NaverNewsResponse.java
+   │  │           │     ├─ comment
+   │  │           │     │  ├─ CommentDto.java
+   │  │           │     │  ├─ CommentLikeDto.java
+   │  │           │     │  └─ CursorPageResponseCommentDto.java
+   │  │           │     ├─ interest
+   │  │           │     │  ├─ InterestResponse.java
+   │  │           │     │  ├─ InterestWithSubscriptionResponse.java
+   │  │           │     │  ├─ PageResponse.java
+   │  │           │     │  └─ UserActivitySubscriptionResponse.java
+   │  │           │     ├─ notification
+   │  │           │     │  ├─ CursorPageResponseNotificationDto.java
+   │  │           │     │  └─ NotificationDto.java
+   │  │           │     ├─ user
+   │  │           │     │  └─ UserResponse.java
+   │  │           │     └─ useractivitylog
+   │  │           │        ├─ CommentLikeLogResponse.java
+   │  │           │        ├─ CommentRecentLogResponse.java
+   │  │           │        ├─ NewsViewLogResponse.java
+   │  │           │        └─ UserActivityLogResponse.java
+   │  │           ├─ entity
+   │  │           │  ├─ Article.java
+   │  │           │  ├─ ArticleView.java
+   │  │           │  ├─ Comment.java
+   │  │           │  ├─ CommentLike.java
+   │  │           │  ├─ CommentLikeLog.java
+   │  │           │  ├─ CommentRecentLog.java
+   │  │           │  ├─ Interest.java
+   │  │           │  ├─ NewsViewLog.java
+   │  │           │  ├─ Notification.java
+   │  │           │  ├─ ResourceType.java
+   │  │           │  ├─ Subscription.java
+   │  │           │  ├─ User.java
+   │  │           │  └─ UserActivityLog.java
+   │  │           ├─ event
+   │  │           │  ├─ UserLoginEvent.java
+   │  │           │  └─ UserLoginEventListener.java
+   │  │           ├─ exception
+   │  │           │  ├─ article
+   │  │           │  │  ├─ ArticleExportFailedException.java
+   │  │           │  │  ├─ ArticleFetchFailedException.java
+   │  │           │  │  └─ ArticleNotFoundException.java
+   │  │           │  ├─ comment
+   │  │           │  │  ├─ CommentException.java
+   │  │           │  │  ├─ CommentNotFoundException.java
+   │  │           │  │  └─ UnauthorizedCommentAccessException.java
+   │  │           │  ├─ ErrorCode.java
+   │  │           │  ├─ ExceptionDto.java
+   │  │           │  ├─ GlobalExceptionHandler.java
+   │  │           │  ├─ Interest
+   │  │           │  │  ├─ DuplicateInterestException.java
+   │  │           │  │  ├─ InterestException.java
+   │  │           │  │  └─ InterestNotFoundException.java
+   │  │           │  ├─ MonewException.java
+   │  │           │  ├─ Subscription
+   │  │           │  │  ├─ AlreadySubscribedException.java
+   │  │           │  │  ├─ SubscriptionException.java
+   │  │           │  │  └─ SubscriptionNotFoundException.java
+   │  │           │  ├─ user
+   │  │           │  │  ├─ DeletedAccountException.java
+   │  │           │  │  ├─ EmailAlreadyExistException.java
+   │  │           │  │  ├─ InvalidUserIdRequestHeaderFormatException.java
+   │  │           │  │  ├─ LoginFailedException.java
+   │  │           │  │  ├─ MissingUserIdRequestHeaderException.java
+   │  │           │  │  ├─ UserException.java
+   │  │           │  │  └─ UserNotFoundException.java
+   │  │           │  └─ useractivitylog
+   │  │           │     ├─ UserActicityLogNotFoundException.java
+   │  │           │     └─ UserActivityLogException.java
+   │  │           ├─ mapper
+   │  │           │  ├─ ArticleMapper.java
+   │  │           │  ├─ ArticleViewMapper.java
+   │  │           │  ├─ CommentLikeLogMapper.java
+   │  │           │  ├─ CommentLikeMapper.java
+   │  │           │  ├─ CommentMapper.java
+   │  │           │  ├─ CommentRecentLogMapper.java
+   │  │           │  ├─ InterestMapper.java
+   │  │           │  ├─ NewsViewLogMapper.java
+   │  │           │  ├─ NotificationMapper.java
+   │  │           │  ├─ SubscriptionMapper.java
+   │  │           │  ├─ UserActivityLogMapper.java
+   │  │           │  └─ UserMapper.java
+   │  │           ├─ MonewTeam08Application.java
+   │  │           ├─ repository
+   │  │           │  ├─ ArticleRepository.java
+   │  │           │  ├─ ArticleRepositoryCustom.java
+   │  │           │  ├─ ArticleRepositoryCustomImpl.java
+   │  │           │  ├─ ArticleViewRepository.java
+   │  │           │  ├─ CommentLikeLogRepository.java
+   │  │           │  ├─ CommentLikeRepository.java
+   │  │           │  ├─ CommentRecentLogRepository.java
+   │  │           │  ├─ CommentRepository.java
+   │  │           │  ├─ CommentRepositoryCustom.java
+   │  │           │  ├─ CommentRepositoryImpl.java
+   │  │           │  ├─ InterestRepository.java
+   │  │           │  ├─ NewsViewLogRepository.java
+   │  │           │  ├─ NotificationRepository.java
+   │  │           │  ├─ NotificationRepositoryCustom.java
+   │  │           │  ├─ NotificationRepositoryCustomImpl.java
+   │  │           │  ├─ SubscriptionRepository.java
+   │  │           │  ├─ UserActivityLogRepository.java
+   │  │           │  └─ UserRepository.java
+   │  │           ├─ scheduler
+   │  │           │  ├─ ArticleScheduler.java
+   │  │           │  └─ NotificationCleanupScheduler.java
+   │  │           ├─ service
+   │  │           │  ├─ impl
+   │  │           │  │  ├─ ArticleBackupServiceImpl.java
+   │  │           │  │  ├─ ArticleFetchServiceImpl.java
+   │  │           │  │  ├─ ArticleServiceImpl.java
+   │  │           │  │  ├─ ArticleViewServiceImpl.java
+   │  │           │  │  ├─ CommentLikeLogServiceImpl.java
+   │  │           │  │  ├─ CommentLikeServiceImpl.java
+   │  │           │  │  ├─ CommentRecentLogServiceImpl.java
+   │  │           │  │  ├─ CommentServiceImpl.java
+   │  │           │  │  ├─ CsvServiceImpl.java
+   │  │           │  │  ├─ InterestServiceImpl.java
+   │  │           │  │  ├─ NewsViewLogServiceImpl.java
+   │  │           │  │  ├─ NotificationServiceImpl.java
+   │  │           │  │  ├─ S3ServiceImpl.java
+   │  │           │  │  ├─ SubscriptionServiceImpl.java
+   │  │           │  │  ├─ UserActivityLogServiceImpl.java
+   │  │           │  │  └─ UserServiceImpl.java
+   │  │           │  └─ Interface
+   │  │           │     ├─ ArticleBackupService.java
+   │  │           │     ├─ ArticleFetchService.java
+   │  │           │     ├─ ArticleService.java
+   │  │           │     ├─ ArticleViewService.java
+   │  │           │     ├─ CommentLikeLogService.java
+   │  │           │     ├─ CommentLikeService.java
+   │  │           │     ├─ CommentRecentLogService.java
+   │  │           │     ├─ CommentService.java
+   │  │           │     ├─ CsvService.java
+   │  │           │     ├─ InterestService.java
+   │  │           │     ├─ NewsViewLogService.java
+   │  │           │     ├─ NotificationService.java
+   │  │           │     ├─ S3Service.java
+   │  │           │     ├─ SubscriptionService.java
+   │  │           │     ├─ UserActivityLogService.java
+   │  │           │     └─ UserService.java
+   │  │           └─ util
+   │  │              └─ SimilarityUtil.java
+   │  └─ resources
+   │     ├─ logback-spring.xml
+   │     └─ static
+   │        ├─ assets
+   │        │  ├─ index-D30UMZL2.css
+   │        │  └─ index-DMbEghNi.js
+   │        ├─ favicon.ico
+   │        └─ index.html
+   └─ test
+      ├─ java
+      │  └─ com
+      │     └─ example
+      │        └─ monewteam08
+      │           ├─ controller
+      │           │  ├─ ArticleControllerTest.java
+      │           │  ├─ CommentControllerTest.java
+      │           │  ├─ InterestControllerTest.java
+      │           │  ├─ NotificationControllerTest.java
+      │           │  └─ UserContollerTest.java
+      │           ├─ entity
+      │           │  └─ UserTest.java
+      │           ├─ mapper
+      │           │  ├─ InterestMapperTest.java
+      │           │  └─ UserMapperTest.java
+      │           ├─ MonewTeam08ApplicationTests.java
+      │           ├─ repository
+      │           │  ├─ ArticleRepositoryCustomTest.java
+      │           │  ├─ ArticleRepositoryTest.java
+      │           │  ├─ ArticleViewRepositoryTest.java
+      │           │  ├─ CommentLikeLogRepositoryTest.java
+      │           │  ├─ CommentLikeRepositoryTest.java
+      │           │  ├─ CommentRecentLogRepositoryTest.java
+      │           │  ├─ CommentRepositoryQuerydslTest.java
+      │           │  ├─ CommentRepositoryTest.java
+      │           │  ├─ NotificationRepositoryCustomImplTest.java
+      │           │  ├─ NotificationRepositoryTest.java
+      │           │  ├─ UserActivityLogRepositoryTest.java
+      │           │  └─ UserRepositoryTest.java
+      │           └─ service
+      │              └─ impl
+      │                 ├─ ArticleBackupServiceTest.java
+      │                 ├─ ArticleFetchServiceTest.java
+      │                 ├─ ArticleServiceTest.java
+      │                 ├─ ArticleViewServiceImplTest.java
+      │                 ├─ CommentLikeLogServiceImplTest.java
+      │                 ├─ CommentLikeServiceImplTest.java
+      │                 ├─ CommentRecentLogServiceImplTest.java
+      │                 ├─ CommentServiceImplTest.java
+      │                 ├─ CsvServiceTest.java
+      │                 ├─ InterestServiceImplTest.java
+      │                 ├─ NewsViewLogServiceImplTest.java
+      │                 ├─ NotificationServiceImplTest.java
+      │                 ├─ S3ServiceImplTest.java
+      │                 ├─ SubscriptionServiceImplTest.java
+      │                 ├─ UserActivityLogServiceImplTest.java
+      │                 └─ UserServiceImplTest.java
+      └─ resources
+         ├─ application-test.yml
+         ├─ application.yml
+         └─ schema.sql
+
+```
