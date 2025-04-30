@@ -9,4 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ArticleRepository extends JpaRepository<Article, UUID>, ArticleRepositoryCustom {
 
   List<Article> findAllByPublishDateBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+  List<Article> deleteAllByPublishDateBefore(LocalDateTime cutoffDate);
 }
