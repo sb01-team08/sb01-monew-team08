@@ -19,6 +19,9 @@ spring:
   jackson:
     time-zone: Asia/Seoul
 
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
+
 logging:
   level:
     root: info
@@ -32,3 +35,6 @@ naver:
   api:
     client-id: ${NAVER_API_CLIENT_ID}
     client-secret: ${NAVER_API_CLIENT_SECRET}
+
+server:
+  shutdown: graceful
