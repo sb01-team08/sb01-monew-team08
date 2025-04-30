@@ -57,8 +57,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
     List<Article> articles = new ArrayList<>();
     articles.addAll(fetchNaverArticles());
     articles.addAll(fetchRssArticles("YONHAP", YONHAP_RSS_URL));
-    articles.addAll(
-        fetchRssArticles("CHOSUN", CHOSUN_RSS_URL));
+    articles.addAll(fetchRssArticles("CHOSUN", CHOSUN_RSS_URL));
     articles.addAll(fetchRssArticles("HANKYUNG", HANKYUNG_RSS_URL));
     return articles;
   }
@@ -68,7 +67,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
     String uri = UriComponentsBuilder
         .fromHttpUrl(NAVER_API_URL)
         .queryParam("query", "뉴스")
-        .queryParam("display", 10)
+        .queryParam("display", 100)
         .queryParam("start", 1)
         .queryParam("sort", "date")
         .toUriString();
