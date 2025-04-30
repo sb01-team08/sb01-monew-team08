@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -58,29 +60,50 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
       List<Article> articlesFromCsv = csvService.importArticlesFromCsv(csvPath);
       if (articlesFromCsv.isEmpty()) {
         log.info("No articles found for date {}", date);
-        return new ArticleRestoreResultDto(
-            LocalDateTime.now(),
-            List.of(),
-            0
-        );
       }
       articles.addAll(csvService.importArticlesFromCsv(csvPath));
       log.info("Imported {} articles from backup for date {}", articlesFromCsv.size(), date);
     }
 
-    List<Article> lostArticles = articles.stream()
-        .filter(article -> !articleRepository.findById(article.getId()).isPresent()).toList();
+    List<Article> lostArticles = new ArrayList<>();
+
+    List<Article> activatedArticles = articles.stream()
+        .map(article -> activateSoftDeletedArticle(article, lostArticles))
+        .filter(Objects::nonNull)
+        .toList();
 
     List<Article> restoredArticles = articleRepository.saveAll(lostArticles);
     log.info("Restored {} articles from backup", restoredArticles.size());
+    log.info("Activated {} articles from backup", activatedArticles.size());
 
     for (Article article : restoredArticles) {
       log.debug("Restored article: {}", article);
+    }
+    for (Article article : activatedArticles) {
+      log.debug("Activated article: {}", article);
     }
     return new ArticleRestoreResultDto(
         LocalDateTime.now(),
         restoredArticles.stream().map(Article::getId).toList(),
         restoredArticles.size()
     );
+  }
+
+  public Article activateSoftDeletedArticle(Article article, List<Article> lostArticles) {
+    Optional<Article> found = articleRepository.findById(article.getId());
+
+    if (found.isEmpty()) {
+      lostArticles.add(article);
+      return null;
+    }
+
+    Article existing = found.get();
+
+    if (!existing.isActive()) {
+      existing.activate();
+      return articleRepository.save(existing);
+    }
+
+    return null;
   }
 }
