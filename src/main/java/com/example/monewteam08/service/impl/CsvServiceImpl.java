@@ -63,8 +63,7 @@ public class CsvServiceImpl implements CsvService {
               nextLine[3],
               nextLine[4],
               LocalDateTime.parse(nextLine[5]),
-              nextLine[6] != null
-                  && !"null".equalsIgnoreCase(nextLine[6])
+              nextLine[6] != null && !nextLine[6].isBlank()
                   ? UUID.fromString(nextLine[6])
                   : null
           );

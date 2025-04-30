@@ -56,12 +56,20 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
     for (LocalDate date = dateFrom; !date.isAfter(dateTo); date = date.plusDays(1)) {
       csvPath = s3Service.download(date);
       List<Article> articlesFromCsv = csvService.importArticlesFromCsv(csvPath);
+      if (articlesFromCsv.isEmpty()) {
+        log.info("No articles found for date {}", date);
+        return new ArticleRestoreResultDto(
+            LocalDateTime.now(),
+            List.of(),
+            0
+        );
+      }
       articles.addAll(csvService.importArticlesFromCsv(csvPath));
       log.info("Imported {} articles from backup for date {}", articlesFromCsv.size(), date);
     }
 
     List<Article> lostArticles = articles.stream()
-        .filter(article -> articleRepository.findById(article.getId()).isEmpty()).toList();
+        .filter(article -> !articleRepository.findById(article.getId()).isPresent()).toList();
 
     List<Article> restoredArticles = articleRepository.saveAll(lostArticles);
     log.info("Restored {} articles from backup", restoredArticles.size());
