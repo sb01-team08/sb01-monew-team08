@@ -77,6 +77,10 @@ public class Article {
     this.isActive = false;
   }
 
+  public void activate() {
+    this.isActive = true;
+  }
+
   public void addViewCount() {
     this.viewCount++;
   }
