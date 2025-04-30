@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - release
-      - cicd_test
   workflow_dispatch:  # 수동 실행
 
 # 공통 환경 변수
