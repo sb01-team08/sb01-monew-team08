@@ -2,10 +2,14 @@ package com.example.monewteam08.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 import com.example.monewteam08.dto.response.article.ArticleRestoreResultDto;
 import com.example.monewteam08.entity.Article;
@@ -17,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -62,40 +67,51 @@ public class ArticleBackupServiceTest {
   @Test
   void 복구_성공() {
     // given
-    UUID softDeletedId = UUID.randomUUID();
-    UUID lostId = UUID.randomUUID();
-    LocalDateTime from = LocalDateTime.now().minusDays(1);
+    LocalDateTime from = LocalDateTime.of(2025, 4, 29, 0, 0);
     LocalDateTime to = from.plusDays(1);
+    UUID lostId = UUID.randomUUID();
+    UUID softDeletedId = UUID.randomUUID();
+
+    Article lostArticle = Article.withId(lostId, "NAVER", "제목", "요약", "http://lost.com",
+        from.plusHours(1), null);
+    Article softDeletedArticle = Article.withId(softDeletedId, "NAVER", "제목", "요약",
+        "http://deleted.com", from.plusHours(2), null);
+    softDeletedArticle.softDelete();
+
     Path dummyPath = Path.of("/tmp/articles_" + from.toLocalDate() + ".csv");
 
-    Article softDeleted = Article.withId(softDeletedId, "NAVER", "제목", "요약", "http://test1.com",
-        from.plusHours(8), null);
-    softDeleted.softDelete();
-    Article activated = Article.withId(softDeletedId, "NAVER", "제목", "요약", "http://test-active.com",
-        from.plusHours(8), null);
-
-    Article lost = Article.withId(lostId, "NAVER", "제목", "요약", "http://test2.com",
-        from.plusHours(8), null);
-
     given(s3Service.download(from.toLocalDate())).willReturn(dummyPath);
-    given(csvService.importArticlesFromCsv(dummyPath)).willReturn(List.of(lost, softDeleted));
+    given(s3Service.download(to.toLocalDate())).willReturn(dummyPath);
+    given(csvService.importArticlesFromCsv(dummyPath))
+        .willReturn(List.of(lostArticle, softDeletedArticle))
+        .willReturn(List.of());
+    given(articleRepository.findAllById(any())).willReturn(List.of(softDeletedArticle));
 
-    given(articleRepository.findAllById(List.of(lostId, softDeletedId)))
-        .willReturn(List.of(softDeleted));
-
-    given(articleRepository.saveAll(List.of(lost))).willReturn(List.of(lost));
-    given(articleRepository.saveAll(List.of(softDeleted))).willReturn(List.of(activated));
-
+    given(articleRepository.saveAll(anyList())).willAnswer(invocation -> {
+      List<Article> articles = invocation.getArgument(0);
+      for (Article a : articles) {
+        if (a.getId() == null) {
+          setField(a, "id", lostId);
+        }
+      }
+      return articles;
+    });
     // when
     ArticleRestoreResultDto result = articleBackupService.restore(from, to);
 
     // then
-    assertThat(result.restoredArticleIds()).containsExactly(lostId);
     assertThat(result.restoredArticleCount()).isEqualTo(1);
+    assertThat(result.restoredArticleIds()).containsExactly(lostId);
 
-    verify(articleRepository).saveAll(List.of(lost));
-    verify(articleRepository).saveAll(List.of(softDeleted));
+    verify(articleRepository, times(1)).saveAll(argThat(iterable ->
+        StreamSupport.stream(iterable.spliterator(), false)
+            .anyMatch(a -> a.getSourceUrl().equals("http://lost.com"))
+    ));
 
+    verify(articleRepository, times(1)).saveAll(argThat(iterable ->
+        StreamSupport.stream(iterable.spliterator(), false)
+            .anyMatch(a -> a.getSourceUrl().equals("http://deleted.com"))
+    ));
   }
 
 
