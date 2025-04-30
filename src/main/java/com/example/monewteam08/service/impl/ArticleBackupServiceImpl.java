@@ -69,9 +69,13 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
       log.info("Imported {} articles from backup for date {}", articlesFromCsv.size(), date);
     }
 
-    Map<UUID, Article> existingArticles = articleRepository.findAllById(
-        articles.stream().map(Article::getId).toList()
+    List<UUID> articleIds = articles.stream()
+        .map(Article::getId)
+        .distinct()
+        .toList();
+    Map<UUID, Article> existingArticles = articleRepository.findAllById(articleIds
     ).stream().collect(Collectors.toMap(Article::getId, article -> article));
+    log.info("Found {} existing articles in the database", existingArticles.size());
 
     List<Article> lostArticles = new ArrayList<>();
     List<Article> activatedArticles = new ArrayList<>();
@@ -80,10 +84,21 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
       Article existing = existingArticles.get(article.getId());
 
       if (existing == null) {
-        lostArticles.add(article);
+        Article newArticle = new Article(
+            article.getSource(),
+            article.getTitle(),
+            article.getSummary(),
+            article.getSourceUrl(),
+            article.getPublishDate(),
+            null
+        );
+        newArticle.setInterestId(article.getInterestId());
+        lostArticles.add(newArticle);
+        log.info("Article {} not found in the database, adding to lost articles", article.getId());
       } else if (!existing.isActive()) {
         existing.activate();
-        activatedArticles.add(article);
+        activatedArticles.add(existing);
+        log.info("Article {} activated", existing.getId());
       }
     }
 
