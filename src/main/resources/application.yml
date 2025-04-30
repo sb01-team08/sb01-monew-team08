@@ -27,3 +27,8 @@ backup:
   s3:
     bucket: ${AWS_S3_BUCKET}
     prefix: ${BACKUP_S3_STORAGE_PATH}
+
+naver:
+  api:
+    client-id: ${NAVER_API_CLIENT_ID}
+    client-secret: ${NAVER_API_CLIENT_SECRET}
