@@ -1,7 +1,6 @@
 package com.example.monewteam08.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -16,9 +15,7 @@ import com.example.monewteam08.service.Interface.S3Service;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,12 +80,11 @@ public class ArticleBackupServiceTest {
     given(s3Service.download(from.toLocalDate())).willReturn(dummyPath);
     given(csvService.importArticlesFromCsv(dummyPath)).willReturn(List.of(lost, softDeleted));
 
-    given(articleRepository.findById(lostId)).willReturn(Optional.empty());
-
-    given(articleRepository.findById(softDeletedId)).willReturn(Optional.of(softDeleted));
-    given(articleRepository.save(softDeleted)).willReturn(activated);
+    given(articleRepository.findAllById(List.of(lostId, softDeletedId)))
+        .willReturn(List.of(softDeleted));
 
     given(articleRepository.saveAll(List.of(lost))).willReturn(List.of(lost));
+    given(articleRepository.saveAll(List.of(softDeleted))).willReturn(List.of(activated));
 
     // when
     ArticleRestoreResultDto result = articleBackupService.restore(from, to);
@@ -98,50 +94,9 @@ public class ArticleBackupServiceTest {
     assertThat(result.restoredArticleCount()).isEqualTo(1);
 
     verify(articleRepository).saveAll(List.of(lost));
-    verify(articleRepository).save(softDeleted);
+    verify(articleRepository).saveAll(List.of(softDeleted));
 
   }
 
-  @Test
-  void 물리_삭제_기사_찾기_성공() {
-    // given
-    UUID articleId = UUID.randomUUID();
-    LocalDateTime from = LocalDateTime.now().minusDays(1);
-    Article article = Article.withId(articleId, "NAVER", "제목", "요약", "http://test.com",
-        from.plusHours(8), null);
-
-    List<Article> lostArticles = new ArrayList<>();
-    given(articleRepository.findById(articleId)).willReturn(Optional.empty());
-
-    // when
-    Article result = articleBackupService.activateSoftDeletedArticle(article, lostArticles);
-
-    // then
-    assertNull(result);
-    assertThat(lostArticles).containsExactly(article);
-
-  }
-
-  @Test
-  void 논리_삭제_기사_찾기_성공() {
-    // given
-    UUID articleId = UUID.randomUUID();
-    LocalDateTime from = LocalDateTime.now().minusDays(1);
-    Article article = Article.withId(articleId, "NAVER", "제목", "요약", "http://test.com",
-        from.plusHours(8), null);
-    article.softDelete();
-
-    List<Article> lostArticles = new ArrayList<>();
-    given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
-    given(articleRepository.save(article)).willReturn(article);
-
-    // when
-    Article result = articleBackupService.activateSoftDeletedArticle(article, lostArticles);
-
-    // then
-    assertThat(result).isSameAs(article);
-    assertThat(article.isActive()).isTrue();
-    assertThat(lostArticles).isEmpty();
-  }
 
 }
