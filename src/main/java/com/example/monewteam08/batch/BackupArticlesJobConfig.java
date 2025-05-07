@@ -21,9 +21,10 @@ public class BackupArticlesJobConfig {
   private final ArticleBackupService articleBackupService;
 
   @Bean
-  public Job backupArticlesJob() {
+  public Job backupArticlesJob(BatchJobMetricsListener batchJobMetricsListener) {
     return new JobBuilder("backupArticlesJob", jobRepository)
         .start(backupArticlesStep())
+        .listener(batchJobMetricsListener)
         .build();
   }
 

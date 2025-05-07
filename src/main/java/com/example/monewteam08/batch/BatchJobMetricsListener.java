@@ -1,5 +1,6 @@
 package com.example.monewteam08.batch;
 
+import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
 import java.time.ZoneOffset;
@@ -35,6 +36,26 @@ public class BatchJobMetricsListener implements JobExecutionListener {
         .toMillis();
     meterRegistry.timer("batch.job.duration", "job", jobName)
         .record(duration, TimeUnit.MILLISECONDS);
+
+    if ("deleteOldArticlesJob".equals(jobName)) {
+      Integer deletedCount = (Integer) jobExecution.getExecutionContext().get("deletedCount");
+      if (deletedCount != null) {
+        DistributionSummary.builder("batch.job.delete.count")
+            .tags("job", jobName)
+            .register(meterRegistry)
+            .record(deletedCount);
+      }
+    }
+    if ("backupArticlesJob".equals(jobName)) {
+      Integer backupCount = (Integer) jobExecution.getExecutionContext().get("backupCount");
+      if (backupCount != null) {
+        DistributionSummary.builder("batch.job.backup.count")
+            .tags("job", jobName)
+            .register(meterRegistry)
+            .record(backupCount);
+
+      }
+    }
   }
 
 }

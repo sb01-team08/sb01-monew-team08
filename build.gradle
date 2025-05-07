@@ -84,6 +84,7 @@ dependencies {
     testImplementation 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.batch:spring-batch-test'
 
     // --- RSS Tool (기사 수집에 사용)
     implementation 'com.rometools:rome:2.1.0'

@@ -25,9 +25,10 @@ public class DeleteOldArticlesJobConfig {
   private final ArticleRepository articleRepository;
 
   @Bean
-  public Job deleteOldArticlesJob() {
+  public Job deleteOldArticlesJob(BatchJobMetricsListener batchJobMetricsListener) {
     return new JobBuilder("deleteOldArticlesJob", jobRepository)
         .start(deleteOldArticlesStep())
+        .listener(batchJobMetricsListener)
         .build();
   }
 
