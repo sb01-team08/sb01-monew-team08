@@ -35,7 +35,7 @@ public class FetchAndSaveArticlesJobConfig {
   private List<Article> allArticles;
 
   @Bean
-  public Job fetchAndFilterArticlesJob(BatchJobMetricsListener batchJobMetricsListener) {
+  public Job fetchAndSaveArticlesJob(BatchJobMetricsListener batchJobMetricsListener) {
     return new JobBuilder("fetchAndFilterArticlesJob", jobRepository)
         .start(loadArticlesStep())
         .next(filterAndNotifyStep())

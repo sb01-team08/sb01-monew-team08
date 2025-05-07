@@ -43,7 +43,9 @@ public enum ErrorCode {
   ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE002", "기사를 찾을 수 없습니다."),
   ARTICLE_EXPORT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLE003", "기사 CSV파일 변환에 실패했습니다."),
   ARTICLE_FETCH_AND_SAVE_JOB_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLE004",
-      "기사 가져오기 및 저장 작업에 실패했습니다."),
+      "기사 가져오기 및 저장 배치 작업에 실패했습니다."),
+  ARTICLE_BACKUP_JOB_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLE005", "기사 백업 배치 작업에 실패했습니다."),
+  ARTICLE_DELETE_JOB_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLE006", "기사 삭제 배치 작업에 실패했습니다."),
 
   // Interest
   DUPLICATE_INTEREST(HttpStatus.CONFLICT, "INTEREST001", "이미 유사한 관심사가 존재합니다."),
