@@ -156,7 +156,7 @@ public class ArticleServiceTest {
     doReturn(filtered).when(articleService).filterWithKeywords(articles, userId);
 
     // when
-    articleService.fetchAndSave(userId);
+    articleService.filterAndSave(userId);
 
     // then
     verify(notificationService).createArticleNotification(eq(userId), eq(interestId), eq("경제"),
@@ -188,7 +188,7 @@ public class ArticleServiceTest {
     given(interestRepository.findById(interest.getId())).willReturn(Optional.of(interest));
 
     // when
-    articleService.fetchAndSave(userId);
+    articleService.filterAndSave(userId);
 
     // then
     assertThat(article1.getInterestId()).isEqualTo(interest.getId());
@@ -221,7 +221,7 @@ public class ArticleServiceTest {
     given(interestRepository.findById(interest.getId())).willReturn(Optional.of(interest));
 
     // when
-    List<ArticleDto> savedArticles = articleService.fetchAndSave(userId);
+    List<ArticleDto> savedArticles = articleService.filterAndSave(userId);
 
     // then
     verify(articleRepository).saveAll(fetchedArticles);

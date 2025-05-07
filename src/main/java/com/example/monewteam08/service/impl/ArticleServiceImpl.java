@@ -13,7 +13,6 @@ import com.example.monewteam08.mapper.ArticleMapper;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
-import com.example.monewteam08.service.Interface.ArticleFetchService;
 import com.example.monewteam08.service.Interface.ArticleService;
 import com.example.monewteam08.service.Interface.ArticleViewService;
 import com.example.monewteam08.service.Interface.NotificationService;
@@ -34,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ArticleServiceImpl implements ArticleService {
 
   private final ArticleRepository articleRepository;
-  private final ArticleFetchService articleFetchService;
   private final ArticleViewService articleViewService;
   private final SubscriptionRepository subscriptionRepository;
   private final InterestRepository interestRepository;
@@ -43,12 +41,10 @@ public class ArticleServiceImpl implements ArticleService {
 
   @Transactional
   @Override
-  public List<ArticleDto> fetchAndSave(UUID userId) {
+  public List<ArticleDto> filterAndSave(UUID userId, List<Article> allArticles) {
     Set<String> existingUrls = articleRepository.findAll().stream()
         .map(Article::getSourceUrl)
         .collect(Collectors.toSet());
-
-    List<Article> allArticles = articleFetchService.fetchAllArticles();
 
     FilteredArticleDto filteredArticles;
     if (!existingUrls.isEmpty()) {
@@ -57,8 +53,7 @@ public class ArticleServiceImpl implements ArticleService {
           .toList();
 
       filteredArticles = filterWithKeywords(uniqueArticles, userId);
-      filteredArticles.getArticleInterestCounts()
-          .stream()
+      filteredArticles.getArticleInterestCounts().stream()
           .filter(interest -> interest.articleCount() > 0)
           .forEach(interest ->
               notificationService.createArticleNotification(userId, interest.interestId(),

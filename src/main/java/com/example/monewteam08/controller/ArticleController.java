@@ -1,7 +1,6 @@
 package com.example.monewteam08.controller;
 
 import com.example.monewteam08.controller.api.ArticleControllerDocs;
-import com.example.monewteam08.dto.response.article.ArticleDto;
 import com.example.monewteam08.dto.response.article.ArticleRestoreResultDto;
 import com.example.monewteam08.dto.response.article.ArticleViewDto;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
@@ -31,14 +30,14 @@ public class ArticleController implements ArticleControllerDocs {
   private final ArticleViewService articleViewService;
   private final ArticleBackupService articleBackupService;
 
-  // 테스트용: 즉시 기사 불러오기
-  @PostMapping("/fetch")
-  public ResponseEntity<List<ArticleDto>> fetchAndSave(
-      @RequestHeader(name = "Monew-Request-User-ID") UUID userId
-  ) {
-    List<ArticleDto> articles = articleService.fetchAndSave(userId);
-    return ResponseEntity.ok(articles);
-  }
+//  // 테스트용: 즉시 기사 불러오기
+//  @PostMapping("/fetch")
+//  public ResponseEntity<List<ArticleDto>> fetchAndSave(
+//      @RequestHeader(name = "Monew-Request-User-ID") UUID userId
+//  ) {
+//    List<ArticleDto> articles = articleService.fetchAndSave(userId);
+//    return ResponseEntity.ok(articles);
+//  }
 
   @Override
   @DeleteMapping("/{articleId}")

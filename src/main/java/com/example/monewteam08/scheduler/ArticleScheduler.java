@@ -1,6 +1,7 @@
 package com.example.monewteam08.scheduler;
 
 import com.example.monewteam08.entity.Article;
+import com.example.monewteam08.exception.article.ArticleFetchAndSaveJobFailedException;
 import com.example.monewteam08.exception.article.ArticleFetchFailedException;
 import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.UserRepository;
@@ -11,6 +12,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,19 +24,24 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ArticleScheduler {
 
+  private final JobLauncher jobLauncher;
+  private final Job fetchAndSaveArticlesJob;
+
   private final ArticleService articleService;
   private final ArticleBackupService articleBackupService;
   private final UserRepository userRepository;
   private final ArticleRepository articleRepository;
 
   @Scheduled(cron = "0 0 * * * *")
-  public void fetchAndSaveArticles() {
+  public void runFetchAndSaveJob() {
     try {
-      userRepository.findAll().forEach(user -> {
-        articleService.fetchAndSave(user.getId());
-      });
+      JobParameters jobParameters = new JobParametersBuilder()
+          .addLong("timestamp", System.currentTimeMillis())
+          .toJobParameters();
+
+      jobLauncher.run(fetchAndSaveArticlesJob, jobParameters);
     } catch (Exception e) {
-      throw new ArticleFetchFailedException(e.getMessage());
+      throw new ArticleFetchAndSaveJobFailedException();
     }
   }
 
