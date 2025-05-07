@@ -91,6 +91,9 @@ dependencies {
     //---CSV
     implementation 'com.opencsv:opencsv:5.7.1'
 
+    //---Micrometer
+    implementation 'io.micrometer:micrometer-core'
+
     //QueryDsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
