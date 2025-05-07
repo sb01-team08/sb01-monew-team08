@@ -11,11 +11,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -26,6 +28,7 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
   private final CsvService csvService;
   private final S3Service s3Service;
 
+  @Transactional
   @Override
   public void backup() {
     LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -48,6 +51,7 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
     log.info("Uploaded backup to S3: {}", fileName);
   }
 
+  @Transactional
   @Override
   public ArticleRestoreResultDto restore(LocalDateTime from, LocalDateTime to) {
     List<Article> articles = new ArrayList<>();
@@ -61,19 +65,46 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
       if (articlesFromCsv.isEmpty()) {
         log.info("No articles found for date {}", date);
       }
-      articles.addAll(csvService.importArticlesFromCsv(csvPath));
+      articles.addAll(articlesFromCsv);
       log.info("Imported {} articles from backup for date {}", articlesFromCsv.size(), date);
     }
 
-    List<Article> lostArticles = new ArrayList<>();
-
-    List<Article> activatedArticles = articles.stream()
-        .map(article -> activateSoftDeletedArticle(article, lostArticles))
-        .filter(Objects::nonNull)
+    List<UUID> articleIds = articles.stream()
+        .map(Article::getId)
+        .distinct()
         .toList();
+    Map<UUID, Article> existingArticles = articleRepository.findAllById(articleIds
+    ).stream().collect(Collectors.toMap(Article::getId, article -> article));
+    log.info("Found {} existing articles in the database", existingArticles.size());
+
+    List<Article> lostArticles = new ArrayList<>();
+    List<Article> activatedArticles = new ArrayList<>();
+
+    for (Article article : articles) {
+      Article existing = existingArticles.get(article.getId());
+
+      if (existing == null) {
+        Article newArticle = new Article(
+            article.getSource(),
+            article.getTitle(),
+            article.getSummary(),
+            article.getSourceUrl(),
+            article.getPublishDate(),
+            null
+        );
+        newArticle.setInterestId(article.getInterestId());
+        lostArticles.add(newArticle);
+        log.info("Article {} not found in the database, adding to lost articles", article.getId());
+      } else if (!existing.isActive()) {
+        existing.activate();
+        activatedArticles.add(existing);
+        log.info("Article {} activated", existing.getId());
+      }
+    }
 
     List<Article> restoredArticles = articleRepository.saveAll(lostArticles);
     log.info("Restored {} articles from backup", restoredArticles.size());
+    articleRepository.saveAll(activatedArticles);
     log.info("Activated {} articles from backup", activatedArticles.size());
 
     for (Article article : restoredArticles) {
@@ -89,21 +120,4 @@ public class ArticleBackupServiceImpl implements ArticleBackupService {
     );
   }
 
-  public Article activateSoftDeletedArticle(Article article, List<Article> lostArticles) {
-    Optional<Article> found = articleRepository.findById(article.getId());
-
-    if (found.isEmpty()) {
-      lostArticles.add(article);
-      return null;
-    }
-
-    Article existing = found.get();
-
-    if (!existing.isActive()) {
-      existing.activate();
-      return articleRepository.save(existing);
-    }
-
-    return null;
-  }
 }
