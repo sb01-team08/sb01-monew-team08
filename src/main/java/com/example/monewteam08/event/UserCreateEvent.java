@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class UserLoginEvent {
+public class UserCreateEvent {
 
   private final UUID userId;
 

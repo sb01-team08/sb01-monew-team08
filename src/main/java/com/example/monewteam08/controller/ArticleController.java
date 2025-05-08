@@ -1,7 +1,6 @@
 package com.example.monewteam08.controller;
 
 import com.example.monewteam08.controller.api.ArticleControllerDocs;
-import com.example.monewteam08.dto.response.article.ArticleDto;
 import com.example.monewteam08.dto.response.article.ArticleRestoreResultDto;
 import com.example.monewteam08.dto.response.article.ArticleViewDto;
 import com.example.monewteam08.dto.response.article.CursorPageResponseArticleDto;
@@ -30,15 +29,6 @@ public class ArticleController implements ArticleControllerDocs {
   private final ArticleService articleService;
   private final ArticleViewService articleViewService;
   private final ArticleBackupService articleBackupService;
-
-  // 테스트용: 즉시 기사 불러오기
-  @PostMapping("/fetch")
-  public ResponseEntity<List<ArticleDto>> fetchAndSave(
-      @RequestHeader(name = "Monew-Request-User-ID") UUID userId
-  ) {
-    List<ArticleDto> articles = articleService.fetchAndSave(userId);
-    return ResponseEntity.ok(articles);
-  }
 
   @Override
   @DeleteMapping("/{articleId}")
@@ -85,6 +75,7 @@ public class ArticleController implements ArticleControllerDocs {
     return ResponseEntity.ok(response);
   }
 
+
   @Override
   @PostMapping("/{articleId}/article-views")
   public ResponseEntity<ArticleViewDto> registerArticleView(
@@ -102,5 +93,10 @@ public class ArticleController implements ArticleControllerDocs {
       @RequestParam LocalDateTime to) {
     ArticleRestoreResultDto result = articleBackupService.restore(from, to);
     return ResponseEntity.ok(result);
+  }
+
+  @GetMapping("/sources")
+  public List<String> getSources() {
+    return List.of("NAVER", "CHOSON", "YONHAP", "HANKYOUNG");
   }
 }

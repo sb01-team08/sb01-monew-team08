@@ -26,7 +26,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -52,10 +51,10 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
     this.naverClientSecret = naverClientSecret;
   }
 
-  @Transactional
   public List<Article> fetchAllArticles() {
     List<Article> articles = new ArrayList<>();
     articles.addAll(fetchNaverArticles());
+    log.info("Fetched {} articles from Naver", articles.size());
     articles.addAll(fetchRssArticles("YONHAP", YONHAP_RSS_URL));
     articles.addAll(fetchRssArticles("CHOSUN", CHOSUN_RSS_URL));
     articles.addAll(fetchRssArticles("HANKYUNG", HANKYUNG_RSS_URL));
@@ -67,7 +66,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
     String uri = UriComponentsBuilder
         .fromHttpUrl(NAVER_API_URL)
         .queryParam("query", "뉴스")
-        .queryParam("display", 100)
+        .queryParam("display", 50)
         .queryParam("start", 1)
         .queryParam("sort", "date")
         .toUriString();

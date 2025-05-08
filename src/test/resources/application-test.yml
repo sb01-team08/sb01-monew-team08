@@ -30,6 +30,12 @@ spring:
     init:
       mode: never
 
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
 naver:
   api:
     client-id: ${NAVER_API_CLIENT_ID}

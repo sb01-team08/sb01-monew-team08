@@ -12,6 +12,7 @@ import com.example.monewteam08.mapper.InterestMapper;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
 import com.example.monewteam08.service.Interface.InterestService;
+import com.example.monewteam08.service.Interface.SubscriptionMLogService;
 import com.example.monewteam08.util.SimilarityUtil;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ public class InterestServiceImpl implements InterestService {
   private final InterestRepository interestRepository;
   private final SubscriptionRepository subscriptionRepository;
   private final InterestMapper interestMapper;
+  private final SubscriptionMLogService subscriptionMLogService;
 
   private void validateDuplicate(String name) {
     List<Interest> existing = interestRepository.findAll();
@@ -130,11 +133,15 @@ public class InterestServiceImpl implements InterestService {
 
   }
 
+  @Transactional
   @Override
   public InterestResponse delete(UUID id) {
     Interest interest = interestRepository.findById(id)
         .orElseThrow(() -> new InterestNotFoundException(id.toString()));
     interestRepository.delete(interest);
+
+    subscriptionMLogService.removeSubscriptionLog(id);
+
     return interestMapper.toResponse(interest);
   }
 }

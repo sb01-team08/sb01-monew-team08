@@ -8,18 +8,23 @@ spring:
     hibernate:
       ddl-auto: none
     database: postgresql
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
         highlight_sql: true
-        generate_statistics: true
+        generate_statistics: false
         cache:
           use_second_level_cache: false
         open-in-view: false
       transaction:
         default-timeout: 30
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
 
 management:
   endpoints:
