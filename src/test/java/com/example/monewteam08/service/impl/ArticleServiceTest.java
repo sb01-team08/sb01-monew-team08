@@ -149,14 +149,13 @@ public class ArticleServiceTest {
     ArticleInterestCount count = new ArticleInterestCount(interestId, "경제", 1);
     FilteredArticleDto filtered = new FilteredArticleDto(articles, List.of(count));
 
-    given(articleFetchService.fetchAllArticles()).willReturn(articles);
     given(articleRepository.findAll()).willReturn(
         List.of(new Article("NAVER", "이미 있는 기사", "중복 설명", "http://b.com", LocalDateTime.now(), null)
         ));
     doReturn(filtered).when(articleService).filterWithKeywords(articles, userId);
 
     // when
-    articleService.fetchAndSave(userId);
+    articleService.filterAndSave(userId, articles);
 
     // then
     verify(notificationService).createArticleNotification(eq(userId), eq(interestId), eq("경제"),
@@ -176,7 +175,6 @@ public class ArticleServiceTest {
     //기사
     List<Article> fetchedArticles = List.of(article1, article2);
 
-    given(articleFetchService.fetchAllArticles()).willReturn(fetchedArticles);
     given(articleRepository.findAll()).willReturn(
         List.of(
             new Article("NAVER", "이미 있는 기사", "중복 설명", "http://b.com", LocalDateTime.now(), null)));
@@ -188,7 +186,7 @@ public class ArticleServiceTest {
     given(interestRepository.findById(interest.getId())).willReturn(Optional.of(interest));
 
     // when
-    articleService.fetchAndSave(userId);
+    articleService.filterAndSave(userId, fetchedArticles);
 
     // then
     assertThat(article1.getInterestId()).isEqualTo(interest.getId());
@@ -210,7 +208,6 @@ public class ArticleServiceTest {
     //기사
     List<Article> fetchedArticles = List.of(article1, article2);
     given(articleRepository.findAll()).willReturn(List.of());
-    given(articleFetchService.fetchAllArticles()).willReturn(fetchedArticles);
     when(articleRepository.saveAll(any())).thenReturn(fetchedArticles);
     when(articleMapper.toDto(any(Article.class), anyBoolean())).thenReturn(mock(ArticleDto.class));
 
@@ -221,7 +218,7 @@ public class ArticleServiceTest {
     given(interestRepository.findById(interest.getId())).willReturn(Optional.of(interest));
 
     // when
-    List<ArticleDto> savedArticles = articleService.fetchAndSave(userId);
+    List<ArticleDto> savedArticles = articleService.filterAndSave(userId, fetchedArticles);
 
     // then
     verify(articleRepository).saveAll(fetchedArticles);
