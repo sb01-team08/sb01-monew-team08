@@ -4,6 +4,7 @@ import com.example.monewteam08.common.CustomApiResponse;
 import com.example.monewteam08.controller.api.UserActivityLogControllerDocs;
 import com.example.monewteam08.dto.response.useractivitylog.UserActivityLogResponse;
 import com.example.monewteam08.service.Interface.UserActivityLogService;
+import com.example.monewteam08.service.Interface.UserActivityMService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,12 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserActivityLogController implements UserActivityLogControllerDocs {
 
   private final UserActivityLogService userActivityLogService;
+  private final UserActivityMService userActivityMService;
 
   @GetMapping("/{userId}")
   public CustomApiResponse<UserActivityLogResponse> getUserActivityLog(
       @PathVariable UUID userId
   ) {
-    return CustomApiResponse.ok(userActivityLogService.getUserActivityLog(userId));
+    return CustomApiResponse.ok(userActivityMService.getUserActivityLog(userId));
   }
 
 }

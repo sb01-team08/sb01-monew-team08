@@ -9,7 +9,9 @@ import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.CommentLikeLogService;
+import com.example.monewteam08.service.Interface.CommentLikeMLogService;
 import com.example.monewteam08.service.Interface.CommentLikeService;
+import com.example.monewteam08.service.Interface.CommentMLogService;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,8 @@ public class CommentLikeServiceImpl implements CommentLikeService {
   private final NotificationService notificationService;
   private final UserRepository userRepository;
   private final CommentLikeLogService commentLikeLogService;
+  private final CommentLikeMLogService commentLikeMLogService;
+  private final CommentMLogService commentMLogService;
 
   @Transactional
   @Override
@@ -45,7 +49,9 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     CommentLike liked = commentLikeRepository.save(new CommentLike(userId, commentId));
     comment.increaseLikeCount();
     notificationService.createCommentLikeNotification(userId, commentId, nickname);
-    commentLikeLogService.addCommentLikeLog(userId, liked, comment);  // 댓글 좋아요 로그 추가
+//    commentLikeLogService.addCommentLikeLog(userId, liked, comment);  // 댓글 좋아요 로그 추가
+    commentLikeMLogService.addCommentLikeLog(userId, nickname, liked,
+        comment); // 댓글 좋아요 로그 추가 (Mongo)
 
     log.info("댓글 좋아요 성공");
     return commentLikeMapper.toDto(liked, comment, nickname);
@@ -62,7 +68,8 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     commentLikeRepository.deleteByUserIdAndCommentId(userId, commentId);
     comment.decreaseLikeCount();
 
-    commentLikeLogService.removeCommentLikeLogOnCancel(userId, commentId); // 댓글 좋아요 로그 삭제
+    commentLikeMLogService.deleteCommentLikeLog(userId, commentId); // 댓글 좋아요 로그 삭제 (Mongo)
+//    commentLikeLogService.removeCommentLikeLogOnCancel(userId, commentId); // 댓글 좋아요 로그 삭제
 
     log.info("댓글 취소 성공");
   }

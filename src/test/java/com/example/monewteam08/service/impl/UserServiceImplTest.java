@@ -10,7 +10,6 @@ import com.example.monewteam08.dto.request.user.UserRequest;
 import com.example.monewteam08.dto.request.user.UserUpdateRequest;
 import com.example.monewteam08.dto.response.user.UserResponse;
 import com.example.monewteam08.entity.User;
-import com.example.monewteam08.entity.UserActivityLog;
 import com.example.monewteam08.exception.ErrorCode;
 import com.example.monewteam08.exception.user.DeletedAccountException;
 import com.example.monewteam08.exception.user.EmailAlreadyExistException;
@@ -19,6 +18,7 @@ import com.example.monewteam08.exception.user.UserNotFoundException;
 import com.example.monewteam08.mapper.UserMapper;
 import com.example.monewteam08.repository.UserActivityLogRepository;
 import com.example.monewteam08.repository.UserRepository;
+import com.example.monewteam08.service.Interface.UserActivityMService;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,6 +55,9 @@ class UserServiceImplTest {
   @Mock
   private ApplicationEventPublisher publisher;
 
+  @Mock
+  private UserActivityMService userActivityMService;
+
   @Test
   @DisplayName("사용자를 성공적으로 생성한다.")
   void createUserSuccess() {
@@ -88,7 +91,7 @@ class UserServiceImplTest {
     Assertions.assertThat(userResponse).isInstanceOf(UserResponse.class);
 
     verify(userRepository).save(any(User.class));
-    verify(userActivityLogRepository).save(any(UserActivityLog.class));
+    verify(userActivityMService).createUserActivity(user);
   }
 
   @Test

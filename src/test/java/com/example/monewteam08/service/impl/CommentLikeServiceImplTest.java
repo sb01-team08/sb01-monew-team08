@@ -14,6 +14,7 @@ import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
 import com.example.monewteam08.service.Interface.CommentLikeLogService;
+import com.example.monewteam08.service.Interface.CommentLikeMLogService;
 import com.example.monewteam08.service.Interface.NotificationService;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,6 +41,8 @@ class CommentLikeServiceImplTest {
   private CommentLikeLogService commentLikeLogService;
   @Mock
   private NotificationService notificationService;
+  @Mock
+  private CommentLikeMLogService commentLikeMLogService;
 
   @InjectMocks
   private CommentLikeServiceImpl commentLikeService;
@@ -79,6 +82,9 @@ class CommentLikeServiceImplTest {
     assertEquals(dto.getLikedBy(), result.getLikedBy());
     assertEquals(1, result.getCommentLikeCount());
     verify(commentLikeRepository).save(any(CommentLike.class));
+    verify(commentLikeMLogService).addCommentLikeLog(userId, mockUser.getNickname(), like,
+        mockComment);
+
   }
 
   @Test
@@ -89,5 +95,7 @@ class CommentLikeServiceImplTest {
 
     verify(commentLikeRepository).deleteByUserIdAndCommentId(userId, commentId);
     assertEquals(0, mockComment.getLikeCount());
+    verify(commentLikeMLogService).deleteCommentLikeLog(userId, commentId);
+
   }
 }
