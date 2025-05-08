@@ -4,6 +4,7 @@ import com.example.monewteam08.dto.request.comment.CommentRegisterRequest;
 import com.example.monewteam08.dto.request.comment.CommentUpdateRequest;
 import com.example.monewteam08.dto.response.comment.CommentDto;
 import com.example.monewteam08.dto.response.comment.CursorPageResponseCommentDto;
+import com.example.monewteam08.entity.Article;
 import com.example.monewteam08.entity.Comment;
 import com.example.monewteam08.entity.CommentLike;
 import com.example.monewteam08.entity.User;
@@ -16,8 +17,10 @@ import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
+import com.example.monewteam08.service.Interface.CommentMLogService;
 import com.example.monewteam08.service.Interface.CommentRecentLogService;
 import com.example.monewteam08.service.Interface.CommentService;
+import com.example.monewteam08.service.Interface.NewsViewMLogService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +44,8 @@ public class CommentServiceImpl implements CommentService {
   private final CommentLikeRepository commentLikeRepository;
 
   private final CommentRecentLogService commentRecentLogService;
+  private final CommentMLogService commentMLogService;
+  private final NewsViewMLogService newsViewMLogService;
 
   @Override
   public CursorPageResponseCommentDto getCommentsByCursor(String articleId, String orderBy,
@@ -51,6 +56,11 @@ public class CommentServiceImpl implements CommentService {
     UUID cursorUuid = null;
     if (cursor != null && after != null) {
       cursorUuid = UUID.fromString(cursor);
+    }
+
+    // 최초 요청 시에만 뉴스 조회 로그 기록 - articleView
+    if (cursor == null && after == null) {
+      newsViewMLogService.addArticleView(requestUserUuid, articleUuid);
     }
 
     List<Comment> comments = commentRepository.findAllByCursor(
@@ -120,7 +130,7 @@ public class CommentServiceImpl implements CommentService {
     UUID articleId = UUID.fromString(request.getArticleId());
     UUID userId = UUID.fromString(request.getUserId());
 
-    articleRepository.findById(articleId)
+    Article article = articleRepository.findById(articleId)
         .orElseThrow(() -> new ArticleNotFoundException(articleId));
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(userId));
@@ -128,7 +138,9 @@ public class CommentServiceImpl implements CommentService {
     Comment comment = new Comment(articleId, userId, request.getContent());
     Comment save = commentRepository.save(comment);
 
-    commentRecentLogService.addCommentRecentLog(userId, comment); // 최신 작성 댓글 로그 추가
+//    commentRecentLogService.addCommentRecentLog(userId, comment); // 최신 작성 댓글 로그 추가
+    commentMLogService.addRecentComment(user,
+        comment, article.getTitle()); // 최신 작성 댓그 로그 추가 (Mongo)
 
     return commentMapper.toDto(save, user.getNickname(), false);
   }
@@ -169,8 +181,6 @@ public class CommentServiceImpl implements CommentService {
 
     comment.deactivate();
 
-    commentRecentLogService.removeCommentRecentLog(userId, id);   // 최신 작성 댓글 로그 삭제
-
     log.info("댓글 논리 삭제 완료 id={}", id);
   }
 
@@ -182,8 +192,6 @@ public class CommentServiceImpl implements CommentService {
 
     Comment comment = commentRepository.findById(id)
         .orElseThrow(CommentNotFoundException::new);
-
-    commentRecentLogService.removeCommentRecentLog(comment.getUserId(), id);  // 최신 작성 댓글 로그 삭제
 
     commentRepository.deleteById(id);
     log.info("댓글 물리 삭제 완료 id={}", id);

@@ -14,6 +14,7 @@ import com.example.monewteam08.exception.user.UserNotFoundException;
 import com.example.monewteam08.mapper.UserMapper;
 import com.example.monewteam08.repository.UserActivityLogRepository;
 import com.example.monewteam08.repository.UserRepository;
+import com.example.monewteam08.service.Interface.UserActivityMService;
 import com.example.monewteam08.service.Interface.UserService;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -34,6 +35,7 @@ public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
 
   private final UserActivityLogRepository userActivityLogRepository;
+  private final UserActivityMService userActivityMService;
 
   @Transactional
   @Override

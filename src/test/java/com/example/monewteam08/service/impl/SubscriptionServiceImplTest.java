@@ -2,6 +2,7 @@ package com.example.monewteam08.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +12,7 @@ import com.example.monewteam08.exception.Subscription.AlreadySubscribedException
 import com.example.monewteam08.exception.Subscription.SubscriptionNotFoundException;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
+import com.example.monewteam08.service.Interface.SubscriptionMLogService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +31,9 @@ public class SubscriptionServiceImplTest {
 
   @Mock
   private InterestRepository interestRepository;
+
+  @Mock
+  private SubscriptionMLogService subscriptionMLogService;
 
   @InjectMocks
   private SubscriptionServiceImpl subscriptionService;
@@ -51,6 +56,8 @@ public class SubscriptionServiceImplTest {
 
     //then
     verify(subscriptionRepository).save(any(Subscription.class));
+    verify(subscriptionMLogService).addSubscriptionLog(eq(userId), any(Subscription.class),
+        eq(interest));
   }
 
   @Test
@@ -88,7 +95,7 @@ public class SubscriptionServiceImplTest {
 
     //then
     verify(subscriptionRepository).delete(subscription);
-
+    verify(subscriptionMLogService).removeSubscriptionLog(interestId);
   }
 
   @Test
