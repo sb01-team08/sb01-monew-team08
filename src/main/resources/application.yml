@@ -11,11 +11,6 @@ spring:
       max-request-size: 30MB
       max-file-size: 10MB
 
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
-
   jackson:
     time-zone: Asia/Seoul
 
