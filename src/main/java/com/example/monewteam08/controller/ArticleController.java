@@ -75,6 +75,7 @@ public class ArticleController implements ArticleControllerDocs {
     return ResponseEntity.ok(response);
   }
 
+
   @Override
   @PostMapping("/{articleId}/article-views")
   public ResponseEntity<ArticleViewDto> registerArticleView(
@@ -92,5 +93,10 @@ public class ArticleController implements ArticleControllerDocs {
       @RequestParam LocalDateTime to) {
     ArticleRestoreResultDto result = articleBackupService.restore(from, to);
     return ResponseEntity.ok(result);
+  }
+
+  @GetMapping("/sources")
+  public List<String> getSources() {
+    return List.of("NAVER", "CHOSON", "YONHAP", "HANKYOUNG");
   }
 }

@@ -60,12 +60,22 @@ public class ArticleServiceImpl implements ArticleService {
                   interest.interestName(), interest.articleCount())
           );
 
+      log.debug("Filtered Naver articles: {}",
+          filteredArticles.getArticles().stream().filter(article ->
+                  article.getSource().equals("NAVER")).map(Article::getTitle)
+              .collect(Collectors.toList()));
+
     } else {
       filteredArticles = filterWithKeywords(allArticles, userId);
       filteredArticles.getArticleInterestCounts().forEach(interest ->
           notificationService.createArticleNotification(userId, interest.interestId(),
               interest.interestName(), interest.articleCount())
       );
+
+      log.debug("Filtered Naver articles: {}",
+          filteredArticles.getArticles().stream().filter(article ->
+                  article.getSource().equals("NAVER")).map(Article::getTitle)
+              .collect(Collectors.toList()));
     }
 
     List<Article> savedArticles = articleRepository.saveAll(filteredArticles.getArticles());
