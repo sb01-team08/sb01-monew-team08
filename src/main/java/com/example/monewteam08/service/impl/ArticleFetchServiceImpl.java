@@ -54,6 +54,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
   public List<Article> fetchAllArticles() {
     List<Article> articles = new ArrayList<>();
     articles.addAll(fetchNaverArticles());
+    log.info("Fetched {} articles from Naver", articles.size());
     articles.addAll(fetchRssArticles("YONHAP", YONHAP_RSS_URL));
     articles.addAll(fetchRssArticles("CHOSUN", CHOSUN_RSS_URL));
     articles.addAll(fetchRssArticles("HANKYUNG", HANKYUNG_RSS_URL));
