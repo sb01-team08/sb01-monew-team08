@@ -97,6 +97,6 @@ public class ArticleController implements ArticleControllerDocs {
 
   @GetMapping("/sources")
   public List<String> getSources() {
-    return List.of("NAVER", "CHOSON", "YONHAP", "HANKYOUNG");
+    return List.of("NAVER", "CHOSUN", "YONHAP", "HANKYUNG");
   }
 }
