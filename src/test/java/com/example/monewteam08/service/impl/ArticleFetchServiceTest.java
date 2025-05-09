@@ -38,7 +38,7 @@ class ArticleFetchServiceTest {
 
     // when
     List<Article> articles = articleFetchService.fetchNaverArticles();
-    articles.forEach(System.out::println);
+    articles.stream().map(Article::getPublishDate).forEach(System.out::println);
     // then
     assertThat(articles).isNotNull();
   }
