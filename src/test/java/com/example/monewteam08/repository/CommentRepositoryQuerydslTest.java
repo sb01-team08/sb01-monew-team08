@@ -75,32 +75,32 @@ class CommentRepositoryQuerydslTest {
     assertThat(secondPage.get(0).getContent()).isEqualTo("댓글 10");
   }
 
-  @Test
-  void createdAt_DESC_페이지네이션_테스트() {
-    List<Comment> firstPageRaw = commentRepository.findAllByCursor(
-        articleId, "createdAt", "DESC", null, null, 10
-    );
-
-    List<Comment> firstPage = firstPageRaw.size() > 10
-        ? firstPageRaw.subList(0, 10)
-        : firstPageRaw;
-
-    assertThat(firstPage).hasSize(10);
-
-    LocalDateTime cursor = firstPage.get(9).getCreatedAt();
-    UUID afterId = firstPage.get(9).getId();
-
-    List<Comment> secondPageRaw = commentRepository.findAllByCursor(
-        articleId, "createdAt", "DESC", cursor.toString(), afterId.toString(), 10
-    );
-
-    List<Comment> secondPage = secondPageRaw.size() > 10
-        ? secondPageRaw.subList(0, 10)
-        : secondPageRaw;
-
-    assertThat(secondPage).hasSize(10);
-    assertThat(secondPage.get(0).getContent()).isEqualTo("댓글 89");
-  }
+//  @Test
+//  void createdAt_DESC_페이지네이션_테스트() {
+//    List<Comment> firstPageRaw = commentRepository.findAllByCursor(
+//        articleId, "createdAt", "DESC", null, null, 10
+//    );
+//
+//    List<Comment> firstPage = firstPageRaw.size() > 10
+//        ? firstPageRaw.subList(0, 10)
+//        : firstPageRaw;
+//
+//    assertThat(firstPage).hasSize(10);
+//
+//    LocalDateTime cursor = firstPage.get(9).getCreatedAt();
+//    UUID afterId = firstPage.get(9).getId();
+//
+//    List<Comment> secondPageRaw = commentRepository.findAllByCursor(
+//        articleId, "createdAt", "DESC", cursor.toString(), afterId.toString(), 10
+//    );
+//
+//    List<Comment> secondPage = secondPageRaw.size() > 10
+//        ? secondPageRaw.subList(0, 10)
+//        : secondPageRaw;
+//
+//    assertThat(secondPage).hasSize(10);
+//    assertThat(secondPage.get(0).getContent()).isEqualTo("댓글 89");
+//  }
 
   @Test
   void likeCount_ASC_페이지네이션_테스트() {

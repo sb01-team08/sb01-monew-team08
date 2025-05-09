@@ -10,7 +10,9 @@ import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -21,6 +23,7 @@ import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -54,6 +57,7 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
   public List<Article> fetchAllArticles() {
     List<Article> articles = new ArrayList<>();
     articles.addAll(fetchNaverArticles());
+    log.info("Fetched {} articles from Naver", articles.size());
     articles.addAll(fetchRssArticles("YONHAP", YONHAP_RSS_URL));
     articles.addAll(fetchRssArticles("CHOSUN", CHOSUN_RSS_URL));
     articles.addAll(fetchRssArticles("HANKYUNG", HANKYUNG_RSS_URL));
@@ -62,17 +66,26 @@ public class ArticleFetchServiceImpl implements ArticleFetchService {
 
   protected List<Article> fetchNaverArticles() {
 
-    String uri = UriComponentsBuilder
+    URI uri = UriComponentsBuilder
         .fromHttpUrl(NAVER_API_URL)
         .queryParam("query", "뉴스")
         .queryParam("display", 50)
         .queryParam("start", 1)
         .queryParam("sort", "date")
-        .toUriString();
+        .queryParam("_ts", System.currentTimeMillis())
+        .encode(StandardCharsets.UTF_8)
+        .build()
+        .toUri();
+
+    log.debug("Naver API URL: {}", uri);
 
     HttpHeaders headers = new HttpHeaders();
     headers.set("X-Naver-Client-Id", naverClientId);
     headers.set("X-Naver-Client-Secret", naverClientSecret);
+    headers.set("User-Agent", "Mozilla/5.0");
+    headers.setCacheControl(CacheControl.noCache());
+    headers.setPragma("no-cache");
+    headers.set("Expires", "0");
 
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 

@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -29,8 +30,9 @@ import com.example.monewteam08.repository.ArticleRepository;
 import com.example.monewteam08.repository.CommentLikeRepository;
 import com.example.monewteam08.repository.CommentRepository;
 import com.example.monewteam08.repository.UserRepository;
-import com.example.monewteam08.service.Interface.CommentLikeLogService;
-import com.example.monewteam08.service.Interface.CommentRecentLogService;
+import com.example.monewteam08.service.Interface.CommentLikeMLogService;
+import com.example.monewteam08.service.Interface.CommentMLogService;
+import com.example.monewteam08.service.Interface.NewsViewMLogService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,13 +60,16 @@ class CommentServiceImplTest {
   private CommentLikeRepository commentLikeRepository;
 
   @Mock
-  private CommentLikeLogService commentLikeLogService;
+  private CommentLikeMLogService commentLikeLogService;
 
   @Mock
-  private CommentRecentLogService commentRecentLogService;
+  private CommentMLogService commentRecentLogService;
 
   @Mock
   private CommentMapper commentMapper;
+
+  @Mock
+  private NewsViewMLogService newsViewMLogService;
 
   @InjectMocks
   private CommentServiceImpl commentService;
@@ -113,6 +118,10 @@ class CommentServiceImplTest {
             .build()
     );
 
+    Article mockArticle = mock(Article.class);
+    when(mockArticle.getTitle()).thenReturn("테스트 제목");
+    when(articleRepository.findById(articleId)).thenReturn(Optional.of(mockArticle));
+
     CommentDto result = commentService.create(request);
 
     assertNotNull(result);
@@ -123,6 +132,8 @@ class CommentServiceImplTest {
     assertEquals("테스트", result.getContent());
     assertEquals("닉네임", result.getUserNickname());
     assertFalse(result.isLikedByMe());
+    verify(commentRecentLogService).addRecentComment(any(User.class), any(Comment.class),
+        anyString());
   }
 
   @Test
@@ -250,9 +261,14 @@ class CommentServiceImplTest {
     when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
     when(commentRepository.save(any())).thenReturn(mockComment);
 
+    Article mockArticle = mock(Article.class);
+    when(mockArticle.getTitle()).thenReturn("테스트 제목");
+    when(articleRepository.findById(articleId)).thenReturn(Optional.of(mockArticle));
+
     commentService.create(request);
 
-    verify(commentRecentLogService).addCommentRecentLog(eq(userId), any(Comment.class));
+    verify(commentRecentLogService).addRecentComment(any(User.class), any(Comment.class),
+        anyString());
   }
 
   @Test
@@ -260,8 +276,6 @@ class CommentServiceImplTest {
     when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
 
     commentService.delete(commentId, userId);
-
-    verify(commentRecentLogService).removeCommentRecentLog(userId, commentId);
   }
 
   @Test
@@ -269,7 +283,5 @@ class CommentServiceImplTest {
     when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
 
     commentService.delete_Hard(commentId);
-
-    verify(commentRecentLogService).removeCommentRecentLog(mockComment.getUserId(), commentId);
   }
 }

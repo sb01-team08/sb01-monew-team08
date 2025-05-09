@@ -19,6 +19,7 @@ import com.example.monewteam08.exception.Interest.InterestNotFoundException;
 import com.example.monewteam08.mapper.InterestMapper;
 import com.example.monewteam08.repository.InterestRepository;
 import com.example.monewteam08.repository.SubscriptionRepository;
+import com.example.monewteam08.service.Interface.SubscriptionMLogService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,6 +42,9 @@ public class InterestServiceImplTest {
 
   @Mock
   private InterestMapper interestMapper;
+
+  @Mock
+  private SubscriptionMLogService subscriptionMLogService;
 
   @InjectMocks
   private InterestServiceImpl interestService;
@@ -142,6 +146,7 @@ public class InterestServiceImplTest {
     assertThat(result.id()).isEqualTo(id);
     assertThat(result.name()).isEqualTo("인공지능");
     verify(interestRepository).delete(entity);
+    verify(subscriptionMLogService).removeSubscriptionLog(id);
   }
 
   @Test

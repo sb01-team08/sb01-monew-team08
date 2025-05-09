@@ -21,6 +21,11 @@ spring:
         open-in-view: false
       transaction:
         default-timeout: 30
+  batch:
+    jdbc:
+      initialize-schema: never
+    job:
+      enabled: false
 
 management:
   endpoints:
